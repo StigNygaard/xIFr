@@ -1,0 +1,23 @@
+html, body {
+  background: transparent;
+  box-sizing: border-box;
+  color: #222426;
+  cursor: default;
+  font: caption;
+  margin: 0;
+  padding: 0;
+  -moz-appearance: tabpanels;
+  width: 100%;
+  height: 100%;
+}
+
+table {
+  height: 85%;
+}
+
+button {
+  display: block;
+  height: auto;
+  padding: 4px;
+  margin: 2px;
+}
