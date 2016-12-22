@@ -45,29 +45,34 @@ function translateFields(data) {
   return newdata;
 }
 
-browser.runtime.onMessage.addListener(request => {
-  if (request.imageURL !== undefined) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", request.imageURL, true);
-    xhr.responseType = "arraybuffer";
-    xhr.addEventListener("load", () => {
-      var arrayBuffer = xhr.response;
-      if (arrayBuffer) {
-        var byteArray = new Uint8Array(arrayBuffer);
-        addByteStreamIF(byteArray);
-        var dataObj = fxifObj.gatherData(byteArray);
-        xlatData = translateFields(dataObj);
-        browser.runtime.sendMessage({
-          message: "EXIFready",
-          data: xlatData
-        });
-      }
-    });
+if (typeof contentListenerAdded === 'undefined') {
+  browser.runtime.onMessage.addListener(request => {
+    if (request.message == "parseImage" &&
+      typeof request.imageURL !== 'undefined') {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", request.imageURL, true);
+      xhr.responseType = "arraybuffer";
+      xhr.addEventListener("load", () => {
+        var arrayBuffer = xhr.response;
+        if (arrayBuffer) {
+          var byteArray = new Uint8Array(arrayBuffer);
+          addByteStreamIF(byteArray);
+          var dataObj = fxifObj.gatherData(byteArray);
+          xlatData = translateFields(dataObj);
+          browser.runtime.sendMessage({
+            message: "EXIFready",
+            data: xlatData
+          });
+        }
+      });
 
-    xhr.addEventListener("error", () => {
-      console.log("wxIF xhr error:" + xhr.statusText);
-    });
+      xhr.addEventListener("error", () => {
+        console.log("wxIF xhr error:" + xhr.statusText);
+      });
 
-    xhr.send();
-  }
-});
+      xhr.send();
+    }
+  });
+}
+
+var contentListenerAdded = true;
