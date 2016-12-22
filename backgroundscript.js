@@ -49,7 +49,13 @@ var popupData;
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.message == "EXIFready") {
-    popupData = request.data;
+    if (Object.keys(request.data).length == 0) {
+      popupData = {
+        "": browser.i18n.getMessage("noEXIFdata")
+      }
+    } else {
+      popupData = request.data;
+    }
     var popupURL = browser.extension.getURL("/popup/popup.html");
     browser.windows.create({
       url: popupURL,
