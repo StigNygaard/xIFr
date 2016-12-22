@@ -29,17 +29,17 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
         "/xmp.js"
       ];
 
-      var promiseArray = scripts.map(script => {
+      var scriptLoadPromises = scripts.map(script => {
         return browser.tabs.executeScript(null, {
           file: script
         });
       })
 
-      Promise.all(promiseArray);
-
-      browser.tabs.sendMessage(tab.id, {
-        message: "parseImage",
-        imageURL: info.srcUrl
+      Promise.all(scriptLoadPromises).then(() => {
+        browser.tabs.sendMessage(tab.id, {
+          message: "parseImage",
+          imageURL: info.srcUrl
+        });
       });
     }
   }
