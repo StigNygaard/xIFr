@@ -6,22 +6,10 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-var URLPatterns = [
-  "*://*/*.jpg",
-  "*://*/*.jpeg",
-  "file://*/*.jpg",
-  "file://*/*.jpeg",
-];
-
-URLPatterns = URLPatterns.concat(
-  URLPatterns.map(s => s.replace("jpg", "JPG").replace("jpeg", "JPEG"))
-);
-
 browser.contextMenus.create({
   id: "viewexif",
   title: browser.i18n.getMessage("contextMenuText"),
   contexts: ["image"],
-  targetUrlPatterns: URLPatterns
 });
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
