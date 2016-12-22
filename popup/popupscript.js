@@ -1,5 +1,5 @@
 browser.runtime.sendMessage({
-  message: "popupready"
+  message: "popupReady"
 }, response => {
   var table = document.getElementById("data");
   Object.keys(response).forEach(key_v => {

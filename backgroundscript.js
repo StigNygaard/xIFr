@@ -63,7 +63,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
       width: 400,
       height: 550
     });
-  } else if (request.message == "popupready") {
+  } else if (request.message == "popupReady") {
     sendResponse(popupData);
   }
 });
