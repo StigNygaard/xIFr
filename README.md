@@ -1,15 +1,12 @@
 # wxIF
 
 wxIF is a port of FxIF to WebExtensions. It adds a context menu that
-allows one to view EXIF, IPTC and XMP metadata from images. 
-
-This was mostly done as an educational project for myself, but it may 
-come in handy as soon as XUL addons get deprecated.
+allows one to view EXIF, IPTC and XMP metadata from images.
 
 ## Differences with the XUL version
 
 * It's not possible to verify that the image can potentially contain
-  EXIF data without downloading it. So the context menu item will be 
+  EXIF data without downloading it. So the context menu item will be
   displayed even on e.g. PNG images.
 
 * Images are redownloaded instead of being fetched directly from the
