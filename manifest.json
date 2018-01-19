@@ -9,7 +9,10 @@
   "homepage_url": "https://github.com/gcp/wxif",
 
   "icons": {
-    "32": "icons/fxif.png"
+    "16": "icons/fxif.png",
+    "32": "icons/fxif.png",
+    "48": "icons/fxif.png",
+    "96": "icons/fxif.png"
   },
 
   "permissions": [
