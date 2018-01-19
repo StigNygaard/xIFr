@@ -5,6 +5,7 @@ html, body {
   cursor: default;
   font: caption;
   margin: 0;
+  overflow: auto;
   padding: 0;
   -moz-appearance: tabpanels;
   width: 100%;
