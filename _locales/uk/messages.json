@@ -1,0 +1,458 @@
+{
+  "extensionDescription": {
+    "message": "Шукає та показує EXIF/IPTC/XMP-дані фотографій.",
+    "description": "Description of the extension."
+  },
+
+  "contextMenuText": {
+    "message": "Перегляд EXIF-даних"
+  },
+
+  "Copy": {
+    "message": "Копіювати"
+  },
+
+  "CameraMake": {
+    "message": "Виробник фотоапарата"
+  },
+
+  "CameraModel": {
+    "message": "Модель фотоапарата"
+  },
+
+  "CameraLens": {
+    "message": "Об'єктив"
+  },
+
+  "Software": {
+    "message": "Програмне Забезпечення"
+  },
+
+  "ImageDate": {
+    "message": "Дата зйомки"
+  },
+
+  "ImageOrientation": {
+    "message": "Орієнтація"
+  },
+
+  "ImageBW": {
+    "message": "Чорно-Біле"
+  },
+
+  "FlashUsed": {
+    "message": "Спалах спрацював"
+  },
+
+  "FocalLength": {
+    "message": "Фокусна (фокальна) відстань"
+  },
+
+  "DigitalZoom": {
+    "message": "Цифровий зум"
+  },
+
+  "CCDWidth": {
+    "message": "Ширина матриці (CCD/ПЗЗ/ПЗС)"
+  },
+
+  "ExposureTime": {
+    "message": "Тривалість експозиції (витримка)"
+  },
+
+  "Aperture": {
+    "message": "Діафрагма"
+  },
+
+  "FocusDist": {
+    "message": "Фокусна відстань"
+  },
+
+  "ISOequivalent": {
+    "message": "ISO-еквівалент"
+  },
+
+  "ExposureBias": {
+    "message": "Експокорекція"
+  },
+
+  "WhiteBalance": {
+    "message": "Баланс білого"
+  },
+
+  "LightSource": {
+    "message": "Джерело світла"
+  },
+
+  "MeteringMode": {
+    "message": "Режим Експозаміру"
+  },
+
+  "ExposureProgram": {
+    "message": "Експозиція"
+  },
+
+  "ExposureMode": {
+    "message": "Режим експозиції"
+  },
+
+  "ImageColorSpace": {
+    "message": "Колірний простір"
+  },
+
+  "GPSCoord": {
+    "message": "GPS-координати"
+  },
+
+  "MapLink": {
+    "message": "Посилання на карту"
+  },
+
+  "GPSAlt": {
+    "message": "GPS-Висота"
+  },
+
+  "GPSImgDir": {
+    "message": "Напрямок погляду"
+  },
+
+  "Creator": {
+    "message": "Автор"
+  },
+
+  "City": {
+    "message": "Місто"
+  },
+
+  "Sublocation": {
+    "message": "Район"
+  },
+
+  "ProvinceState": {
+    "message": "Провінція/Штат"
+  },
+
+  "CountryName": {
+    "message": "Країна"
+  },
+
+  "Copyright": {
+    "message": "Авторське право"
+  },
+
+  "Title": {
+    "message": "Назва"
+  },
+
+  "Caption": {
+    "message": "Заголовок"
+  },
+
+  "Comment": {
+    "message": "Коментар"
+  },
+
+  "Instructions": {
+    "message": "Інструкції"
+  },
+
+  "NoData": {
+    "message": "Не знайдено мета-даних"
+  },
+
+  "GPSFormat": {
+    "message": "Бажаний формат відображення координат"
+  },
+
+  "DD.label": {
+    "message": "Десяткові градуси"
+  },
+
+  "DM.label": {
+    "message": "Градуси, Мінути"
+  },
+
+  "DMS.label": {
+    "message": "Градуси, Мінути, Секунди"
+  },
+
+  "windowtitle": {
+    "message": "FxIF Дані для"
+  },
+
+  "orientation0": {
+    "message": "Невизначено"
+  },
+
+  "orientation1": {
+    "message": "Нормальна"
+  },
+
+  "orientation2": {
+    "message": "Віддзеркалено горизонтально"
+  },
+
+  "orientation3": {
+    "message": "Оберт на 180"
+  },
+
+  "orientation4": {
+    "message": "Віддзеркалено вертикально"
+  },
+
+  "orientation5": {
+    "message": "Transpose - (віддзеркалення + поворот на 90) - віддзеркалено по осі, що проходить через верхній лівий та нижній правий кути квадрата."
+  },
+
+  "orientation6": {
+    "message": "Оберт на 90"
+  },
+
+  "orientation7": {
+    "message": "Transverse - (віддзеркалення + поворот на 90) - віддзеркалено по осі, що проходить через верхній правий і нижній лівий кути квадрата."
+  },
+
+  "orientation8": {
+    "message": "Оберт на 270"
+  },
+
+  "infinite": {
+    "message": "Фокус на нескінченність"
+  },
+
+  "meters": {
+    "message": "м"
+  },
+
+  "millimeters": {
+    "message": "мм"
+  },
+
+  "seconds": {
+    "message": "с"
+  },
+
+  "ev": {
+    "message": "Експозиційне число (EV)"
+  },
+
+  "yes": {
+    "message": "Так"
+  },
+
+  "no": {
+    "message": "Ні"
+  },
+
+  "enforced": {
+    "message": "Примусово"
+  },
+
+  "manual": {
+    "message": "Ручний"
+  },
+
+  "auto": {
+    "message": "Автоматичний"
+  },
+
+  "semiauto": {
+    "message": "Напів-автоматичний"
+  },
+
+  "none": {
+    "message": "Пресети для ББ не використано"
+  },
+
+  "daylight": {
+    "message": "Денне світло"
+  },
+
+  "fluorescent": {
+    "message": "Люмінесцентна лампа"
+  },
+
+  "incandescent": {
+    "message": "Лампа розжарювання"
+  },
+
+  "flash": {
+    "message": "Зі спалахом"
+  },
+
+  "fineweather": {
+    "message": "Ясна погода"
+  },
+
+  "cloudy": {
+    "message": "Хмарно"
+  },
+
+  "shade": {
+    "message": "Тінь"
+  },
+
+  "daylightfluorescent": {
+    "message": "Люмінесцентна лампа денного світла"
+  },
+
+  "daywhitefluorescent": {
+    "message": "Люмінесцентна лампа денного білого світла"
+  },
+
+  "coolwhitefluorescent": {
+    "message": "Люмінесцентна лампа холодно-білого світла"
+  },
+
+  "whitefluorescent": {
+    "message": "Люмінесцентна лампа білого світла"
+  },
+
+  "studiotungsten": {
+    "message": "ISO для студійних ламп розжарювання"
+  },
+
+  "noflash": {
+    "message": "Без спалаху"
+  },
+
+  "noreturnlight": {
+    "message": "Відбите світло спалаху не виявлено датчиком - система не визначила рівень потужності спалаху на основі пробного спалаху, в режимі TTL."
+  },
+
+  "returnlight": {
+    "message": "Відбите світло спалаху виявлено датчиком - система визначила рівень потужності спалаху на основі пробного спалаху, в режимі TTL"
+  },
+
+  "redeye": {
+    "message": "Режим зменшення ефекту червоних очей"
+  },
+
+  "average": {
+    "message": "Узагальнений"
+  },
+
+  "centerweight": {
+    "message": "Центро-Зважений"
+  },
+
+  "spot": {
+    "message": "Точковий"
+  },
+
+  "multispot": {
+    "message": "Багато-Точковий"
+  },
+
+  "matrix": {
+    "message": "Матричний (оцінний, багатозонний)"
+  },
+
+  "partial": {
+    "message": "Частковий"
+  },
+
+  "autobracketing": {
+    "message": "Автоматичний брекетинг"
+  },
+
+  "35mmequiv": {
+    "message": "мм = еквівалент 35мм"
+  },
+
+  "program": {
+    "message": "Програмний режим"
+  },
+
+  "apriority": {
+    "message": "Пріоритет діафрагми"
+  },
+
+  "spriority": {
+    "message": "Пріоритет витримки"
+  },
+
+  "creative": {
+    "message": "Творчий режим (пріоритет глибини різкості)"
+  },
+
+  "action": {
+    "message": "Спортивний режим (пріоритет короткої витримки)"
+  },
+
+  "portrait": {
+    "message": "Портретний режим"
+  },
+
+  "landscape": {
+    "message": "Пейзажний режим"
+  },
+
+  "latlondms": {
+    "message": " (град., мін., сек.)"
+  },
+
+  "latlondm": {
+    "message": " (град., мін.)"
+  },
+
+  "latlondd": {
+    "message": " (град.)"
+  },
+
+  "dirT": {
+    "message": "° (істинна північ)"
+  },
+
+  "dirM": {
+    "message": "° (магнітна північ)"
+  },
+
+  "noTZ": {
+    "message": "(Часовий пояс не встановлено)"
+  },
+
+  "unknown": {
+    "message": "Невідомо"
+  },
+
+  "generalError": {
+    "message": "Помилка зчитування мета-даних. Показані мета-дані можуть бути не повними. Будь ласка, повідомте про цю проблему, за можливості - додайте проблемне зображення."
+  },
+
+  "specialError": {
+    "message": "Помилка зчитування %S мета-даних. %S Показані мета-дані можуть бути не повними. Будь ласка, повідомте про цю проблему, за можливості - додайте проблемне зображення."
+  },
+
+  "UserComment": {
+    "message": "Коментар користувача"
+  },
+
+  "ColorSpace": {
+    "message": "Колірний простір"
+  },
+
+  "FocalLengthText": {
+    "message": "Фокусна відстань"
+  },
+
+  "ApertureFNumber": {
+    "message": "Діафрагма"
+  },
+
+  "FocalLength35mmEquiv": {
+    "message": "Фокусна відстань (35 мм)"
+  },
+
+  "GPSLat": {
+    "message": "GPS-широта"
+  },
+
+  "GPSLon": {
+    "message": "GPS-довгота"
+  },
+
+  "noEXIFdata": {
+    "message": "Метадані зображення не знайдено"
+  }
+}
