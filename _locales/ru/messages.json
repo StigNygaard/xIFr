@@ -53,7 +53,7 @@
 },
 
 "CCDWidth": {
-"message": "Ширина матрицы (CCD/ПЗС/ПЗС)"
+"message": "Ширина матрицы (CCD/ПЗС)"
 },
 
 "ExposureTime": {
