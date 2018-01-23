@@ -1,0 +1,458 @@
+{
+  "extensionDescription": {
+    "message": "Zeigt EXIF- / IPTC- / XMP-Metadaten an.",
+    "description": "WebExtensions-Portierung von FxIF, um EXIF-Informationen von JPEG-Dateien anzuzeigen."
+  },
+
+  "contextMenuText": {
+    "message": "EXIF-Daten"
+  },
+
+  "Copy": {
+    "message": "Kopieren"
+  },
+
+  "CameraMake": {
+    "message": "Hersteller"
+  },
+
+  "CameraModel": {
+    "message": "Modell"
+  },
+
+  "CameraLens": {
+    "message": "Objektiv"
+  },
+
+  "Software": {
+    "message": "Programm"
+  },
+
+  "ImageDate": {
+    "message": "Aufnahmedatum"
+  },
+
+  "ImageOrientation": {
+    "message": "Ausrichtung"
+  },
+
+  "ImageBW": {
+    "message": "schwarz-weiß"
+  },
+
+  "FlashUsed": {
+    "message": "Blitz aktiv"
+  },
+
+  "FocalLength": {
+    "message": "Brennweite"
+  },
+
+  "DigitalZoom": {
+    "message": "Digital-Zoom"
+  },
+
+  "CCDWidth": {
+    "message": "CCD-Weite"
+  },
+
+  "ExposureTime": {
+    "message": "Belichtungsdauer"
+  },
+
+  "Aperture": {
+    "message": "Blende"
+  },
+
+  "FocusDist": {
+    "message": "Fokus-Abstand"
+  },
+
+  "ISOequivalent": {
+    "message": "ISO-Äquivalent"
+  },
+
+  "ExposureBias": {
+    "message": "Belichtungsausrichtung"
+  },
+
+  "WhiteBalance": {
+    "message": "Weißabgleich"
+  },
+
+  "LightSource": {
+    "message": "Lichtquelle"
+  },
+
+  "MeteringMode": {
+    "message": "Messart"
+  },
+
+  "ExposureProgram": {
+    "message": "Belichtung"
+  },
+
+  "ExposureMode": {
+    "message": "Belichtungsart"
+  },
+
+  "ImageColorSpace": {
+    "message": "Farbraum"
+  },
+
+  "GPSCoord": {
+    "message": "GPS-Koordinaten"
+  },
+
+  "MapLink": {
+    "message": "Karten-Link"
+  },
+
+  "GPSAlt": {
+    "message": "GPS-Höhe"
+  },
+
+  "GPSImgDir": {
+    "message": "GPS-Blickrichtung"
+  },
+
+  "Creator": {
+    "message": "Urheber"
+  },
+
+  "City": {
+    "message": "Stadt"
+  },
+
+  "Sublocation": {
+    "message": "Region"
+  },
+
+  "ProvinceState": {
+    "message": "Bundesland/Gebiet"
+  },
+
+  "CountryName": {
+    "message": "Land"
+  },
+
+  "Copyright": {
+    "message": "©"
+  },
+
+  "Title": {
+    "message": "Titel"
+  },
+
+  "Caption": {
+    "message": "Beschreibung"
+  },
+
+  "Comment": {
+    "message": "Kommentar"
+  },
+
+  "Instructions": {
+    "message": "Anweisungen"
+  },
+
+  "NoData": {
+    "message": "Keine Daten vorhanden"
+  },
+
+  "GPSFormat": {
+    "message": "Koordinatenformat"
+  },
+
+  "DD.label": {
+    "message": "° (dezimal)"
+  },
+
+  "DM.label": {
+    "message": "° (Minuten)"
+  },
+
+  "DMS.label": {
+    "message": "° (Minuten/Sekunden)"
+  },
+
+  "windowtitle": {
+    "message": "wxIF-Daten für"
+  },
+
+  "orientation0": {
+    "message": "undefiniert"
+  },
+
+  "orientation1": {
+    "message": "normal"
+  },
+
+  "orientation2": {
+    "message": "horizontal gespiegelt"
+  },
+
+  "orientation3": {
+    "message": "180° gedreht"
+  },
+
+  "orientation4": {
+    "message": "vertikal gespiegelt"
+  },
+
+  "orientation5": {
+    "message": "diagonal gespiegelt"
+  },
+
+  "orientation6": {
+    "message": "90° gedreht"
+  },
+
+  "orientation7": {
+    "message": "umgekehrt diagonal gespiegelt"
+  },
+
+  "orientation8": {
+    "message": "270° gedreht"
+  },
+
+  "infinite": {
+    "message": "unendlich"
+  },
+
+  "meters": {
+    "message": "m"
+  },
+
+  "millimeters": {
+    "message": "mm"
+  },
+
+  "seconds": {
+    "message": "s"
+  },
+
+  "ev": {
+    "message": "BW"
+  },
+
+  "yes": {
+    "message": "Ja"
+  },
+
+  "no": {
+    "message": "Nein"
+  },
+
+  "enforced": {
+    "message": "erzwungen"
+  },
+
+  "manual": {
+    "message": "manuell"
+  },
+
+  "auto": {
+    "message": "automatisch"
+  },
+
+  "semiauto": {
+    "message": "halbautomatisch"
+  },
+
+  "none": {
+    "message": "kein"
+  },
+
+  "daylight": {
+    "message": "Tageslicht"
+  },
+
+  "fluorescent": {
+    "message": "Neonlicht"
+  },
+
+  "incandescent": {
+    "message": "Glühlampe"
+  },
+
+  "flash": {
+    "message": "Blitz"
+  },
+
+  "fineweather": {
+    "message": "Schönwetter"
+  },
+
+  "cloudy": {
+    "message": "Bewölkt"
+  },
+
+  "shade": {
+    "message": "Schatten"
+  },
+
+  "daylightfluorescent": {
+    "message": "Tageslicht"
+  },
+
+  "daywhitefluorescent": {
+    "message": "warmes Weißlicht"
+  },
+
+  "coolwhitefluorescent": {
+    "message": "kaltes Weißlicht"
+  },
+
+  "whitefluorescent": {
+    "message": "Weißlicht"
+  },
+
+  "studiotungsten": {
+    "message": "ISO-Studio (Wolfram)"
+  },
+
+  "noflash": {
+    "message": "Blitz nicht verfügbar"
+  },
+
+  "noreturnlight": {
+    "message": "return light not detected"
+  },
+
+  "returnlight": {
+    "message": "return light detected"
+  },
+
+  "redeye": {
+    "message": "Rote-Augen-Reduktion"
+  },
+
+  "average": {
+    "message": "Durchschnitt"
+  },
+
+  "centerweight": {
+    "message": "mittenbasiert"
+  },
+
+  "spot": {
+    "message": "Punkt"
+  },
+
+  "multispot": {
+    "message": "Mehrpunkt"
+  },
+
+  "matrix": {
+    "message": "Matrix"
+  },
+
+  "partial": {
+    "message": "anteilig"
+  },
+
+  "autobracketing": {
+    "message": "automatische Belichtungsreihe"
+  },
+
+  "35mmequiv": {
+    "message": "mm=35mm-Äquivalent"
+  },
+
+  "program": {
+    "message": "Programm"
+  },
+
+  "apriority": {
+    "message": "Blenden-Priorität"
+  },
+
+  "spriority": {
+    "message": "Verschluss-Priorität"
+  },
+
+  "creative": {
+    "message": "Kreativ-Programm (für Tiefenschärfe)"
+  },
+
+  "action": {
+    "message": "Action-Programm (für schnelle Verschlusszeit)"
+  },
+
+  "portrait": {
+    "message": "Hochformat"
+  },
+
+  "landscape": {
+    "message": "Querformat"
+  },
+
+  "latlondms": {
+    "message": " (°, min, s)"
+  },
+
+  "latlondm": {
+    "message": " (°, min)"
+  },
+
+  "latlondd": {
+    "message": " (°)"
+  },
+
+  "dirT": {
+    "message": "° (echter Norden)"
+  },
+
+  "dirM": {
+    "message": "° (magnetischer Norden)"
+  },
+
+  "noTZ": {
+    "message": "(Keine Zeitzone)"
+  },
+
+  "unknown": {
+    "message": "unbekannt"
+  },
+
+  "generalError": {
+    "message": "Fehler bei der Metadaten-Verarbeitung: angezeigte Daten ggf. unvollständig. Bitte mit Beispielbild als Fehler melden."
+  },
+
+  "specialError": {
+    "message": "Fehler bei der %S-Verarbeitung. angezeigte Daten ggf. unvollständig. Bitte mit Beispielbild als Fehler melden."
+  },
+
+  "UserComment": {
+    "message": "Nutzerkommentar"
+  },
+
+  "ColorSpace": {
+    "message": "Farbraum"
+  },
+
+  "FocalLengthText": {
+    "message": "Brennweite"
+  },
+
+  "ApertureFNumber": {
+    "message": "Blendenzahl"
+  },
+
+  "FocalLength35mmEquiv": {
+    "message": "Brennweite (35mm)"
+  },
+
+  "GPSLat": {
+    "message": "GPS-Breitengrad"
+  },
+
+  "GPSLon": {
+    "message": "GPS-Längengrad"
+  },
+
+  "noEXIFdata": {
+    "message": "Keine Bild-Metadaten vorhanden"
+  }
+}
