@@ -56,7 +56,8 @@ function xmpClass()
 
       if (dom.documentElement.nodeName == 'parsererror') {
         console.error("Error parsing XML");
-        throw ("Error parsing XML");
+        // no known remedy, so don’t throw this problem
+        // throw ("Error parsing XML");
         return;
       }
     }
