@@ -40,7 +40,7 @@ function xmpClass()
       xmlString = xmlString.substring(0,xmlString.length-1);
       //console.debug("xmp xmlString modified: \n" + xmlString);
     }
-
+    var dom = parser.parseFromString(xmlString, 'application/xml');
 
     if (dom.documentElement.nodeName == 'parsererror') {
       // parsererror might have been caused by incorrect encoding of characters.
