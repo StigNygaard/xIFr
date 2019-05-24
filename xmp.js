@@ -28,10 +28,15 @@ function xmpClass()
     var parser = new DOMParser();
     // There is at least one programm which includes a null byte at the end of the document.
     // The parser doesn't like this, so shorten the length by one byte of the last one is null.
-    var doclength = xml.length;
-    if (xml.length > 1 && xml[xml.length - 1] == 0)
-      doclength--;
-    var dom = parser.parseFromBuffer(xml, doclength, 'text/xml');
+    //var doclength = xml.length;
+    //if (xml.length > 1 && xml[xml.length - 1] == 0)
+    //  doclength--;
+    //var dom = parser.parseFromBuffer(xml, doclength, 'text/xml');
+    
+    let utf8decoder = new TextDecoder('utf-8');
+    let xmlString = utf8decoder.decode(xml);
+    var dom = parser.parseFromString(xmlString, 'application/xml');
+    //console.debug("xmp xmlString: \n" + xmlString);
 
     if (dom.documentElement.nodeName == 'parsererror') {
       // parsererror might have been caused by incorrect encoding of characters.
@@ -52,6 +57,7 @@ function xmpClass()
       if (dom.documentElement.nodeName == 'parsererror') {
         console.error("Error parsing XML");
         // no known remedy, so don’t throw this problem
+        // throw ("Error parsing XML");
         return;
       }
     }
