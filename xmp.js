@@ -105,7 +105,7 @@ function xmpClass()
     var lang = fxifUtils.getLang();
     // Build a regular expression to be used to test the language
     // alternatives available in the XMP.
-    var langTest = new RegExp("^"+lang.match(/^[a-z]{2,3}/i), "i")
+    var langTest = new RegExp("^"+lang.match(/^[a-z]{2,3}/i), "i");
 
     if (!dataObj.Headline)
     {
@@ -677,7 +677,7 @@ function xmpClass()
       dataObj.GPSPureDdLat = gpsLat / 3600;
       dataObj.GPSPureDdLon = gpsLon / 3600;
     }
-  }
+  };
 
   // Parse a GPS datum.
   // It's stored like 49,9.8672N
