@@ -35,8 +35,12 @@ function xmpClass()
     
     let utf8decoder = new TextDecoder('utf-8');
     let xmlString = utf8decoder.decode(xml);
-    var dom = parser.parseFromString(xmlString, 'application/xml');
     //console.debug("xmp xmlString: \n" + xmlString);
+    if (xmlString.charCodeAt(xmlString.length-1) == 0) {
+      xmlString = xmlString.substring(0,xmlString.length-1);
+      //console.debug("xmp xmlString modified: \n" + xmlString);
+    }
+
 
     if (dom.documentElement.nodeName == 'parsererror') {
       // parsererror might have been caused by incorrect encoding of characters.
