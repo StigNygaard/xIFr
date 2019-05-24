@@ -475,7 +475,7 @@ function xmpClass()
           case 3:
             dataObj.MeteringMode = stringBundle.getString("spot");
             break;
-          case 3:
+          case 4:
             dataObj.MeteringMode = stringBundle.getString("multispot");
             break;
           case 5:
