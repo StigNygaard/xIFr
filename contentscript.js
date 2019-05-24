@@ -12,7 +12,7 @@ function addByteStreamIF(arr) {
     var val = arr[arr.bisOffset] << 8 | arr[arr.bisOffset + 1];
     arr.bisOffset += 2;
     return val;
-  }
+  };
   arr.readBytes = byteCount => {
     var retval = "";
     for (var i = 0; i < byteCount; i++) {
@@ -20,7 +20,7 @@ function addByteStreamIF(arr) {
       arr.bisOffset++;
     }
     return retval;
-  }
+  };
   arr.readByteArray = len => {
     var retval = arr.subarray(arr.bisOffset, arr.bisOffset + len);
     arr.bisOffset += len;
