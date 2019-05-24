@@ -112,7 +112,7 @@ function fxifClass() {
     }
 
     return dataObj;
-  }
+  };
 
   function pushError(dataObj, type, message)
   {

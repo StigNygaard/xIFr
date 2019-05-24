@@ -26,7 +26,7 @@ function fxifUtilsClass ()
       return (data[offset] << 8) | data[offset+1];
 
     return data[offset] | (data[offset+1] << 8);
-  }
+  };
 
   this.read32 = function (data, offset, swapbytes)
   {
@@ -34,7 +34,7 @@ function fxifUtilsClass ()
       return (data[offset] << 24) | (data[offset+1] << 16) | (data[offset+2] << 8) | data[offset+3];
 
     return data[offset] | (data[offset+1] << 8) | (data[offset+2] << 16) | (data[offset+3] << 24);
-  }
+  };
 
   /* charWidth should normally be 1 and this function thus reads
    * the bytes one by one. But reading Unicode needs reading
@@ -69,7 +69,7 @@ function fxifUtilsClass ()
     }
 
     return s;
-  }
+  };
 
   /* Doesn’t stop at null bytes. */
   this.bytesToStringWithNull = function (data, offset, num)
@@ -80,7 +80,7 @@ function fxifUtilsClass ()
       s += String.fromCharCode(data[i]);
 
     return s;
-  }
+  };
 
   this.dd2dms = function (gpsval)
   {
@@ -92,7 +92,7 @@ function fxifUtilsClass ()
     // round to 2 digits after the comma
     var gpsSec = (gpsval - gpsMin * 60.0).toFixed(2);
     return new Array(gpsDeg, gpsMin, gpsSec);
-  }
+  };
 
   this.dd2dm = function (gpsval)
   {
@@ -103,7 +103,7 @@ function fxifUtilsClass ()
     // round to 2 digits after the comma
     var gpsMin = (gpsval / 60).toFixed(4);
     return new Array(gpsDeg, gpsMin);
-  }
+  };
 
   this.dd2dd = function (gpsval)
   {
@@ -111,12 +111,12 @@ function fxifUtilsClass ()
     var gpsArr = new Array();
     gpsArr.push((gpsval / 3600).toFixed(6));
     return gpsArr;
-  }
+  };
 
   this.getPreferences = function ()
   {
     // console.log("getPreferences");
-  }
+  };
 
   // Retrieves the language which is likely to be the users favourite one.
   // Currently we end up using only the first language code.

@@ -33,7 +33,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
         return browser.tabs.executeScript(null, {
           file: script
         });
-      })
+      });
 
       Promise.all(scriptLoadPromises).then(() => {
         browser.tabs.sendMessage(tab.id, {

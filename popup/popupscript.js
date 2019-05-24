@@ -21,7 +21,7 @@ browser.runtime.sendMessage({
       href = href.replace(/%lon%/, response.GPSPureDdLon);
       href = href.replace(/%lang%/, browser.i18n.getUILanguage());
       window.open(href);
-    }
+    };
     var btns = document.getElementById("buttonzone");
     btns.insertBefore(mapbutton, btns.childNodes[0]);
   }
