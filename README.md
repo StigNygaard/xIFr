@@ -2,7 +2,7 @@
 
 xIFr is me experimenting with a fork of wxIF. Maybe it will result in a new webextension. Maybe not. 
 
-##Standing on the shoulders of giants
+## Standing on the shoulders of giants
 The fundament of xIFr is work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/AUTHORS) involved with development of [JHead](http://www.sentex.net/~mwandel/jhead/), [FxIF](https://code.google.com/archive/p/fxif/), [wxIF](https://github.com/gcp/wxif) and more.
 
 Below README from wxIF:
