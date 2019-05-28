@@ -6,7 +6,7 @@ browser.runtime.sendMessage({
     var row = table.insertRow(-1);
     var label = row.insertCell(0);
     var value = row.insertCell(1);
-    if (key_v != "GPSPureDdLat" && key_v != "GPSPureDdLon") {
+    if (key_v !== "GPSPureDdLat" && key_v !== "GPSPureDdLon") {
       label.innerText = key_v;
       value.innerText = response[key_v];
     }
