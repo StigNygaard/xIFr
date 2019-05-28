@@ -12,18 +12,29 @@ browser.runtime.sendMessage({
     }
   });
   if (response.GPSPureDdLat && response.GPSPureDdLon) {
-    var mapbutton = document.createElement("button");
-    mapbutton.type = "button";
-    mapbutton.innerText = "Locate on OpenStreetMap";
-    mapbutton.onclick = () => {
+    var osMapButton = document.createElement("button");
+    osMapButton.type = "button";
+    osMapButton.innerText = "Locate on OpenStreetMap";
+    osMapButton.onclick = () => {
       var href = 'https://www.openstreetmap.org/?mlat=%lat%&mlon=%lon%&layers=M';
       href = href.replace(/%lat%/, response.GPSPureDdLat);
       href = href.replace(/%lon%/, response.GPSPureDdLon);
       href = href.replace(/%lang%/, browser.i18n.getUILanguage());
       window.open(href);
     };
+    var gmMapButton = document.createElement("button");
+    gmMapButton.type = "button";
+    gmMapButton.innerText = "Locate on Google Maps";
+    gmMapButton.onclick = () => {
+      var href = 'https://www.google.com/maps/search/?api=1&query=%lat%,%lon%';
+      href = href.replace(/%lat%/, response.GPSPureDdLat);
+      href = href.replace(/%lon%/, response.GPSPureDdLon);
+      href = href.replace(/%lang%/, browser.i18n.getUILanguage());
+      window.open(href);
+    };
     var btns = document.getElementById("buttonzone");
-    btns.insertBefore(mapbutton, btns.childNodes[0]);
+    btns.insertBefore(osMapButton, btns.childNodes[0]);
+    btns.insertBefore(gmMapButton, btns.childNodes[0]);
   }
   document.getElementById("copybutton").onclick = () => {
     var range = document.createRange();
