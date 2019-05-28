@@ -10,8 +10,7 @@
  *  Interpreter for binary IPTC-NAA data.
  */
 
-function iptcClass(stringBundle)
-{
+function iptcClass(stringBundle) {
   var fxifUtils = new fxifUtilsClass();
 
   const BIM_MARKER = 0x3842494D; // 8BIM segment marker
@@ -31,40 +30,35 @@ function iptcClass(stringBundle)
   const TAG_IPTC_DATECREATED   = 0x37;
   const TAG_IPTC_TIMECREATED   = 0x3C;
 
-
   // Decodes arrays carrying UTF-8 sequences into Unicode strings.
   // Filters out illegal bytes with values between 128 and 191,
   // but doesn't validate sequences.
-  function utf8BytesToString(utf8data, offset, num)
+  function utf8BytesToString(utf8data, offset, num) // NOTICE, this is different from equally named in binExif.js!!!
   {
     var s = "";
     var c = c1 = c2 = 0;
 
-    for (var i = offset; i < offset + num;) {
+    for (var i = offset; i < offset + num; ) {
       c = utf8data[i];
       if (c <= 127) {
         s += String.fromCharCode(c);
         i++;
-      }
-      else if ((c >= 192) && (c <= 223)) {
-        c2 = utf8data[i+1];
-        s += String.fromCharCode(((c&31) << 6) | (c2&63));
+      } else if ((c >= 192) && (c <= 223)) {
+        c2 = utf8data[i + 1];
+        s += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
         i += 2;
-      }
-      else if ((c >= 224) && (c <= 239)) {
-        c2 = utf8data[i+1];
-        c3 = utf8data[i+2];
-        s += String.fromCharCode(((c&15) << 12) | ((c2&63) << 6) | (c3&63));
+      } else if ((c >= 224) && (c <= 239)) {
+        c2 = utf8data[i + 1];
+        c3 = utf8data[i + 2];
+        s += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
         i += 3;
-      }
-      else if (c >= 240) {
-        c2 = utf8data[i+1];
-        c3 = utf8data[i+2];
-        c4 = utf8data[i+3];
-        s += String.fromCharCode(((c & 7) << 18) | ((c2&63) << 12) | ((c3&63) << 6) | (c4&63));
+      } else if (c >= 240) {
+        c2 = utf8data[i + 1];
+        c3 = utf8data[i + 2];
+        c4 = utf8data[i + 3];
+        s += String.fromCharCode(((c & 7) << 18) | ((c2 & 63) << 12) | ((c3 & 63) << 6) | (c4 & 63));
         i += 4;
-      }
-      else {
+      } else {
         i++;
       }
     }
@@ -73,15 +67,14 @@ function iptcClass(stringBundle)
   }
 
   /* Reads the actual IPTC/NAA tags.
-     Overwrites information from EXIF tags for textual informations like
-     By, Caption, Headline, Copyright.
-     But doesn't overwrite those fields when already populated by IPTC4XMP.
-     The tag CodedCharacterSet in record 1 is read and interpreted to detect
-     if the string data in record 2 is supposed to be UTF-8 coded. For now
-     we assume record 1 comes before 2 in the file.
-  */
-  function readIptcDir(dataObj, data)
-  {
+  Overwrites information from EXIF tags for textual informations like
+  By, Caption, Headline, Copyright.
+  But doesn't overwrite those fields when already populated by IPTC4XMP.
+  The tag CodedCharacterSet in record 1 is read and interpreted to detect
+  if the string data in record 2 is supposed to be UTF-8 coded. For now
+  we assume record 1 comes before 2 in the file.
+   */
+  function readIptcDir(dataObj, data) {
     var pos = 0;
     var utf8Strings = false;
 
@@ -104,8 +97,8 @@ function iptcClass(stringBundle)
         if (entryRecord == 0x01) {
           // Only use tags with length > 0, tags without actual data are common.
           if (dataLen > 0) {
-            if (pos + 5 + dataLen > data.length) {   // Don't read outside the array.
-              var read = pos + 5 + dataLen;
+            if (pos + 5 + dataLen > data.length) { // Don't read outside the array.
+              let read = pos + 5 + dataLen;
               alert("Read outside of array, read to: " + read + ", array length: " + data.length);
               break;
             }
@@ -113,33 +106,27 @@ function iptcClass(stringBundle)
               var val = fxifUtils.bytesToString(data, pos + 5, dataLen, false, 1);
               // ESC %G
               if (val == UTF8_INDICATOR) {
-                  utf8Strings = true;
+                utf8Strings = true;
               }
             }
           }
-        }
-        else
+        } else
         if (entryRecord == 0x02) {
           // Only use tags with length > 0, tags without actual data are common.
           if (dataLen > 0) {
-            if (pos + 5 + dataLen > data.length) {   // Don't read outside the array.
-              var read = pos + 5 + dataLen;
+            if (pos + 5 + dataLen > data.length) { // Don't read outside the array.
+              let read = pos + 5 + dataLen;
               alert("Read outside of array, read to: " + read + ", array length: " + data.length);
               break;
             }
-            if (utf8Strings) {
-              var val = utf8BytesToString(data, pos + 5, dataLen);
-            }
-            else {
-              var val = fxifUtils.bytesToString(data, pos + 5, dataLen, false, 1);
-            }
-            switch(tag) {
+            let val = utf8Strings ? utf8BytesToString(data, pos + 5, dataLen) : fxifUtils.bytesToString(data, pos + 5, dataLen, false, 1);
+            switch (tag) {
               case TAG_IPTC_DATECREATED:
-                  iptcDate = val;
+                iptcDate = val;
                 break;
 
               case TAG_IPTC_TIMECREATED:
-                  iptcTime = val;
+                iptcTime = val;
                 break;
 
               case TAG_IPTC_BYLINE:
@@ -183,18 +170,15 @@ function iptcClass(stringBundle)
                 break;
 
               case TAG_IPTC_INSTRUCTIONS:
-                  dataObj.Instructions = val;
+                dataObj.Instructions = val;
                 break;
             }
           }
+        } else {
+          //      alert("Tag: " + tag + ", dataLen: " + dataLen);
         }
-        else
-        {
-  //      alert("Tag: " + tag + ", dataLen: " + dataLen);
-        }
-      }
-      else {
-//        alert("Wrong entryMarker (" + entryMarker + ")");
+      } else {
+        //        alert("Wrong entryMarker (" + entryMarker + ")");
         break;
       }
 
@@ -202,25 +186,20 @@ function iptcClass(stringBundle)
     }
 
     // only overwrite existing date if XMP data not already parsed
-    if ((!dataObj.Date || !fxifUtils.xmpDone) && (iptcDate || iptcTime))
-    {
+    if ((!dataObj.Date || !fxifUtils.xmpDone) && (iptcDate || iptcTime)) {
       // if IPTC only contains either date or time, only use it if there’s
       // no date already set
-      if ((iptcDate && iptcTime) || !dataObj.Date && (iptcDate && !iptcTime || !iptcDate && iptcTime))
-      {
+      if ((iptcDate && iptcTime) || !dataObj.Date && (iptcDate && !iptcTime || !iptcDate && iptcTime)) {
         var date;
         var matches;
-        if (iptcDate)
-        {
+        if (iptcDate) {
           matches = iptcDate.match(/^(\d{4})(\d{2})(\d{2})$/);
           if (matches)
             date = matches[1] + '-' + matches[2] + '-' + matches[3];
         }
-        if (iptcTime)
-        {
+        if (iptcTime) {
           matches = iptcTime.match(/^(\d{2})(\d{2})(\d{2})([+-]\d{4})?$/);
-          if (matches)
-          {
+          if (matches) {
             if (date)
               date += ' ';
             date += matches[1] + ':' + matches[2] + ':' + matches[3];
@@ -236,19 +215,17 @@ function iptcClass(stringBundle)
     }
   }
 
-
   /* Looks for 8BIM markers in this image resources block.
-     The format is defined by Adobe and stems from its PSD
-     format.
-  */
-  this.readPsSection = function (dataObj, psData)
-  {
+  The format is defined by Adobe and stems from its PSD
+  format.
+   */
+  this.readPsSection = function (dataObj, psData) {
     var pointer = 0;
 
     var segmentMarker = fxifUtils.read32(psData, pointer, false);
     pointer += 4;
     while (segmentMarker == BIM_MARKER &&
-           pointer < psData.length) {
+    pointer < psData.length) {
       var segmentType = fxifUtils.read16(psData, pointer, false);
       pointer += 2;
       // Step over 8BIM header.
@@ -280,7 +257,7 @@ function iptcClass(stringBundle)
             // Something’s wrong. Try to recover by searching
             // the last bytes for the expect markers.
             var i = 0;
-            while (i < 4) {	// find first tag
+            while (i < 4) { // find first tag
               if (psData[pointer + i] == 0x1C && psData[pointer + i + 1] < 0x0F)
                 break;
               else
@@ -291,8 +268,7 @@ function iptcClass(stringBundle)
               // calculate segmentLen since that’s the field missing
               segmentLen = psData.length - (4 + 2 + headerLen + i);
               pointer += i;
-            }
-            else
+            } else
               throw "No entry marker found.";
           }
 

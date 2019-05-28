@@ -25,8 +25,7 @@ function fxifClass() {
     if (marker == SOI_MARKER) {
       marker = bis.read16();
       // reading SOS marker indicates start of image stream
-      while (marker != SOS_MARKER &&
-        (!fxifUtils.exifDone || !fxifUtils.iptcDone || !fxifUtils.xmpDone)) {
+      while (marker != SOS_MARKER && (!fxifUtils.exifDone || !fxifUtils.iptcDone || !fxifUtils.xmpDone)) {
         // length includes the length bytes
         len = bis.read16() - 2;
 
@@ -57,7 +56,7 @@ function fxifClass() {
               // 'http://ns.adobe.com/xap/1.0/\0'.
               // see http://partners.adobe.com/public/developer/en/xmp/sdk/XMPspecification.pdf
               header += bis.readBytes(22); // 6 bytes read means 22 more to go
-              if (header == 'http://ns.adobe.com/xap/1.0/') {
+              if (header === 'http://ns.adobe.com/xap/1.0/') {
                 // There is at least one programm which writes spaces behind the namespace URI.
                 // Overread up to 5 bytes of such garbage until a '\0'. I deliberately don't read
                 // until reaching len bytes.
@@ -89,7 +88,7 @@ function fxifClass() {
           // 6 bytes, 'Photoshop 3.0\0'
           var psString = bis.readBytes(14);
           var psData = bis.readByteArray(len - 14);
-          if (psString == 'Photoshop 3.0\0') {
+          if (psString === 'Photoshop 3.0\0') {
             var iptcReader = new iptcClass(stringBundle);
             try {
               iptcReader.readPsSection(dataObj, psData);
@@ -114,8 +113,7 @@ function fxifClass() {
     return dataObj;
   };
 
-  function pushError(dataObj, type, message)
-  {
+  function pushError(dataObj, type, message) {
     if (dataObj.error)
       dataObj.error += '\n';
     else

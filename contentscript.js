@@ -47,8 +47,8 @@ function translateFields(data) {
 
 if (typeof contentListenerAdded === 'undefined') {
   browser.runtime.onMessage.addListener(request => {
-    if (request.message == "parseImage" &&
-      typeof request.imageURL !== 'undefined') {
+    if (request.message === "parseImage" &&
+        typeof request.imageURL !== 'undefined') {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", request.imageURL, true);
       xhr.responseType = "arraybuffer";

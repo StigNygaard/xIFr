@@ -48,8 +48,8 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 var popupData;
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.message == "EXIFready") {
-    if (Object.keys(request.data).length == 0) {
+  if (request.message === "EXIFready") {
+    if (Object.keys(request.data).length === 0) {
       popupData = {
         "": browser.i18n.getMessage("noEXIFdata")
       }
@@ -63,7 +63,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
       width: 400,
       height: 550
     });
-  } else if (request.message == "popupReady") {
+  } else if (request.message === "popupReady") {
     sendResponse(popupData);
   }
 });

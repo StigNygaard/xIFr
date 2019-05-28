@@ -6,22 +6,22 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-  var stringBundle = {
-    getString(string) {
-      var translate = browser.i18n.getMessage(string);
-      // WebExtension docs are lying here
-      if (translate == "??" || translate == "" || translate == undefined) {
-        return string;
-      } else {
-        return translate;
-      }
-    },
-    getFormattedString(string, val) {
-      var xlat = stringBundle.getString(string);
-      if (xlat != string) {
-        return val + xlat;
-      } else {
-        return string + "=" + val;
-      }
+var stringBundle = {
+  getString(string) {
+    var translate = browser.i18n.getMessage(string);
+    // WebExtension docs are lying here
+    if (translate === "??" || translate === "" || translate === undefined) {
+      return string;
+    } else {
+      return translate;
     }
-  };
+  },
+  getFormattedString(string, val) {
+    var xlat = stringBundle.getString(string);
+    if (xlat !== string) {
+      return val + xlat;
+    } else {
+      return string + "=" + val;
+    }
+  }
+};
