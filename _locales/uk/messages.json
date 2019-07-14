@@ -5,7 +5,7 @@
   },
 
   "contextMenuText": {
-    "message": "Перегляд EXIF-даних"
+    "message": "xIFr - Перегляд EXIF-даних"
   },
 
   "Copy": {
@@ -164,15 +164,15 @@
     "message": "Бажаний формат відображення координат"
   },
 
-  "DD.label": {
+  "DD_label": {
     "message": "Десяткові градуси"
   },
 
-  "DM.label": {
+  "DM_label": {
     "message": "Градуси, Мінути"
   },
 
-  "DMS.label": {
+  "DMS_label": {
     "message": "Градуси, Мінути, Секунди"
   },
 
@@ -418,6 +418,10 @@
 
   "generalError": {
     "message": "Помилка зчитування мета-даних. Показані мета-дані можуть бути не повними. Будь ласка, повідомте про цю проблему, за можливості - додайте проблемне зображення."
+  },
+
+  "generalWarning": {
+    "message": " There was an issue interpreting meta data. Might not show all meta data. "
   },
 
   "specialError": {

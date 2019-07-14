@@ -5,7 +5,7 @@
   },
 
   "contextMenuText": {
-    "message": "EXIF-Daten"
+    "message": "xIFr - EXIF-Daten"
   },
 
   "Copy": {
@@ -164,15 +164,15 @@
     "message": "Koordinatenformat"
   },
 
-  "DD.label": {
+  "DD_label": {
     "message": "° (dezimal)"
   },
 
-  "DM.label": {
+  "DM_label": {
     "message": "° (Minuten)"
   },
 
-  "DMS.label": {
+  "DMS_label": {
     "message": "° (Minuten/Sekunden)"
   },
 
@@ -357,7 +357,7 @@
   },
 
   "35mmequiv": {
-    "message": "mm=35mm-Äquivalent"
+    "message": "mm (35mm-Äquivalent)"
   },
 
   "program": {
