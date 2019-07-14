@@ -17,7 +17,7 @@ This is _it_, xIFr Beta !
 
 Because I felt other Exif readers annoyed me or I felt they were missing something. But it might be a matter of personal taste and needs.
 It is primarily for my own fun and needs I have developed this, but you should really check the _"deep search" feature_.
-It works sooo well (in my own humble opinion ;-) ).
+It works sooo well - in my own humble opinion ;-)
 
 ### Deep Search feature?
 Most other Exif viewers only works if you can right-click directly on an html _img_ element. But xIFr finds the image you want to see details about,
@@ -44,7 +44,7 @@ involved with development of [wxIF](https://github.com/gcp/wxif),
 [FxIF](https://code.google.com/archive/p/fxif/), [JHead](http://www.sentex.net/~mwandel/jhead/) and more.
 Without their work, xIFr wouldn't be.
 
-Also thanks to @crimx, and his ["Get All Images in DOM" coding-post](https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/) which was great help implementing background-image support for the Deep Search feature.
+Also thanks to [crimx](https://github.com/crimx), and his ["Get All Images in DOM" coding-post](https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/) which was great help implementing background-image support for the Deep Search feature.
 
 Finally, to help make xIFr cross-browser compatible, [browser-polyfill.js](https://github.com/StigNygaard/xIFr/tree/master/lib/mozilla) from
 Mozilla's [webextension-polyfill project](https://github.com/mozilla/webextension-polyfill) is used.
