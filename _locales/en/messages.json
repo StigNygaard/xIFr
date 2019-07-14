@@ -1,11 +1,11 @@
 {
   "extensionDescription": {
-    "message": "View the EXIF/IPTC/XMP data for images.",
+    "message": "xIFr beta-version. New viewer to see EXIF, IPTC and XMP metadata in images.",
     "description": "Description of the extension."
   },
 
   "contextMenuText": {
-    "message": "View EXIF data"
+    "message": "xIFr - View EXIF data"
   },
 
   "Copy": {
@@ -164,15 +164,15 @@
     "message": "Coordinates format to use"
   },
 
-  "DD.label": {
+  "DD_label": {
     "message": "Decimal degree"
   },
 
-  "DM.label": {
+  "DM_label": {
     "message": "Degree Minute"
   },
 
-  "DMS.label": {
+  "DMS_label": {
     "message": "Degree Minutes Second"
   },
 
@@ -357,7 +357,7 @@
   },
 
   "35mmequiv": {
-    "message": "mm=35mm equivalent"
+    "message": "mm (35mm equivalent)"
   },
 
   "program": {
@@ -417,11 +417,15 @@
   },
 
   "generalError": {
-    "message": "Error while interpreting the meta data. Meta data shown might be not complete. Please report this problem with an example image."
+    "message": " Error while interpreting meta data. Might not show all or any meta data. "
+  },
+
+  "generalWarning": {
+    "message": " There was an issue interpreting meta data. "
   },
 
   "specialError": {
-    "message": "Error while interpreting %S data. %S meta data shown might be not complete. Please report this problem with an example image."
+    "message": " Error while interpreting %S data. Might not show all or any %S data. "
   },
 
   "UserComment": {
@@ -449,7 +453,7 @@
   },
 
   "GPSLon": {
-    "message": "GPS Longittude"
+    "message": "GPS Longitude"
   },
 
   "noEXIFdata": {

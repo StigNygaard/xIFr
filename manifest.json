@@ -1,26 +1,40 @@
 {
   "manifest_version": 2,
   "name": "xIFr",
-  "version": "0.1.0",
+  "version": "0.8.0",
   "default_locale": "en",
 
   "description": "__MSG_extensionDescription__",
+  "author": "Stig Nygaard",
   "homepage_url": "https://github.com/StigNygaard/xIFr",
 
   "icons": {
-    "16": "icons/fxif.png",
-    "32": "icons/fxif.png",
-    "48": "icons/fxif.png",
-    "96": "icons/fxif.png"
+    "24": "icons/xIFr-24.png",
+    "32": "icons/xIFr-32.png",
+    "48": "icons/xIFr-48.png",
+    "64": "icons/xIFr-64.png",
+    "96": "icons/xIFr-96.png",
+    "128": "icons/xIFr-128.png",
+    "256": "icons/xIFr-256.png",
+    "512": "icons/xIFr-512.png"
   },
+
+  "applications": {
+    "gecko": {
+      "strict_min_version": "56"
+    }
+  },
+  "minimum_chrome_version": "74",
 
   "permissions": [
     "<all_urls>",
     "contextMenus",
-    "activeTab"
+    "menus",
+    "activeTab",
+    "storage"
   ],
 
   "background": {
-    "scripts": ["backgroundscript.js"]
+    "scripts": ["lib/mozilla/browser-polyfill.js", "backgroundscript.js"]
   }
 }

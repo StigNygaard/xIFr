@@ -38,6 +38,7 @@ function iptcClass(stringBundle) {
     var s = "";
     var c = c1 = c2 = 0;
 
+    // Can we use String.fromCodePoint() instead !!??
     for (var i = offset; i < offset + num; ) {
       c = utf8data[i];
       if (c <= 127) {

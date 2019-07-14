@@ -13,39 +13,24 @@
 function xmpClass() {
   var fxifUtils = new fxifUtilsClass();
 
-  var NodeTypes = {
-    ELEMENT_NODE: 1,
-    ATTRIBUTE_NODE: 2,
-    TEXT_NODE: 3,
-    CDATA_SECTION_NODE: 4,
-    ENTITY_REFERENCE_NODE: 5,
-    ENTITY_NODE: 6,
-    PROCESSING_INSTRUCTION_NODE: 7,
-    COMMENT_NODE: 8,
-    DOCUMENT_NODE: 9,
-    DOCUMENT_TYPE_NODE: 10,
-    DOCUMENT_FRAGMENT_NODE: 11,
-    NOTATION_NODE: 12
-  };
-
   // Parses and reads through the XMP document within the file.
   this.parseXML = function (dataObj, xml) {
-    var parser = new DOMParser();
-    // There is at least one programm which includes a null byte at the end of the document.
-    // The parser doesn't like this, so shorten the length by one byte of the last one is null.
-    //var doclength = xml.length;
-    //if (xml.length > 1 && xml[xml.length - 1] == 0)
-    //  doclength--;
-    //var dom = parser.parseFromBuffer(xml, doclength, 'text/xml');
-
+    let parser = new DOMParser();
     let utf8decoder = new TextDecoder('utf-8');
     let xmlString = utf8decoder.decode(xml);
-    //console.debug("xmp xmlString: \n" + xmlString);
+    if (xmlString.indexOf('>') < xmlString.indexOf('<')) {
+      // We are probably missing the first character("<") in xmp data. This dirty fix which apparently usually works...
+      xmlString = '<' + xmlString; // But do xIFr have an addressing bug, or or is it an error in the image file???
+      pushWarning(dataObj, "[xmp]", "Addressing/truncate error while parsing XMP, but was able to recover from it(?)...");
+    }
+    console.debug("xmp xmlString: \n" + xmlString);
+    // There is at least one programm which includes a null byte at the end of the document.
+    // The parser doesn't like this, so shorten the length by one byte of the last one is null.
     if (xmlString && xmlString.length > 0 && xmlString.charCodeAt(xmlString.length - 1) === 0) {
       xmlString = xmlString.substring(0, xmlString.length - 1);
-      //console.debug("xmp xmlString modified: \n" + xmlString);
+      console.debug("xmp xmlString modified: \n" + xmlString);
     }
-    var dom = parser.parseFromString(xmlString, 'application/xml');
+    let dom = parser.parseFromString(xmlString, 'application/xml'); // alternatively "text/xml" ?
 
     if (dom.documentElement.nodeName === 'parsererror') {
       // parsererror might have been caused by incorrect encoding of characters.
@@ -56,17 +41,10 @@ function xmpClass() {
       // I used iso-8859-1 here which will give wrong characters if the source is encoded differently,
       // but getting correct characters isn’t the objective here, just to be able reading the document
       // somehow. The document is corrupt anyway.
-
-      // XXX: Not usable in a WebExtension
-      // var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-      // converter.charset = 'iso-8859-1';
-      // var xmlString = converter.convertFromByteArray(xml, doclength);
-      // dom = parser.parseFromString(xmlString, 'text/xml');
-
       if (dom.documentElement.nodeName === 'parsererror') {
-        console.error("Error parsing XML");
-        // no known remedy, so don’t throw this problem
-        // throw ("Error parsing XML");
+        console.error("Error parsing XML - xmp xmlString: \n" + xmlString);
+        throw ("Error parsing XMP in parseXML()");
+        // pushError(dataObj, "[xmp]", ex);
         return;
       }
     }
@@ -80,34 +58,41 @@ function xmpClass() {
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "City");
-    if (val)
+    if (val) {
       dataObj.City = val;
+    }
 
     val = getXMPValue(dom, "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "Location");
-    if (val)
+    if (val) {
       dataObj.Sublocation = val;
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "State");
-    if (val)
+    if (val) {
       dataObj.ProvinceState = val;
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "Country");
-    if (val)
+    if (val) {
       dataObj.CountryName = val;
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "Headline");
-    if (val)
+    if (val) {
       dataObj.Headline = val;
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "Instructions");
-    if (val)
+    if (val) {
       dataObj.Instructions = val;
+    }
 
     // only use if not already set
     if (!dataObj.Software) {
       val = getXMPValue(dom, "http://ns.adobe.com/xap/1.0/", "CreatorTool");
-      if (val)
+      if (val) {
         dataObj.Software = val;
+      }
     }
 
     val = getXMPOrderedArray(dom, "http://ns.adobe.com/xap/1.0/mm/", "History", "http://ns.adobe.com/xap/1.0/sType/ResourceEvent#", "softwareAgent");
@@ -135,88 +120,103 @@ function xmpClass() {
 
     //    val = getXMPAltValue(dom, "dc:rights", langTest);
     val = getXMPAltValue(dom, "http://purl.org/dc/elements/1.1/", "rights", langTest);
-    if (val)
+    if (val) {
       dataObj.Copyright = val;
-    else {
+    } else {
       val = getXMPAltValue(dom, "http://ns.adobe.com/xap/1.0/rights/", "UsageTerms ", langTest);
-      if (val)
+      if (val) {
         dataObj.Copyright = val;
-      else
+      } else {
         val = getXMPValue(dom, "http://creativecommons.org/ns#", "license");
+      }
     }
-    if (val)
+    if (val) {
       dataObj.Copyright = val;
+    }
 
     // XMP:EXIF
 
     val = getXMPValue(dom, "http://ns.adobe.com/tiff/1.0/", "Make");
-    if (val)
+    if (val) {
       dataObj.Make = val;
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/tiff/1.0/", "Model");
-    if (val)
+    if (val) {
       dataObj.Model = val;
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/aux/", "Lens");
-    if (val)
+    if (val) {
       dataObj.Lens = val;
+    }
 
     if (!dataObj.Date) {
       val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "DateTimeDigitized");
       if (val) {
         let date = readAndFormatISODate(val);
-        if (date)
+        if (date) {
           dataObj.Date = date;
+        }
       }
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "CreateDate");
     if (val) {
       let date = readAndFormatISODate(val);
-      if (date)
+      if (date) {
         dataObj.Date = date;
+      }
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "DateTimeOriginal");
     if (val) {
       let date = readAndFormatISODate(val);
-      if (date)
+      if (date) {
         dataObj.Date = date;
+      }
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "FNumber"); // expects a rational (eg. "5/1")
-    if (!val)
-      val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "ApertureValue"); // expects a rational (eg. "4643856/1000000")
+    if (!val) {
+      val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "ApertureValue");
+    } // expects a rational (eg. "4643856/1000000")
     if (val) {
       try {
         dataObj.ApertureFNumber = "ƒ/" + parseRational(val).toFixed(1);
       } catch (ex) {
-        if (!dataObj.ApertureFNumber)
+        if (!dataObj.ApertureFNumber) {
           dataObj.ApertureFNumber = val;
+        }
       }
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "FocalLength"); // expects a rational (eg. "2000/10")
-    if (val)
+    if (val) {
       try {
         dataObj.FocalLength = parseRational(val).toFixed(1);
       } catch (ex) {
-        if (!dataObj.FocalLength)
+        if (!dataObj.FocalLength) {
           dataObj.FocalLength = val;
+        }
       }
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "FocalLengthIn35mmFilm");
     if (!val)
     // this name is no official one, but written by some applications
+    {
       val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "FocalLengthIn35mmFormat");
-    if (val)
+    }
+    if (val) {
       dataObj.FocalLength35mmEquiv = val;
+    }
 
     if (dataObj.FocalLength) {
       var fl = stringBundle.getFormattedString("millimeters", [dataObj.FocalLength]);
       if (dataObj.FocalLength35mmEquiv) {
         dataObj.FocalLength35mmEquiv = parseFloat(dataObj.FocalLength35mmEquiv);
-        fl += " " + stringBundle.getFormattedString("35mmequiv", [dataObj.FocalLength35mmEquiv.toFixed(0)]);
+        fl += ", " + stringBundle.getFormattedString("35mmequiv", [dataObj.FocalLength35mmEquiv.toFixed(0)]);
       }
 
       dataObj.FocalLengthText = fl;
@@ -226,13 +226,15 @@ function xmpClass() {
     if (val) {
       try {
         var distance = parseRational(val).toFixed(2);
-        if (distance < 0)
+        if (distance < 0) {
           dataObj.Distance = stringBundle.getString("infinite");
-        else
+        } else {
           dataObj.Distance = stringBundle.getFormattedString("meters", [distance]);
+        }
       } catch (ex) {
-        if (!dataObj.Distance)
+        if (!dataObj.Distance) {
           dataObj.Distance = val;
+        }
       }
     }
 
@@ -241,16 +243,19 @@ function xmpClass() {
       try {
         var et = "";
         val = parseRational(val);
-        if (val < 0.010)
+        if (val < 0.010) {
           et = stringBundle.getFormattedString("seconds", [val.toFixed(4)]);
-        else
+        } else {
           et = stringBundle.getFormattedString("seconds", [val.toFixed(3)]);
-        if (val <= 0.5)
+        }
+        if (val <= 0.5) {
           et += " (1/" + Math.floor(0.5 + 1 / val).toFixed(0) + ")";
+        }
         dataObj.ExposureTime = et;
       } catch (ex) {
-        if (!dataObj.ExposureTime)
+        if (!dataObj.ExposureTime) {
           dataObj.ExposureTime = val;
+        }
       }
     }
 
@@ -266,77 +271,87 @@ function xmpClass() {
       // and as child values, e.g. <Flash><Fired>True</Fired></Flash>
       // We've to deal with both and also mixed as a bonus.
       flashFired = getSubvalues(el[0], "http://ns.adobe.com/exif/1.0/", "Fired");
-      if (!flashFired)
+      if (!flashFired) {
         flashFired = el[0].getAttributeNS("http://ns.adobe.com/exif/1.0/", "Fired");
+      }
       flashFunction = getSubvalues(el[0], "http://ns.adobe.com/exif/1.0/", "Function");
-      if (!flashFunction)
+      if (!flashFunction) {
         flashFunction = el[0].getAttributeNS("http://ns.adobe.com/exif/1.0/", "Function");
+      }
       flashMode = Number(getSubvalues(el[0], "http://ns.adobe.com/exif/1.0/", "Mode"));
-      if (!flashMode)
+      if (!flashMode) {
         flashMode = Number(el[0].getAttributeNS("http://ns.adobe.com/exif/1.0/", "Mode"));
+      }
       redEyeMode = getSubvalues(el[0], "http://ns.adobe.com/exif/1.0/", "RedEyeMode");
-      if (!redEyeMode)
+      if (!redEyeMode) {
         redEyeMode = el[0].getAttributeNS("http://ns.adobe.com/exif/1.0/", "RedEyeMode");
+      }
       flashReturn = Number(getSubvalues(el[0], "http://ns.adobe.com/exif/1.0/", "Return"));
-      if (!flashReturn)
+      if (!flashReturn) {
         flashReturn = Number(el[0].getAttributeNS("http://ns.adobe.com/exif/1.0/", "Return"));
+      }
 
       var fu;
-      var addfunc = new Array();
+      var addfunc = [];
       if (flashFired && flashFired.match(/^true$/i)) {
         fu = stringBundle.getString("yes");
 
-        if (flashMode == 3)
+        if (flashMode == 3) {
           addfunc.push(stringBundle.getString("auto"));
-        else
-        if (flashMode == 1)
+        } else if (flashMode == 1) {
           addfunc.push(stringBundle.getString("enforced"));
+        }
 
-        if (redEyeMode && redEyeMode.match(/^true$/i))
+        if (redEyeMode && redEyeMode.match(/^true$/i)) {
           addfunc.push(stringBundle.getString("redeye"));
+        }
 
-        if (flashReturn == 3)
+        if (flashReturn == 3) {
           addfunc.push(stringBundle.getString("returnlight"));
-        else
-        if (flashReturn == 2)
+        } else if (flashReturn == 2) {
           addfunc.push(stringBundle.getString("noreturnlight"));
+        }
       } else {
         fu = stringBundle.getString("no");
-        if (flashFunction && flashFunction.match(/^true$/i))
+        if (flashFunction && flashFunction.match(/^true$/i)) {
           addfunc.push(stringBundle.getString("noflash"));
-        else
-        if (flashMode == 2)
+        } else if (flashMode == 2) {
           addfunc.push(stringBundle.getString("enforced"));
-        else
-        if (flashMode == 3)
+        } else if (flashMode == 3) {
           addfunc.push(stringBundle.getString("auto"));
+        }
       }
 
-      if (addfunc.length)
+      if (addfunc.length) {
         fu += " (" + addfunc.join(", ") + ")";
+      }
 
       dataObj.FlashUsed = fu;
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/tiff/1.0/", "Orientation");
     if (!dataObj.Orientation && val && val > 0) {
-      if (val <= 8)
+      if (val <= 8) {
         dataObj.Orientation = stringBundle.getString("orientation" + val);
-      else
+      } else {
         dataObj.Orientation = stringBundle.getString("unknown") + " (" + val + ")";
+      }
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/tiff/1.0/", "ImageHeight");
-    if (val)
+    if (val) {
       dataObj.Length = val;
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/tiff/1.0/", "ImageWidth");
-    if (val)
+    if (val) {
       dataObj.Width = val;
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "FocalPlaneXResolution");
-    if (val)
+    if (val) {
       dataObj.FocalPlaneXRes = val;
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "FocalPlaneResolutionUnit");
     if (val) {
@@ -362,23 +377,26 @@ function xmpClass() {
             dataObj.FocalPlaneUnits = .001;
             break; // micrometer
         }
-      } else
-      if (!dataObj.FocalPlaneUnits)
+      } else if (!dataObj.FocalPlaneUnits) {
         dataObj.FocalPlaneUnits = val;
+      }
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "ExposureBiasValue");
     if (val) {
       try {
         val = parseRational(val).toFixed(2);
-        if (val === 0)
+        if (val === 0) {
           dataObj.ExposureBias = stringBundle.getString("none");
-        else
+        } else
         // add a + sign before positive values
+        {
           dataObj.ExposureBias = (val > 0 ? '+' : '') + stringBundle.getFormattedString("ev", [val]);
+        }
       } catch (ex) {
-        if (!dataObj.ExposureBias)
+        if (!dataObj.ExposureBias) {
           dataObj.ExposureBias = val;
+        }
       }
     }
 
@@ -394,9 +412,9 @@ function xmpClass() {
             dataObj.WhiteBalance = stringBundle.getString("manual");
             break;
         }
-      } else
-      if (!dataObj.WhiteBalance)
+      } else if (!dataObj.WhiteBalance) {
         dataObj.WhiteBalance = val;
+      }
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "LightSource");
@@ -444,12 +462,12 @@ function xmpClass() {
             dataObj.LightSource = stringBundle.getString("studiotungsten");
             break;
           default: //Quercus: 17-1-2004 There are many more modes for this, check Exif2.2 specs
-            // If it just says 'unknown' or we don't know it, then
-            // don't bother showing it - it doesn't add any useful information.
+          // If it just says 'unknown' or we don't know it, then
+          // don't bother showing it - it doesn't add any useful information.
         }
-      } else
-      if (!dataObj.LightSource)
+      } else if (!dataObj.LightSource) {
         dataObj.LightSource = val;
+      }
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "MeteringMode");
@@ -479,9 +497,9 @@ function xmpClass() {
             dataObj.MeteringMode = stringBundle.getString("partial");
             break;
         }
-      } else
-      if (!dataObj.MeteringMode)
+      } else if (!dataObj.MeteringMode) {
         dataObj.MeteringMode = val;
+      }
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "ExposureProgram");
@@ -494,15 +512,15 @@ function xmpClass() {
             break;
           case 2:
             dataObj.ExposureProgram = stringBundle.getString("program") + " ("
-                + stringBundle.getString("auto") + ")";
+              + stringBundle.getString("auto") + ")";
             break;
           case 3:
             dataObj.ExposureProgram = stringBundle.getString("apriority")
-                + " (" + stringBundle.getString("semiauto") + ")";
+              + " (" + stringBundle.getString("semiauto") + ")";
             break;
           case 4:
             dataObj.ExposureProgram = stringBundle.getString("spriority")
-                + " (" + stringBundle.getString("semiauto") + ")";
+              + " (" + stringBundle.getString("semiauto") + ")";
             break;
           case 5:
             dataObj.ExposureProgram = stringBundle.getString("creative");
@@ -519,19 +537,20 @@ function xmpClass() {
           default:
             break;
         }
-      } else
-      if (!dataObj.ExposureProgram)
+      } else if (!dataObj.ExposureProgram) {
         dataObj.ExposureProgram = val;
+      }
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "ExposureIndex");
     if (val) {
-      if (!dataObj.ExposureIndex)
+      if (!dataObj.ExposureIndex) {
         try {
           dataObj.ExposureIndex = parseRational(val).toFixed(0);
         } catch (ex) {
           dataObj.ExposureIndex = val;
         }
+      }
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "ExposureMode");
@@ -548,73 +567,87 @@ function xmpClass() {
             dataObj.ExposureMode = stringBundle.getString("autobracketing");
             break;
         }
-      } else
-      if (!dataObj.ExposureProgram)
+      } else if (!dataObj.ExposureProgram) {
         dataObj.ExposureProgram = val;
+      }
     }
 
     val = getXMPOrderedArray(dom, "http://ns.adobe.com/exif/1.0/", "ISOSpeedRatings");
-    if (val && val.length)
+    if (val && val.length) {
       dataObj.ISOequivalent = val.join(", ");
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "DigitalZoomRatio");
-    if (val)
+    if (val) {
       try {
         var floatVal = parseRational(val);
-        if (floatVal > 1)
+        if (floatVal > 1) {
           dataObj.DigitalZoomRatio = floatVal.toFixed(3) + "x";
+        }
       } catch (ex) {
-        if (!dataObj.DigitalZoomRatio)
+        if (!dataObj.DigitalZoomRatio) {
           dataObj.DigitalZoomRatio = val;
+        }
       }
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "ColorSpace");
     if (val) {
-      if (val == 1)
+      console.debug("xmp.js 1 colorspace val =" + val);
+      if (val == 1) {
         dataObj.ColorSpace = "sRGB";
-      else if (val == 2)
+      } else if (val == 2) {
         dataObj.ColorSpace = "Adobe RGB";
+      }
     }
 
     if (!dataObj.ColorSpace) {
       // At least Photoshop writes ColorSpace "uncalibrated" though it uses
       // a defined colorspace which is documented in ICCProfile
       val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "ICCProfile");
-      if (val)
+      if (val) {
+        console.debug("xmp.js 1.1 colorspace val =" + val);
         dataObj.ColorSpace = val;
+      }
     }
 
     // GPS stuff
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "GPSAltitude");
     var gpsAlt;
-    if (val)
+    if (val) {
       gpsAlt = parseRational(val);
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "GPSAltitudeRef");
     var gpsAltRef = 0;
-    if (val)
+    if (val) {
       gpsAltRef = Number(val);
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "GPSImgDirection");
     var gpsImgDir;
-    if (val)
+    if (val) {
       gpsImgDir = parseRational(val);
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "GPSImgDirectionRef");
     var gpsImgDirRef = 'M';
-    if (val)
+    if (val) {
       gpsImgDirRef = val;
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "GPSLatitude");
     var gpsLat;
-    if (val)
+    if (val) {
       gpsLat = parseGPSPos(val);
+    }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "GPSLongitude");
     var gpsLon;
-    if (val)
+    if (val) {
       gpsLon = parseGPSPos(val);
+    }
 
     // use dms format by default
     var degFormat = "dms";
@@ -630,7 +663,8 @@ function xmpClass() {
         degFormat = "dm";
         degFormatter = fxifUtils.dd2dm;
       }
-    } catch (e) {}
+    } catch (e) {
+    }
 
     if (gpsLat !== undefined) {
       let gpsArr = degFormatter(Math.abs(gpsLat));
@@ -651,8 +685,7 @@ function xmpClass() {
 
     // Get the straight decimal values without rounding.
     // For creating links to map services.
-    if (gpsLat !== undefined &&
-        gpsLon !== undefined) {
+    if (gpsLat !== undefined && gpsLon !== undefined) {
       dataObj.GPSPureDdLat = gpsLat / 3600;
       dataObj.GPSPureDdLon = gpsLon / 3600;
     }
@@ -678,8 +711,9 @@ function xmpClass() {
     if (matches) {
       var val = matches[1] / matches[2];
       return val;
-    } else
+    } else {
       throw ("ratstring contains no rational");
+    }
   }
 
   // Since JS can't really parse dates and keep timezone informations,
@@ -694,15 +728,18 @@ function xmpClass() {
       date = exploded_date[1];
       if (typeof exploded_date[2] != 'undefined' && exploded_date[2].length > 0) {
         date += ' ' + exploded_date[2];
-        if (typeof exploded_date[3] != 'undefined' && exploded_date[3].length > 0)
+        if (typeof exploded_date[3] != 'undefined' && exploded_date[3].length > 0) {
           date += exploded_date[3];
+        }
         if (typeof exploded_date[4] != 'undefined' && exploded_date[4].length > 0) {
-          if (exploded_date[4] === 'Z')
+          if (exploded_date[4] === 'Z') {
             date += ' UTC';
-          else
+          } else {
             date += ' ' + exploded_date[4];
-        } else
+          }
+        } else {
           date += ' ' + stringBundle.getString("noTZ");
+        }
       }
       return date;
     }
@@ -718,15 +755,17 @@ function xmpClass() {
   // property "FNumber"
   function getXMPValue(dom, ns, property) {
     var el = dom.getElementsByTagNameNS(ns, property);
-    if (el.length && el[0].hasChildNodes())
+    if (el.length && el[0].hasChildNodes()) {
       return el[0].firstChild.nodeValue;
+    }
 
     var list = dom.getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "Description");
 
     for (var i = 0; i < list.length; i++) {
       var attr = list[i].getAttributeNS(ns, property);
-      if (attr)
+      if (attr) {
         return attr;
+      }
     }
   }
 
@@ -746,8 +785,7 @@ function xmpClass() {
 
       for (let j = 0; j < entriesList.length; j++) {
         // found a non empty entry with fitting language
-        if (entriesList[j].hasChildNodes() &&
-            langTest.test(entriesList[j].getAttribute("xml:lang"))) {
+        if (entriesList[j].hasChildNodes() && langTest.test(entriesList[j].getAttribute("xml:lang"))) {
           val = entriesList[j].firstChild.nodeValue;
           break;
         }
@@ -760,7 +798,7 @@ function xmpClass() {
       for (let j = 0; j < entriesList.length; j++) {
         // found a non empty entry with fitting language
         if (entriesList[j].hasChildNodes() &&
-            entriesList[j].getAttribute("xml:lang") === "x-default") {
+          entriesList[j].getAttribute("xml:lang") === "x-default") {
           val = entriesList[j].firstChild.nodeValue;
           break;
         }
@@ -776,8 +814,9 @@ function xmpClass() {
     if (list.length) {
       if (list[0].hasChildNodes()) {
         var fc = list[0].firstChild;
-        if (fc.nodeType === NodeTypes.TEXT_NODE)
+        if (fc.nodeType === Node.TEXT_NODE) {
           val = fc.nodeValue;
+        }
       }
     }
 
@@ -793,7 +832,7 @@ function xmpClass() {
   // complicated. Should remove this when Firefox 3 is widespread.
   //function getXMPOrderedArray(dom, property)
   function getXMPOrderedArray(dom, ns, property, attrNS, attrName) {
-    var valarray = new Array();
+    var valarray = [];
 
     let el = dom.getElementsByTagNameNS(ns, property);
     if (el.length) {
@@ -802,22 +841,38 @@ function xmpClass() {
         if (list[i].hasChildNodes()) {
           let li;
           var tmp = list[i].getElementsByTagNameNS(attrNS, attrName);
-          if (tmp.length && tmp[0].hasChildNodes())
+          if (tmp.length && tmp[0].hasChildNodes()) {
             li = tmp[0].firstChild;
-          else
+          } else {
             li = list[i].firstChild;
-          if (li.nodeType === NodeTypes.TEXT_NODE)
+          }
+          if (li.nodeType === Node.TEXT_NODE) {
             valarray.push(li.nodeValue);
-        } else
-        // supposedly one element with values as properties
-        {
+          }
+        } else {
+          // supposedly one element with values as properties
           var test = list[i].getAttributeNS(attrNS, attrName);
-          if (test)
+          if (test) {
             valarray.push(test);
+          }
         }
       }
     }
 
     return valarray;
   }
+
+  function pushError(dataObj, type, message) {
+    if (dataObj.error)
+      dataObj.error.push(stringBundle.getFormattedString("generalError", type) + ' ' + message);
+    else
+      dataObj.error = [stringBundle.getFormattedString("generalError", type) + ' ' + message];
+  }
+  function pushWarning(dataObj, type, message) {
+    if (dataObj.warning)
+      dataObj.warning.push(stringBundle.getFormattedString("generalWarning", type) + ' ' + message);
+    else
+      dataObj.warning = [stringBundle.getFormattedString("generalWarning", type) + ' ' + message];
+  }
+
 }

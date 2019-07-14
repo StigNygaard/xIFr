@@ -1,18 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
-  <title>EXIF data</title>
+  <title>xIFr - View EXIF data</title>
   <link rel="stylesheet" href="popup.css">
+  <script src="/lib/mozilla/browser-polyfill.js"></script>
   <script src="popupscript.js"></script>
+  <style>
+  </style>
 </head>
-
-<body>
-  <table id="data"></table>
-  <div id="buttonzone">
-    <button type="button" id="copybutton">Copy to clipboard</button>
+<body class="mainmode">
+  <div id="tabs">
+    <button id="maintab"> Image data </button>  <!-- An icon ? -->
+    <button id="maptab"> Map </button>  <!-- An icon ? -->
   </div>
+  <div id="main">
+    <div id="image">
+      <img src="" alt="" />
+    </div>
+    <div id="properties"><b><a href="" id="filename" title=""></a></b><br />
+      <span title="Content-type reported by server">Content-type: <span id="contenttype"></span></span><br />
+      <span title="Size reported by server">Size: <span id="imgsize"></span> bytes (<span id="imgsize2"></span>)</span><br />
+      <span title="Modified date reported by server">Last modified: <span id="lastmodified"></span></span><br />
+      <span>Dimensions: <span id="dimensions"></span></span>
+    </div>
+    <div id="messages"></div>
+    <table id="data"><colgroup><col class="labels" /><col /></colgroup></table>
+  </div>
+  <div id="map"><iframe sandbox="allow-scripts allow-popups" id="osmap" src=""></iframe><br/>&nbsp;<small><a href="#" id="largermap">View Larger Map</a></small></div>
 </body>
-
 </html>

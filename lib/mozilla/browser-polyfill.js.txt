@@ -1,0 +1,6 @@
+
+browser-polyfill.js from webextension-polyfill by Mozilla
+https://github.com/mozilla/webextension-polyfill
+Available under Mozilla Public License Version 2.0.
+
+Last copied from Mozilla's project on 2019-03-03.

@@ -94,6 +94,7 @@ function exifClass() {
     var s = "";
     var c = c1 = c2 = 0;
 
+    // Could String.fromCodePoint() be used instead !!??
     for (var i = offset; i < offset + num; ) {
       c = utf8data[i];
       if (c <= 127) {
@@ -142,7 +143,6 @@ function exifClass() {
       if (loopDetectorArray[i] == val)
         return true;
     }
-
     return false;
   }
 
@@ -464,7 +464,11 @@ function exifClass() {
     0x80000270 = EOS Rebel T2i / 550D / Kiss X4
     0x80000281 = EOS-1D Mark IV
     0x80000287 = EOS 60D
-     */
+
+    More:
+    https://sno.phy.queensu.ca/~phil/exiftool/TagNames/Canon.html
+
+    */
 
     return ntags;
   }
@@ -541,7 +545,7 @@ function exifClass() {
       try {
         exifReader.readExifDir(dataObj, exifData, ifd_ofs, swapbytes);
       } catch (ex) {
-        pushError(dataObj, "EXIF", ex);
+        pushError(dataObj, "[EXIF]", ex);
       }
       fxifUtils.exifDone = true;
     }
@@ -1001,11 +1005,13 @@ function exifClass() {
 
         case TAG_COLORSPACE:
           if (!dataObj.ColorSpace) {
+            console.debug("binExif readExifDir (1) colorspace val="+val);
             if (val == 1)
               dataObj.ColorSpace = "sRGB";
             else
               colorSpace = val;
           }
+          console.debug("binExif readExifDir (1.1) colorspace dataObj.ColorSpace="+dataObj.ColorSpace);
           break;
 
         case TAG_MAKER_NOTE:
@@ -1032,6 +1038,7 @@ function exifClass() {
           break;
 
         default:
+          console.debug('*** Unhandled exif tag: ' + tag);
           ntags--;
       }
     }
@@ -1050,6 +1057,7 @@ function exifClass() {
         dataObj.Date = dataObj.Date.replace(/:(\d{2}):/, "-$1-") + " " + stringBundle.getString("noTZ");
     }
 
+    console.debug("binExif readExifDir (2) colorSpace=" + colorSpace + ", interopIndex.search=" + interopIndex.search(/^R03$/));
     if (colorSpace != 0) {
       if (dataObj.ColorSpace == 2 ||
           dataObj.ColorSpace == 65535 && interopIndex.search(/^R03$/))
@@ -1061,7 +1069,7 @@ function exifClass() {
       var fl = stringBundle.getFormattedString("millimeters", [dataObj.FocalLength.toFixed(1)]);
       if (dataObj.FocalLength35mmEquiv) {
         dataObj.FocalLength35mmEquiv = parseFloat(dataObj.FocalLength35mmEquiv);
-        fl += " " + stringBundle.getFormattedString("35mmequiv", [dataObj.FocalLength35mmEquiv.toFixed(0)]);
+        fl += ", " + stringBundle.getFormattedString("35mmequiv", [dataObj.FocalLength35mmEquiv.toFixed(0)]);  //  Todo: Keep this? Redo how focal lengt data is handled?
       }
 
       dataObj.FocalLengthText = fl;

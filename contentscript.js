@@ -14,6 +14,12 @@ function addByteStreamIF(arr) {
     return val;
   };
   arr.readBytes = byteCount => {
+    if (byteCount < 0) {
+      console.error("readBytes(byteCount): Can't read negative byteCount=" + byteCount);
+      throw "xIFr contentscript.js, readBytes(byteCount): Can't read negative byteCount=" + byteCount;
+      // pushError(dataObj, "[xmp]", ex);
+      return;
+    }
     var retval = "";
     for (var i = 0; i < byteCount; i++) {
       retval += String.fromCharCode(arr[arr.bisOffset]);
@@ -32,45 +38,313 @@ function translateFields(data) {
   var newdata = {};
   Object.keys(data).forEach(key_v => {
     var key = key_v;
+    var label = key;
     var val = data[key_v];
-    if (typeof key == "string") {
-      key = stringBundle.getString(key);
+    if (typeof key === "string") {
+      label = stringBundle.getString(key.replace('.', '_'));
     }
-    if (typeof val == "string") {
+    if (typeof val === "string") {
       val = stringBundle.getString(val);
     }
-    newdata[key] = val;
+    newdata[key] = {label: label, value: val};
+  });
+  return newdata;
+}
+
+
+// Finding an loading backgrounds is code slightly modified from https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/ (by CRIMX) ...
+function getBgImgs (elem) {
+  const srcChecker = /url\(\s*?['"]?\s*?(\S+?)\s*?["']?\s*?\)/gi;
+  return Array.from(
+    (elem === document ? [] : [elem]).concat(Array.from(elem.querySelectorAll('*'))) // Includes elem (itself) unless elem is document
+      .reduce((collection, node) => {
+        let cstyle = window.getComputedStyle(node, null);
+        let display = cstyle.getPropertyValue('display');
+        let visibility = cstyle.getPropertyValue('visibility');
+        if (display !== 'none' && visibility !== 'hidden') {
+          let bgimage = cstyle.getPropertyValue('background-image');
+          // match 'url(...)'
+          let match;
+          while((match = srcChecker.exec(bgimage)) !== null ) { // There might actually be multiple. Like:  background-image: url("img_tree.gif"), url("paper.gif");
+            collection.add(match[1]);
+          }
+        }
+        return collection;
+      }, new Set())
+  );
+}
+function loadImg (src, timeout = 500) {
+  var imgPromise = new Promise((resolve, reject) => {
+    let img = new Image();
+    img.onload = () => { // Could we use https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode ?
+      resolve({
+        src: src,
+        width: img.naturalWidth,
+        height: img.naturalHeight
+      })
+    };
+    img.onerror = reject;
+    img.src = src;
+  });
+  var timer = new Promise((resolve, reject) => {
+    setTimeout(reject, timeout);
+  });
+  return Promise.race([imgPromise, timer]);
+}
+function loadImgAll (imgList, timeout = 500) { // Could we use https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode ?
+  return new Promise((resolve, reject) => {
+    Promise.all(
+      imgList
+        .map(src => loadImg(src, timeout))
+        .map(p => p.catch(e => false))
+    ).then(results => resolve(results.filter(r => r)));
+  })
+}
+
+
+function loadparseshow(request) {
+  if (!request) {
+    console.debug("Exit loadparseshow. Nothing to show!");
+    return;
+  }
+  var xhr = new XMLHttpRequest(); // Any issues with cross-domain in Chrome? Apparently not despite https://www.chromium.org/Home/chromium-security/extension-content-script-fetches ?
+  xhr.open("GET", request.imageURL, true);
+  xhr.responseType = "arraybuffer";
+  xhr.addEventListener("load", () => {
+    var arrayBuffer = xhr.response;
+
+    if (arrayBuffer) {
+      console.debug("Looking at the xhr response (arrayBuffer)...");
+
+      // This is the raw input from image file
+
+      // DEBUG
+      //let utf8decoder = new TextDecoder('utf-8');
+      //var raw1 = utf8decoder.decode(arrayBuffer);
+      //console.debug("raw1: \n:" + raw1.substr(0,25000));
+
+      var byteArray = new Uint8Array(arrayBuffer);
+
+      // DEBUG
+      // let utf8decoder = new TextDecoder('utf-8');
+      //var raw2 = utf8decoder.decode(byteArray);
+      //console.debug("raw2: \n:" + raw2.substr(0,25000));
+      //var dom = parser.parseFromString(raw, 'application/xml');
+      //console.debug();
+
+      console.debug("Call addByteStreamIF(byteArray)...");
+      addByteStreamIF(byteArray);
+      console.debug("Gather data from image header (fxifObj.gatherData(byteArray) = fxifClass.gatherData() in parseJpeg.js)...");
+      var dataObj = fxifObj.gatherData(byteArray); // Gather data from header (via "markers" found in file)
+
+      let errorsArr = []; // move errors from dataObj to this
+      if (dataObj.error && dataObj.error.length > 0) {
+        errorsArr.push(...dataObj.error);
+        delete dataObj.error;
+      }
+      let warningsArr = []; // move warnings from dataObj to this
+      if (dataObj.warning && dataObj.warning.length > 0) {
+        warningsArr.push(...dataObj.warning);
+        delete dataObj.warning;
+      }
+      let infosArr = [];
+
+      console.debug("request: " + JSON.stringify(request));
+      if (request.naturalWidth && request.supportsDeepSearch && !request.deepSearch && (request.naturalWidth * request.naturalHeight <= forceLargerThanSize)) {
+        infosArr.push('Not the expected image? You can force xIFr to look for a larger image than this, by holding down Shift key when selecting xIFr in the context menu!');
+      }
+
+      let propertiesObj = {};
+      propertiesObj.URL = request.imageURL;
+      propertiesObj.byteLength = arrayBuffer.byteLength || xhr.getResponseHeader('Content-Length');
+      propertiesObj.contentType = xhr.getResponseHeader('Content-Type'); // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
+      propertiesObj.lastModified = xhr.getResponseHeader('Last-Modified');
+      if (request.naturalWidth) {
+        propertiesObj.naturalWidth = request.naturalWidth;
+        propertiesObj.naturalHeight = request.naturalHeight;
+      }
+      if (request.source) { // ?
+        propertiesObj.source = request.source;
+      }
+      if (request.context) { // ?
+        propertiesObj.context = request.context;
+      }
+
+      // Todo: Actually used colorprofile/colorspace would be nice too? How to find?
+
+      console.debug("Gathered data: \n" + JSON.stringify(dataObj));
+      let xlatData = translateFields(dataObj);
+      console.debug("Gathered data after translation: \n" + JSON.stringify(xlatData));
+
+      console.debug("EXIF parsing done. Send EXIFready message...");
+      browser.runtime.sendMessage({
+        message: "EXIFready",
+        data: xlatData,
+        properties: propertiesObj,
+        errors: errorsArr,
+        warnings: warningsArr,
+        infos: infosArr
+      });
+    } else {
+      console.debug("xhr response (arrayBuffer) is empty!...");
+    }
   });
 
-  return newdata;
+  xhr.addEventListener("error", () => {
+    console.debug("wxIF xhr error:" + xhr.statusText);
+  });
+
+  console.debug("Read image data (xhr.send())...");
+  xhr.send();
+}
+
+
+var genericLargerThanSize = 10 * 10; // Just not relevant if that small
+var forceLargerThanSize = 150 * 150; // Go bigger than this when "force larger size" (shift-select in context menu - Firefox 63+ feature) to avoid overlayed icons and logos // Todo: Make this size configurable
+
+function imageSearch(request, elem) {
+  console.debug("imageSearch(): Looking for img elements on/below " + elem.nodeName.toLowerCase());
+  let candidate;
+  for (var img of document.images) {
+    if (elem.contains(img)) { // img is itself/elem or img is a "sub-node"
+      console.debug("Found image within target element! img.src=" + img.src + " and naturalWidth=" + img.naturalWidth + ", naturalHeight=" + img.naturalHeight);
+      // We could look for best match, or just continue with the first we find?
+      if (img.naturalWidth > 10) { // Can't remember why I made this check? Superfluous? We compare with genericLargerThanSize further down
+        console.debug("Candidate!?");
+        let propDisplay = window.getComputedStyle(img, null).getPropertyValue('display'); // none?
+        let propVisibility = window.getComputedStyle(img, null).getPropertyValue('visibility'); // hidden?
+        // Maybe also look at computed opacity ??!
+        console.debug("PROPs! display=" + propDisplay + ", visibility=" + propVisibility);
+        if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && propDisplay !== 'none' && propVisibility !== 'hidden' ) {
+          if ((request.deepSearch && (img.naturalWidth * img.naturalHeight) > forceLargerThanSize) || (!request.deepSearch && (img.naturalWidth * img.naturalHeight) > genericLargerThanSize)) {
+            if (typeof candidate !== "undefined") {
+              console.debug("Compare img with candidate: " + img.naturalWidth * img.naturalHeight + " > " + candidate.naturalWidth * candidate.naturalHeight + "? -  document.images.length = " + document.images.length);
+              if ((img.naturalWidth * img.naturalHeight) > (candidate.naturalWidth * candidate.naturalHeight)) {
+                console.debug("Setting new candidate. -  document.images.length = " + document.images.length);
+                candidate = img;
+              }
+            } else {
+              console.debug("Setting first candidate. -  document.images.length = " + document.images.length);
+              candidate = img;
+            }
+          }
+        }
+      }
+    }
+  }
+  if (typeof candidate !== "undefined") {
+    console.debug("Found! Let's use best candidate: " + candidate.src);
+    let image = {}; // result
+    image.imageURL = candidate.currentSrc || candidate.src;
+    image.mediaType = 'image';
+    image.naturalWidth = candidate.naturalWidth;
+    image.naturalHeight = candidate.naturalHeight;
+    image.supportsDeepSearch = request.supportsDeepSearch;
+    image.deepSearch = request.deepSearch;
+    image.source = candidate.nodeName.toLowerCase() + " element";  // 'img element';
+    image.context = request.nodeName + " element"; // (not really anything to de with found image)
+    console.debug("imageSearch(): Returning found image (img) " + JSON.stringify(image));
+    return image;
+  }
+  // nothing found by simple search
+}
+
+function bgSearch(request, elem, bgSizes) {
+  console.debug("bgSearch(): Looking for backgrounds on/below " + elem.nodeName.toLowerCase());
+  let bgImgs = getBgImgs(elem);
+  console.debug("bgSearch(): Following bgImgs are found on/below: " + JSON.stringify(bgImgs));
+  if (bgImgs && bgImgs.length > 0) {
+    console.debug("Found BACKGROUND-IMAGE: " + bgImgs[0]);
+    console.debug("Looking for dimensions of BACKGROUND-IMAGE via " + JSON.stringify(bgSizes));
+    for (let bgSrc of bgImgs) {
+      let imgData = bgSizes.find(bg => bg.src === bgSrc);
+      if (imgData.width && ((request.deepSearch && ((imgData.width * imgData.height) > forceLargerThanSize)) || (!request.deepSearch && ((imgData.width * imgData.height) > genericLargerThanSize)))) {
+        let image = {};
+        image.imageURL = bgSrc;
+        image.mediaType = 'image';
+        image.naturalWidth = imgData.width;
+        image.naturalHeight = imgData.height;
+        image.supportsDeepSearch = request.supportsDeepSearch;
+        image.deepSearch = request.deepSearch;
+        image.source = 'background-image of an element'; // probably elem.nodeName, but not for sure
+        image.context = request.nodeName + " element"; // (not really anything to de with found image)
+        console.debug("bgSearch(): Returning found image (background) " + JSON.stringify(image));
+        return image;
+      }
+    }
+  }
+}
+
+function deeperSearch(request, elem, bgSizes) {
+  console.debug("Entering deeperSearch() with elem=" + elem.nodeName + " and elem.parentNode=" + elem.parentNode.nodeName);
+  let image = bgSearch(request, elem, bgSizes);
+  if (!image) {
+    console.debug("deeperSearch(): No image from bgSearch()");
+    if (elem.nodeName.toLowerCase() === 'html' || elem.nodeName.toLowerCase() === '#document' || elem instanceof HTMLDocument || !elem.parentNode) {
+      console.debug("deeperSearch(): Cannot go higher from " + elem.nodeName.toLowerCase() + ", return without image!  typeof elem.parentNode = " + typeof elem.parentNode);
+      return; // no image found
+    }
+    console.debug("deeperSearch(): Going from " + elem.nodeName + " element, up to " + elem.parentNode.nodeName + " element...");
+    elem = elem.parentNode;
+    image = imageSearch(request, elem);
+  }
+  if (image) {
+    console.debug("deeperSearch(): Return with image");
+    return image;
+  } else {
+    return deeperSearch(request, elem, bgSizes);
+  }
 }
 
 if (typeof contentListenerAdded === 'undefined') {
   browser.runtime.onMessage.addListener(request => {
-    if (request.message === "parseImage" &&
-        typeof request.imageURL !== 'undefined') {
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", request.imageURL, true);
-      xhr.responseType = "arraybuffer";
-      xhr.addEventListener("load", () => {
-        var arrayBuffer = xhr.response;
-        if (arrayBuffer) {
-          var byteArray = new Uint8Array(arrayBuffer);
-          addByteStreamIF(byteArray);
-          var dataObj = fxifObj.gatherData(byteArray);
-          xlatData = translateFields(dataObj);
-          browser.runtime.sendMessage({
-            message: "EXIFready",
-            data: xlatData
-          });
+
+    if (request.message === "parseImage") {
+
+      if (request.supportsDeepSearch) {
+
+        /**************************************************************/
+        /*  ***  Advanced mode with "deep-search" (Firefox 63+)  ***  */
+        /**************************************************************/
+
+        let elem = browser.menus.getTargetElement(request.targetId);
+        if (elem) {
+          request.nodeName = elem.nodeName.toLowerCase(); // node name of context (right-click) target
+          let bgImages = loadImgAll(getBgImgs(document)); // start finding and downloading background images to find the dimensions
+          let image = imageSearch(request, elem);
+          if (image) {
+            loadparseshow(image);
+          } else {
+            bgImages.then(bgSizes => {console.debug("Going deep search with preloaded backgrounds: " + JSON.stringify(bgSizes)); loadparseshow(deeperSearch(request, elem, bgSizes))});
+          }
         }
-      });
 
-      xhr.addEventListener("error", () => {
-        console.log("wxIF xhr error:" + xhr.statusText);
-      });
+      } else if (typeof request.imageURL !== 'undefined' && request.mediaType === 'image') {
 
-      xhr.send();
+        /************************************************************************/
+        /*  ***  Simple "legacy mode" (Chrome and older Firefox versions)  ***  */
+        /************************************************************************/
+
+        request.nodeName = 'img'; // node name of context (right-click) target
+        console.debug("parseImage message received with URL = " + request.imageURL);
+        let image = {};
+        image.imageURL = request.imageURL;
+        image.mediaType = 'image';
+        image.supportsDeepSearch = request.supportsDeepSearch; // false
+        image.deepSearch = request.deepSearch;
+        image.source = "img element";
+        image.context = request.nodeName + " element"; // (not really anything to de with found image)
+        let img = Array.from(document.images).find(imgElem => imgElem.currentSrc === request.imageURL);
+        if (img) {
+          image.naturalWidth = img.naturalWidth;
+          image.naturalHeight = img.naturalHeight;
+        } else {
+          // Is it possible to arrive here? I don't think so, but...
+          // If so, maybe: New Image(request.imageURL); load promise -> dimensions
+        }
+        loadparseshow(image);
+
+      }
     }
   });
 }

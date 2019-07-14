@@ -1,40 +1,57 @@
-# xIFr
+# xIFr Beta
 
-xIFr is me experimenting with a fork of wxIF. Maybe it will result in a new webextension. Maybe not. 
+xIFr is a viewer for EXIF, IPTC and XMP metadata in jpg image files. It is currently in beta, but mostly feature complete.
 
-## Standing on the shoulders of giants
-The fundament of xIFr is work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/AUTHORS) involved with development of [JHead](http://www.sentex.net/~mwandel/jhead/), [FxIF](https://code.google.com/archive/p/fxif/), [wxIF](https://github.com/gcp/wxif) and more.
+xIFr is a "cross-browser compatible" webextension. It works with Firefox 56+, Chrome 74+ and compatible browsers(*).
+But a "deep search functionality" requires Firefox 63 (compatible) or newer.
 
-Below README from wxIF:
+(*) Additionally compatible browsers includes Tor, Waterfox, Brave, Opera and the [new chrominum based MS Edge](https://www.microsoftedgeinsider.com/download).
 
-# wxIF
+### Beta version?
 
-wxIF is a port of FxIF to WebExtensions. It adds a context menu that
-allows one to view EXIF, IPTC and XMP metadata from images.
+Do you know the frustrating feeling of working on something new, that's not quite in the state you originally imagined it should be in before showing it to
+the World. But getting the last details and polishing done is a bit boring and progressing rather slow, and you really don't want to keep it for yourself anymore?
+This is _it_, xIFr Beta !
 
-## Differences with the XUL version
+### Why another Exif viewer?
 
-* It's not possible to verify that the image can potentially contain
-  EXIF data without downloading it. So the context menu item will be
-  displayed even on e.g. PNG images.
+Because I felt other Exif readers annoyed me or I felt they were missing something. But it might be a matter of personal taste and needs.
+It is primarily for my own fun and needs I have developed this, but you should really check the _"deep search" feature_.
+It works sooo well (in my own humble opinion ;-) ).
 
-* Images are redownloaded instead of being fetched directly from the
-  cache. (The re-download may still be statisfied from cache).
+### Deep Search feature?
+Most other Exif viewers only works if you can right-click directly on an html _img_ element. But xIFr finds the image you want to see details about,
+no matter if it is behind a layer, or is defined as a background-image of another element. 99% of the times, it just works as you expect.
+You wont even know if you were right-clicking directly on an img element or not. This is in my opinion the most important feature distinguishing
+xIFr from any other Exif-viewer I have tried.
 
-## To Do
+Also with Deep Search, you can avoid overlayered logos and icons. By shift-clicking when selecting XIFr in browser's context-menu, you will force
+xIFr to look for images larger than a minimum-size (This minimum size is planned to be configurable in final release).
 
-* The info panel layout is rather clunky. It should probably size to
-  its contents somehow.
+Deep Search is supported in Firefox 63 or newer (If using Chrome or earlier versions of Firefox, there's no deep search support, and you need to
+right-click directly on an img-element, like with most other Exif-viewers).
 
-* IPTC and XMP metadata support hasn't had much if any testing.
+### Dark Theme support
+On Windows 10 1903+ and MacOS Mojave 10.14+, system-setting for [preferred Dark Theme](https://developer.mozilla.org/docs/Web/CSS/@media/prefers-color-scheme) should be supported when installing xIFr on Firefox 67+ or Chrome 76+. Might also be supported on other platforms.
 
-* The i18n support is a quick hack to be able to use the messages
-  from the previous version. This will need an overhaul.
+### A handy Firefox tip!
+Some websites overrides the browser's default right-click context menu. But you can always hold down the shift key while
+right-clicking on a page, to get the browser's native context menu back - and thus fire-up xIFr...
 
-* No translations from the original addon were ported.
+### A lot of credit to...
+Vital parts of xIFr, is inherited work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/AUTHORS)
+involved with development of [wxIF](https://github.com/gcp/wxif),
+[FxIF](https://code.google.com/archive/p/fxif/), [JHead](http://www.sentex.net/~mwandel/jhead/) and more.
+Without their work, xIFr wouldn't be.
 
-* The coordinate notation and map provider are not configurable.
+Also thanks to @crimx, and his ["Get All Images in DOM" coding-post](https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/) which was great help implementing background-image support for the Deep Search feature.
 
-## License
+Finally, to help make xIFr cross-browser compatible, [browser-polyfill.js](https://github.com/StigNygaard/xIFr/tree/master/lib/mozilla) from
+Mozilla's [webextension-polyfill project](https://github.com/mozilla/webextension-polyfill) is used.
+
+### License
 
 MPL 2.0
+
+### Flickr Fixr
+Love photos? Flickr user? Also try my [Flickr Fixr](https://github.com/StigNygaard/Stigs_Flickr_Fixr) !

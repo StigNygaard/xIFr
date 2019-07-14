@@ -10,7 +10,7 @@ var stringBundle = {
   getString(string) {
     var translate = browser.i18n.getMessage(string);
     // WebExtension docs are lying here
-    if (translate === "??" || translate === "" || translate === undefined) {
+    if (typeof translate === "undefined" || translate === "??" || translate === "") {
       return string;
     } else {
       return translate;
