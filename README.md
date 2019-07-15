@@ -1,9 +1,12 @@
 # xIFr Beta
 
-xIFr is a viewer for EXIF, IPTC and XMP metadata in jpg image files. It is currently in beta, but mostly feature complete.
+xIFr is a viewer for EXIF, IPTC and XMP metadata in jpg image files. It is currently "in beta", but mostly feature complete.
 
 xIFr is a "cross-browser compatible" webextension. It works with Firefox 56+, Chrome 74+ and compatible browsers(*).
 But a _"deep search" functionality_ requires Firefox 63 (compatible) or newer.
+
+* [Install on Mozilla Firefox (or compatible)](https://addons.mozilla.org/firefox/addon/xifr/)
+* Install on Google Chrome (or compatible)
 
 (*) Additionally compatible browsers includes Tor, Waterfox, Brave, Opera and the [new chrominum based MS Edge](https://www.microsoftedgeinsider.com/download).
 
@@ -15,9 +18,8 @@ This is _it_, xIFr Beta !
 
 ### Why another Exif viewer?
 
-Because I felt other Exif readers annoyed me or I felt they were missing something. But it might be a matter of personal taste and needs.
-It is primarily for my own fun and needs I have developed this, but you should really check the _"deep search" feature_.
-It works sooo well - in my own humble opinion :-)
+Because I felt other Exif readers annoyed me or I felt they were missing something. It is probably a matter of personal preferences,
+but you should really check the _"deep search" feature_. It works sooo well - in my own very humble opinion :-)
 
 ### "Deep Search" feature?
 Most other Exif viewers only works if you can right-click directly on an html _img_ element. But xIFr finds the image you want to see details about,
@@ -36,7 +38,7 @@ On Windows 10 1903+ and MacOS Mojave 10.14+, system-setting for [preferred Dark 
 
 ### A handy Firefox tip!
 Some websites overrides the browser's default right-click context menu. But you can always hold down the shift key while
-right-clicking on a page, to get the browser's native context menu back - and thus fire-up xIFr...
+right-clicking on a page, to get the browser's native context menu back - and thus launch xIFr...
 
 ### A lot of credit to...
 Vital parts of xIFr, is inherited work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/AUTHORS)
