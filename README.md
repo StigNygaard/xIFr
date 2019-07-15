@@ -5,7 +5,7 @@ xIFr is a viewer for EXIF, IPTC and XMP metadata in jpg image files. It is curre
 xIFr is a "cross-browser compatible" webextension. It works with Firefox 56+, Chrome 74+ and compatible browsers(*).
 But a _"deep search" functionality_ requires Firefox 63 (compatible) or newer.
 
-* [Install on Mozilla Firefox (or compatible)](https://addons.mozilla.org/firefox/addon/xifr/)
+* [Install on Mozilla Firefox (or compatible)](https://addons.mozilla.org/firefox/addon/xifr?src=external-github)
 * Install on Google Chrome (or compatible)
 
 (*) Additionally compatible browsers includes Tor, Waterfox, Brave, Opera and the [new chrominum based MS Edge](https://www.microsoftedgeinsider.com/download).
