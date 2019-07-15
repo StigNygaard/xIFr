@@ -3,7 +3,7 @@
 xIFr is a viewer for EXIF, IPTC and XMP metadata in jpg image files. It is currently in beta, but mostly feature complete.
 
 xIFr is a "cross-browser compatible" webextension. It works with Firefox 56+, Chrome 74+ and compatible browsers(*).
-But a "deep search functionality" requires Firefox 63 (compatible) or newer.
+But a _"deep search" functionality_ requires Firefox 63 (compatible) or newer.
 
 (*) Additionally compatible browsers includes Tor, Waterfox, Brave, Opera and the [new chrominum based MS Edge](https://www.microsoftedgeinsider.com/download).
 
@@ -17,13 +17,13 @@ This is _it_, xIFr Beta !
 
 Because I felt other Exif readers annoyed me or I felt they were missing something. But it might be a matter of personal taste and needs.
 It is primarily for my own fun and needs I have developed this, but you should really check the _"deep search" feature_.
-It works sooo well - in my own humble opinion ;-)
+It works sooo well - in my own humble opinion :-)
 
-### Deep Search feature?
+### "Deep Search" feature?
 Most other Exif viewers only works if you can right-click directly on an html _img_ element. But xIFr finds the image you want to see details about,
-no matter if it is behind a layer, or is defined as a background-image of another element. 99% of the times, it just works as you expect.
+no matter if it is below a layer, or is defined as a background-image of another element. In 99% of the times, it just works as you expect.
 You wont even know if you were right-clicking directly on an img element or not. This is in my opinion the most important feature distinguishing
-xIFr from any other Exif-viewer I have tried.
+xIFr from other Exif-viewers.
 
 Also with Deep Search, you can avoid overlayered logos and icons. By shift-clicking when selecting XIFr in browser's context-menu, you will force
 xIFr to look for images larger than a minimum-size (This minimum size is planned to be configurable in final release).
