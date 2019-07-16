@@ -1,6 +1,7 @@
 # xIFr Beta
 
 xIFr is a viewer for EXIF, IPTC and XMP metadata in jpg image files. It is currently "in beta", but mostly feature complete.
+Launch it from the browser's context menu.
 
 xIFr is a "cross-browser compatible" webextension. It works with Firefox 56+, Chrome 74+ and compatible browsers(*).
 But a _"deep search" functionality_ requires Firefox 63 (compatible) or newer.
@@ -30,8 +31,8 @@ xIFr from other Exif-viewers.
 Also with Deep Search, you can avoid overlayered logos and icons. By shift-clicking when selecting XIFr in browser's context-menu, you will force
 xIFr to look for images larger than a minimum-size (This minimum size is planned to be configurable in final release).
 
-Deep Search is supported in Firefox 63 or newer (If using Chrome or earlier versions of Firefox, there's no deep search support, and you need to
-right-click directly on an img-element, like with most other Exif-viewers).
+Deep Search is supported in Firefox 63 or newer (If using Chrome or earlier versions of Firefox, there's unfortunately no deep search support,
+and you need to right-click directly on an img-element, like with most other Exif-viewers).
 
 ### Dark Theme support
 On Windows 10 1903+ and MacOS Mojave 10.14+, system-setting for [preferred Dark Theme](https://developer.mozilla.org/docs/Web/CSS/@media/prefers-color-scheme) should be supported when installing xIFr on Firefox 67+ or Chrome 76+. Might also be supported on other platforms.
