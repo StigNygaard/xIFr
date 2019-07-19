@@ -28,7 +28,7 @@ no matter if it is below a layer, or is defined as a background-image of another
 You wont even know if you were right-clicking directly on an img element or not. This is in my opinion the most important feature distinguishing
 xIFr from other Exif-viewers.
 
-Also with Deep Search, you can avoid overlayered logos and icons. By shift-clicking when selecting XIFr in browser's context-menu, you will force
+Also with Deep Search, you can avoid overlayered logos and icons. By shift-clicking when selecting xIFr in browser's context-menu, you will force
 xIFr to look for images larger than a minimum-size (This minimum size is planned to be configurable in final release).
 
 Deep Search is supported in Firefox 63 or newer (If using Chrome or earlier versions of Firefox, there's unfortunately no deep search support,
