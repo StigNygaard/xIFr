@@ -7,7 +7,7 @@ xIFr is a "cross-browser compatible" webextension. It works with Firefox 56+, Ch
 But a _"deep search" functionality_ requires Firefox 63 (compatible) or newer.
 
 * [Install on Mozilla Firefox (or compatible)](https://addons.mozilla.org/firefox/addon/xifr?src=external-github)
-* Install on Google Chrome (or compatible)
+* Install on Google Chrome (or compatible) - _not yet available_
 
 (*) Additionally compatible browsers includes Tor, Waterfox, Brave, Opera and the [new chrominum based MS Edge](https://www.microsoftedgeinsider.com/download).
 
