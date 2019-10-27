@@ -11,6 +11,8 @@ But a _"deep search" functionality_ requires Firefox 63 (compatible) or newer.
 
 (*) Additionally compatible browsers includes Tor, Waterfox, Brave, Opera and the [new chrominum based MS Edge](https://www.microsoftedgeinsider.com/download).
 
+![Screenshot](https://addons.cdn.mozilla.net/user-media/previews/full/222/222226.png)
+
 ### Beta version?
 
 Do you know the frustrating feeling of working on something new, that's not quite in the state you originally imagined it should be in before showing it to
@@ -21,6 +23,8 @@ This is _it_, xIFr Beta !
 
 Because I felt other Exif readers annoyed me or I felt they were missing something. It is probably a matter of personal preferences,
 but you should really check the _"deep search" feature_. It works sooo well - in my own very humble opinion :-)
+
+![Screenshot](https://addons.cdn.mozilla.net/user-media/previews/full/222/222227.png)
 
 ### "Deep Search" feature?
 Most other Exif viewers only works if you can right-click directly on an html _img_ element. But xIFr finds the image you want to see details about,
@@ -36,6 +40,8 @@ and you need to right-click directly on an img-element, like with most other Exi
 
 ### Dark Theme support
 On Windows 10 1903+ and MacOS Mojave 10.14+, system-setting for [preferred Dark Theme](https://developer.mozilla.org/docs/Web/CSS/@media/prefers-color-scheme) should be supported when installing xIFr on Firefox 67+ or Chrome 76+. Might also be supported on other platforms.
+
+![Screenshot](https://addons.cdn.mozilla.net/user-media/previews/full/222/222236.png)
 
 ### A handy Firefox tip!
 Some websites overrides the browser's default right-click context menu. But you can always hold down the shift key while
