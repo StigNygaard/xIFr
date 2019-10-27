@@ -1,7 +1,7 @@
 # xIFr Beta
 
 xIFr is a viewer for EXIF, IPTC and XMP metadata in jpg image files. It is currently "in beta", but mostly feature complete.
-Launch it from the browser's context menu.
+Launch it from the browser's right-click context menu.
 
 xIFr is a "cross-browser compatible" webextension. It works with Firefox 56+, Chrome 74+ and compatible browsers(*).
 But a _"deep search" functionality_ requires Firefox 63 (compatible) or newer.
@@ -47,7 +47,7 @@ involved with development of [wxIF](https://github.com/gcp/wxif),
 [FxIF](https://code.google.com/archive/p/fxif/), [JHead](http://www.sentex.net/~mwandel/jhead/) and more.
 Without their work, xIFr wouldn't be.
 
-Also thanks to [crimx](https://github.com/crimx), and his ["Get All Images in DOM" coding-post](https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/) which was great help implementing background-image support for the Deep Search feature.
+Also thanks to [crimx](https://github.com/crimx), and his ["Get All Images in DOM" coding-post](https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/) which was great help implementing the Deep Search feature.
 
 Finally, to help make xIFr cross-browser compatible, [browser-polyfill.js](https://github.com/StigNygaard/xIFr/tree/master/lib/mozilla) from
 Mozilla's [webextension-polyfill project](https://github.com/mozilla/webextension-polyfill) is used.
