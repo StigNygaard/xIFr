@@ -43,7 +43,7 @@ right-clicking on a page, to get the browser's native context menu back - and th
 
 ### A lot of credit to...
 Vital parts of xIFr, is inherited work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/AUTHORS)
-involved with development of [wxIF](https://github.com/gcp/wxif),
+involved with development of [wxIF](https://github.com/gcp/wxif) (xIFr is a fork of wxIF),
 [FxIF](https://code.google.com/archive/p/fxif/), [JHead](http://www.sentex.net/~mwandel/jhead/) and more.
 Without their work, xIFr wouldn't be.
 
