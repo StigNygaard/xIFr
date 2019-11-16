@@ -36,16 +36,23 @@ Also with Deep Search, you can avoid overlayered logos and icons. By shift-click
 xIFr to look for images larger than a minimum-size (This minimum size is planned to be configurable in final release).
 
 Deep Search is supported in Firefox 63 or newer (If using Chrome or earlier versions of Firefox, there's unfortunately no deep search support,
-and you need to right-click directly on an img-element, like with most other Exif-viewers).
+and you you can only launch xIFr by right-clicking directly on an img-element).
 
 ### Dark Theme support
 On Windows 10 1903+ and MacOS Mojave 10.14+, system-setting for [preferred Dark Theme](https://developer.mozilla.org/docs/Web/CSS/@media/prefers-color-scheme) should be supported when installing xIFr on Firefox 67+ or Chrome 76+. Might also be supported on other platforms.
 
 ![Screenshot](https://addons.cdn.mozilla.net/user-media/previews/full/222/222236.png)
 
+### When will it be out of beta?
+When I released the beta-version in summer 2019, I expected to follow up with a "final" version a month or two later.
+But as we are approaching end of 2019, I must admit I haven't coded a single line of code on xIFr since the initial release.
+In the beginning I just needed a little break, but later other stuff has been stealing my time and energy.
+But I promise, there _WILL_ be a version 1.0, and hopefully not too long into 2020. Don't expect big changes though.
+There will be an _Options page_ with a few configuration options, but besides that xIFr 1.0 is planed to look and work very much like the current beta. 
+
 ### A handy Firefox tip!
-Some websites overrides the browser's default right-click context menu. But you can always hold down the shift key while
-right-clicking on a page, to get the browser's native context menu back - and thus launch xIFr...
+Some websites overrides the browser's default right-click context menu. But you can always hold down the _shift_ key while
+right-clicking, to get the browser's native context menu back - and thus launch xIFr...
 
 ### A lot of credit to...
 Vital parts of xIFr, is inherited work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/AUTHORS)
