@@ -48,7 +48,7 @@ When I released the beta-version in summer 2019, I expected to follow up with a 
 But as we are approaching end of 2019, I must admit I haven't coded a single line of code on xIFr since the initial release.
 In the beginning I just needed a little break, but later other stuff has been stealing my time and energy.
 But I promise, there _WILL_ be a version 1.0, and hopefully not too long into 2020. Don't expect big changes though.
-There will be an _Options page_ with a few configuration options, but besides that xIFr 1.0 is planed to look and work very much like the current beta. 
+There will be an _Options page_ with a few configuration options, but besides that xIFr 1.0 is planned to look and work very much like the current beta. 
 
 ### A handy Firefox tip!
 Some websites overrides the browser's default right-click context menu. But you can always hold down the _shift_ key while
