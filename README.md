@@ -1,15 +1,12 @@
 # xIFr Beta
 
-xIFr is a viewer for EXIF, IPTC and XMP metadata in jpg image files. It is currently "in beta", but mostly feature complete.
+xIFr is a browser extension for viewing EXIF, IPTC and XMP metadata in jpg image files. It is currently "in beta", but mostly feature complete.
 Launch it from the browser's right-click context menu.
 
-xIFr is a "cross-browser compatible" webextension. It works with Firefox 56+, Chrome 74+ and compatible browsers(*).
-But a _"deep search" functionality_ requires Firefox 63 (compatible) or newer.
+* [Install from Mozilla Firefox Add-ons](https://addons.mozilla.org/firefox/addon/xifr?src=external-github)
 
-* [Install on Mozilla Firefox (or compatible)](https://addons.mozilla.org/firefox/addon/xifr?src=external-github)
-* Install on Google Chrome (or compatible) - _not yet available_
-
-(*) Additionally compatible browsers includes Tor, Waterfox, Brave, Opera and the [new chrominum based MS Edge](https://www.microsoftedgeinsider.com/download).
+In principle xIFr a "cross-browser compatible" webextension. It currently _ain't_ available via Chrome Web Store, but it still works with Chrome/Chromium based browsers if you load it directly via the browser´s developer features. 
+However the _"deep search" functionality_ (described below) requires Firefox 63 (compatible) or newer, so compared to running in Firefox, the functionality are to some degree restricted when running in Chrome/Chromium based browsers. 
 
 ![Screenshot](https://addons.cdn.mozilla.net/user-media/previews/full/222/222226.png)
 
@@ -36,7 +33,7 @@ Also with Deep Search, you can avoid overlayered logos and icons. By shift-click
 xIFr to look for images larger than a minimum-size (This minimum size is planned to be configurable in final release).
 
 Deep Search is supported in Firefox 63 or newer (If using Chrome or earlier versions of Firefox, there's unfortunately no deep search support,
-and you you can only launch xIFr by right-clicking directly on an img-element).
+and you you can only launch xIFr by right-clicking _directly on_ an img-element).
 
 ### Dark Theme support
 On Windows 10 1903+ and MacOS Mojave 10.14+, system-setting for [preferred Dark Theme](https://developer.mozilla.org/docs/Web/CSS/@media/prefers-color-scheme) should be supported when installing xIFr on Firefox 67+ or Chrome 76+. Might also be supported on other platforms.
