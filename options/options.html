@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>xIFr Options</title>
+  <link rel="stylesheet" href="options.css">
+  <script src="/lib/mozilla/browser-polyfill.js"></script>
+</head>
+<body>
+
+<div id="xIFroptionspage">
+  <p style="float:right">xIFr version <span id="verstr"></span> "Beta 2"</p>
+  <img src="/icons/xIFr-256.png" alt="xIFr" style="width:128px;height:auto;margin:-10px 0 0 0" />
+  <form id="xIFroptions">
+    <fieldset style="position:relative">
+      <legend>&nbsp;Display mode </legend>
+      <p>
+        <input type="radio"
+               name="dispMode"
+               id="defaultMode"
+               value="defaultMode" />
+        <label for="defaultMode">Default/Auto - Light theme or follow system preferred when supported (Depends on OS and browser version)</label>
+      </p>
+      <p>
+        <input type="radio"
+               name="dispMode"
+               id="darkMode"
+               value="darkMode" />
+        <label for="darkMode">Dark theme</label>
+      </p>
+    </fieldset>
+    <fieldset style="position:relative">
+      <legend>&nbsp;Popup position&nbsp;</legend>
+      <div class="twoColumns">
+      <p>
+        <input type="radio"
+               name="popupPos"
+               id="defaultPos"
+               value="defaultPos" />
+        <label for="defaultPos">Browser default</label>
+      </p>
+      <p>
+        <input type="radio"
+               name="popupPos"
+               id="center"
+               value="center" />
+        <label for="center">Center of screen<b class="note ffo up">*</b></label>
+      </p>
+      <p>
+        <input type="radio"
+               name="popupPos"
+               id="centerBrowser"
+               value="centerBrowser" />
+        <label for="centerBrowser">Center of browser window<b class="note ffo up">*</b></label>
+      </p>
+      <p>
+        <input type="radio"
+               name="popupPos"
+               id="topLeft"
+               value="topLeft" />
+        <label for="topLeft">Top left of screen<b class="note ffo up">*</b></label>
+      </p>
+      <p>
+        <input type="radio"
+               name="popupPos"
+               id="topRight"
+               value="topRight" />
+        <label for="topRight">Top right of screen<b class="note ffo up">*</b></label>
+      </p>
+      <p>
+        <input type="radio"
+               name="popupPos"
+               id="topLeftBrowser"
+               value="topLeftBrowser" />
+        <label for="topLeftBrowser">Top left of browser window<b class="note ffo up">*</b></label>
+      </p>
+      <p>
+        <input type="radio"
+               name="popupPos"
+               id="topRightBrowser"
+               value="topRightBrowser" />
+        <label for="topRightBrowser">Top right of browser window<b class="note ffo up">*</b></label>
+      </p>
+      <p>
+        <input type="radio"
+               name="popupPos"
+               id="leftish"
+               value="leftish" />
+        <label for="leftish">Left<em>ish</em><b class="note ffo up">*</b></label>
+      </p>
+      <p>
+        <input type="radio"
+               name="popupPos"
+               id="rightish"
+               value="rightish" />
+        <label for="rightish">Right<em>ish</em><b class="note ffo up">*</b></label>
+      </p>
+      </div>
+      <p class="note ffo"><b class="up">*</b>Because of a <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1271047" title="Bugzilla - Bug 1271047: Panel window type is not opening on given position">bug in Firefox</a>, you might see a quick glimpse of popup centered or in the default position, before it moves to the requested position.</p>
+    </fieldset>
+    <fieldset style="position:relative" id="deepSearchSettings">
+      <legend>&nbsp;Deep Search&nbsp;</legend>
+      <p><em>Deep Search</em> is the name given to the algorithm xIFr uses to find/guess which image you where thinking of when right-clicking on a webpage (No, it's not always as obvious as it may seem).</p>
+      <p>A special <em>"force big" mode</em><b class="note up">*</b> of <em>Deep Search</em> makes it possible to ignore smaller images:</p>
+      <p>
+        <label for="deepSearchBigMinSize">Make "force big" image search ignore images up to </label>
+        <input type="text" id="deepSearchBigMinSize" required="required" minlength="2" maxlength="6" size="8" pattern="[1-9]\d+" />
+        squarepixels big (Equivalent to f.ex: <span id="deepSearchBigMinSizeEx"></span>px).
+      </p>
+      <p class="note"><b class="up">*</b>You initiate the "force big" image search by using shift-click to select xIFr in browser's context menu.</p>
+    </fieldset>
+    <fieldset style="position:relative">
+      <legend>&nbsp;Map links&nbsp;</legend>
+      <p>Besides the integrated Map tab available for geotagged photos, xIFr can offer links to see position using various map providers.</p>
+      <div class="twoColumns">
+      <p>
+        <input type="checkbox"
+               id="mlinkOSM"
+               value="mlinkOSM" />
+        <label for="mlinkOSM">OpenStreetMap</label>
+      </p>
+      <p>
+        <input type="checkbox"
+               id="mlinkGoogle"
+               value="mlinkGoogle" />
+        <label for="mlinkGoogle">Google Maps</label>
+      </p>
+      <p>
+        <input type="checkbox"
+               id="mlinkBing"
+               value="mlinkBing" />
+        <label for="mlinkBing">Bing Maps</label>
+      </p>
+      <p>
+        <input type="checkbox"
+               id="mlinkMapQuest"
+               value="mlinkMapQuest" />
+        <label for="mlinkMapQuest">MapQuest</label>
+      </p>
+      <p>
+        <input type="checkbox"
+               id="mlinkHere"
+               value="mlinkHere" />
+        <label for="mlinkHere">Here WeGo</label>
+      </p>
+      <p>
+        <input type="checkbox"
+               id="mlinkFlickr"
+               value="mlinkFlickr" />
+        <label for="mlinkFlickr">Flickr (Other nearby photos)</label>
+      </p>
+      </div>
+    </fieldset>
+
+    <button type="submit" class="browser-style">Save xIFr options</button>
+
+  </form>
+
+</div>
+<script src="/context.js"></script>
+<script src="options.js"></script>
+</body>
+</html>

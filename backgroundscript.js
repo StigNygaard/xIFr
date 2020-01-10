@@ -6,6 +6,8 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
+let options = {};
+let win = {};
 let previous = {};
 let popupData = {};
 if (browser.menus && browser.menus.getTargetElement) { // A bit dirty? But an easy way to use Firefox extended API while preserving Chrome (an older Firefox) compatibility.
@@ -13,22 +15,56 @@ if (browser.menus && browser.menus.getTargetElement) { // A bit dirty? But an ea
 }
 
 function createPopup(request) {
-  browser.windows.create({
-    url: browser.extension.getURL("/popup/popup.html"),
-    type: "popup",
-    width: 650, // Should maybe depend on screen(/browser) size (screen.width?)
-    height: 500, // Should maybe depend on screen(/browser) size (screen.height?)
-    left: 10,
-    top: 10
-  }).then(win => {
-    previous.winId = win.id;
-    previous.imgURL = request.data.URL;
-    // Todo: Positioning popup options!
-    // browser.windows.update(win.id, {
-    //   left: 10, // https://bugzilla.mozilla.org/show_bug.cgi?id=1271047
-    //   top: 10
-    // });
-  });
+
+  console.debug("!!! window.screen.width: " + window.screen.width);
+  console.debug("!!! window.screen.availWidth: " + window.screen.availWidth);
+  console.debug("!!! window.screen.height: " + window.screen.height);
+  console.debug("!!! window.screen.availHeight: " + window.screen.availHeight);
+  console.debug("!!! browser.windows.Window.width: " + win.width);
+  console.debug("!!! browser.windows.Window.height: " + win.height);
+  console.debug("!!! browser.windows.Window.top: " + win.top);
+  console.debug("!!! browser.windows.Window.left: " + win.left);
+
+  var pos = {};
+  switch (options["popupPos"]) {
+    case "center":
+      pos = {left: Math.floor(window.screen.availWidth/2) - 325, top: Math.floor(window.screen.availHeight/2) - 250};
+      break;
+    case "centerBrowser":
+      pos = {left: win.left + Math.floor(win.width/2) - 325, top: win.top + Math.floor(win.height/2) - 250};
+      break;
+    case "topLeft":
+      pos = {left: 10, top: 10};
+      break;
+    case "topRight":
+      pos = {left: window.screen.availWidth - 650 -10, top: 10};
+      break;
+    case "topLeftBrowser":
+      pos = {left: win.left + 10, top: win.top + 10};
+      break;
+    case "topRightBrowser":
+      pos = {left: win.left + win.width - 650 - 10 , top: win.top + 10}; // todo: not working !?!
+      break;
+    case "leftish":
+      pos = {left: Math.max(win.left - 200, 10), top: Math.max(win.top + Math.floor(win.height/2) - 300, 10)};
+      break;
+    case "rightish":
+      pos = {left: Math.min(win.left + win.width - 450, window.screen.availWidth - 650 - 10), top: Math.max(win.top + Math.floor(win.height/2) - 300, 10)};
+      break;
+  }
+  browser.windows.create( Object.assign(
+    {
+      url: browser.extension.getURL("/popup/popup.html"),
+      type: "popup",
+      width: 650,
+      height: 500
+    }, pos) ).then( win => {
+      previous.winId = win.id;
+      previous.imgURL = request.data.URL;
+      if (options["popupPos"] !== "defaultPos" && context.isFirefox()) {  // https://bugzilla.mozilla.org/show_bug.cgi?id=1271047
+        browser.windows.update(win.id, pos);
+      }
+    });
 }
 
 browser.contextMenus.create({ // Can I prevent it on about: pages?
@@ -43,6 +79,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
     console.debug("Context menu clicked. mediaType=" + info.mediaType);
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/OnClickData
     if ((info.mediaType && info.mediaType === "image" && info.srcUrl) || info.targetElementId) {
+
       var scripts = [
         "/lib/mozilla/browser-polyfill.js",
         "/stringBundle.js",
@@ -53,16 +90,16 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
         "/binIptc.js",
         "/xmp.js"
       ];
-
       var scriptLoadPromises = scripts.map(script => {
         return browser.tabs.executeScript(null, {
           frameId : info.frameId,
           file: script
         });
       });
-
-      Promise.all(scriptLoadPromises).then(() => {
+      Promise.all([context.getOptions(), browser.windows.getCurrent(), ...scriptLoadPromises]).then((values) => {
         console.debug("All scripts started from background is ready...");
+        options = values[0];
+        win = values[1];
         browser.tabs.sendMessage(tab.id, {
           message: "parseImage",
           imageURL: info.srcUrl,
@@ -70,10 +107,12 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
           targetId: info.targetElementId,
           supportsDeepSearch: !!(info.targetElementId && info.modifiers),  // "deep-search" supported in Firefox 63+
           deepSearch: info.modifiers && info.modifiers.includes("Shift"),
+          deepSearchBigMinSize: options["deepSearchBigMinSize"],
           frameId : info.frameId, // related to globalThis/window/frames ?
           frameUrl : info.frameUrl
         });
       });
+
     }
   }
 });

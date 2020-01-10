@@ -5,14 +5,14 @@
   <title>xIFr - View EXIF data</title>
   <link rel="stylesheet" href="popup.css">
   <script src="/lib/mozilla/browser-polyfill.js"></script>
-  <script src="popupscript.js"></script>
-  <style>
-  </style>
+  <script src="/context.js"></script>
+  <script src="popup.js"></script>
 </head>
-<body class="mainmode">
+<body class="mainmode dark">
+  <img id="wheel" src="/icons/wheel-24.png" alt="Options" title="Options" />
   <div id="tabs">
-    <button id="maintab"> Image data </button>  <!-- An icon ? -->
-    <button id="maptab"> Map </button>  <!-- An icon ? -->
+    <button id="maintab"> Image data </button>  <!-- Add an icon ? -->
+    <button id="maptab"> Map </button>  <!-- Add an icon ? -->
   </div>
   <div id="main">
     <div id="image">

@@ -908,7 +908,7 @@ function exifClass() {
               // is present as string instead of number.
               dataObj.ExposureIndex = val.toFixed(0);
             } catch (e) {
-              let tmp = parseInt(val);
+              let tmp = parseInt(val, 10);
               if (!isNaN(tmp))
                 dataObj.ExposureIndex = tmp;
             }
@@ -934,7 +934,7 @@ function exifClass() {
             // is present as string instead of number.
             dataObj.ISOequivalent = val.toFixed(0);
           } catch (e) {
-            let tmp = parseInt(val);
+            let tmp = parseInt(val, 10);
             if (!isNaN(tmp))
               dataObj.ISOequivalent = tmp;
           }

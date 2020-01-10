@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "xIFr",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "default_locale": "en",
 
   "description": "__MSG_extensionDescription__",
@@ -24,17 +24,26 @@
       "strict_min_version": "56.0"
     }
   },
-  "minimum_chrome_version": "74.0",
+  "minimum_chrome_version": "78.0",
+  "minimum_opera_version": "67.0",
+  "minimum_edge_version": "79.0",
 
   "permissions": [
     "<all_urls>",
     "contextMenus",
     "menus",
-    "activeTab",
     "storage"
   ],
+  "content_security_policy": "script-src 'self'; object-src 'none'",
 
   "background": {
-    "scripts": ["lib/mozilla/browser-polyfill.js", "backgroundscript.js"]
+    "scripts": ["lib/mozilla/browser-polyfill.js", "context.js", "backgroundscript.js"]
+  },
+
+  "options_ui": {
+    "page": "options/options.html",
+    "browser_style": true,
+    "chrome_style": true,
+    "open_in_tab": true
   }
 }

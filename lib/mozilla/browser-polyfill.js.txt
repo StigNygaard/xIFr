@@ -3,4 +3,5 @@ browser-polyfill.js from webextension-polyfill by Mozilla
 https://github.com/mozilla/webextension-polyfill
 Available under Mozilla Public License Version 2.0.
 
-Last copied from Mozilla's project on 2019-03-03.
+Last copied from Mozilla's project on 2019-12-29:
+Version 0.6.0 of browser-polyfill.js from https://unpkg.com/browse/webextension-polyfill/dist/

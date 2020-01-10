@@ -54,7 +54,7 @@ function translateFields(data) {
 
 // Finding an loading backgrounds is code slightly modified from https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/ (by CRIMX) ...
 function getBgImgs (elem) {
-  const srcChecker = /url\(\s*?['"]?\s*?(\S+?)\s*?["']?\s*?\)/gi;
+  const srcChecker = /url\(\s*?['"]?\s*?(\S+?)\s*?["']?\s*?\)/giu;
   return Array.from(
     (elem === document ? [] : [elem]).concat(Array.from(elem.querySelectorAll('*'))) // Includes elem (itself) unless elem is document
       .reduce((collection, node) => {
@@ -102,13 +102,13 @@ function loadImgAll (imgList, timeout = 500) { // Could we use https://developer
 }
 
 
-function loadparseshow(request) {
-  if (!request) {
+function loadparseshow(imgrequest) {
+  if (!imgrequest) {
     console.debug("Exit loadparseshow. Nothing to show!");
     return;
   }
-  var xhr = new XMLHttpRequest(); // Any issues with cross-domain in Chrome? Apparently not despite https://www.chromium.org/Home/chromium-security/extension-content-script-fetches ?
-  xhr.open("GET", request.imageURL, true);
+  var xhr = new XMLHttpRequest(); // Any issues with cross-domain in Chrome? Apparently not despite https://www.chromium.org/Home/chromium-security/extension-content-script-fetches ? I don't understand...
+  xhr.open("GET", imgrequest.imageURL, true);
   xhr.responseType = "arraybuffer";
   xhr.addEventListener("load", () => {
     var arrayBuffer = xhr.response;
@@ -149,25 +149,25 @@ function loadparseshow(request) {
       }
       let infosArr = [];
 
-      console.debug("request: " + JSON.stringify(request));
-      if (request.naturalWidth && request.supportsDeepSearch && !request.deepSearch && (request.naturalWidth * request.naturalHeight <= forceLargerThanSize)) {
+      console.debug("request: " + JSON.stringify(imgrequest));
+      if (imgrequest.naturalWidth && imgrequest.supportsDeepSearch && !imgrequest.deepSearch && (imgrequest.naturalWidth * imgrequest.naturalHeight <= imgrequest.deepSearchBigMinSize)) {  // forceLargerThanSize !!!!!
         infosArr.push('Not the expected image? You can force xIFr to look for a larger image than this, by holding down Shift key when selecting xIFr in the context menu!');
       }
 
       let propertiesObj = {};
-      propertiesObj.URL = request.imageURL;
+      propertiesObj.URL = imgrequest.imageURL;
       propertiesObj.byteLength = arrayBuffer.byteLength || xhr.getResponseHeader('Content-Length');
       propertiesObj.contentType = xhr.getResponseHeader('Content-Type'); // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
       propertiesObj.lastModified = xhr.getResponseHeader('Last-Modified');
-      if (request.naturalWidth) {
-        propertiesObj.naturalWidth = request.naturalWidth;
-        propertiesObj.naturalHeight = request.naturalHeight;
+      if (imgrequest.naturalWidth) {
+        propertiesObj.naturalWidth = imgrequest.naturalWidth;
+        propertiesObj.naturalHeight = imgrequest.naturalHeight;
       }
-      if (request.source) { // ?
-        propertiesObj.source = request.source;
+      if (imgrequest.source) { // ?
+        propertiesObj.source = imgrequest.source;
       }
-      if (request.context) { // ?
-        propertiesObj.context = request.context;
+      if (imgrequest.context) { // ?
+        propertiesObj.context = imgrequest.context;
       }
 
       // Todo: Actually used colorprofile/colorspace would be nice too? How to find?
@@ -200,7 +200,6 @@ function loadparseshow(request) {
 
 
 var genericLargerThanSize = 10 * 10; // Just not relevant if that small
-var forceLargerThanSize = 150 * 150; // Go bigger than this when "force larger size" (shift-select in context menu - Firefox 63+ feature) to avoid overlayed icons and logos // Todo: Make this size configurable
 
 function imageSearch(request, elem) {
   console.debug("imageSearch(): Looking for img elements on/below " + elem.nodeName.toLowerCase());
@@ -216,7 +215,7 @@ function imageSearch(request, elem) {
         // Maybe also look at computed opacity ??!
         console.debug("PROPs! display=" + propDisplay + ", visibility=" + propVisibility);
         if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && propDisplay !== 'none' && propVisibility !== 'hidden' ) {
-          if ((request.deepSearch && (img.naturalWidth * img.naturalHeight) > forceLargerThanSize) || (!request.deepSearch && (img.naturalWidth * img.naturalHeight) > genericLargerThanSize)) {
+          if ((request.deepSearch && (img.naturalWidth * img.naturalHeight) > request.deepSearchBigMinSize) || (!request.deepSearch && (img.naturalWidth * img.naturalHeight) > genericLargerThanSize)) {  // forceLargerThanSize
             if (typeof candidate !== "undefined") {
               console.debug("Compare img with candidate: " + img.naturalWidth * img.naturalHeight + " > " + candidate.naturalWidth * candidate.naturalHeight + "? -  document.images.length = " + document.images.length);
               if ((img.naturalWidth * img.naturalHeight) > (candidate.naturalWidth * candidate.naturalHeight)) {
@@ -240,6 +239,7 @@ function imageSearch(request, elem) {
     image.naturalWidth = candidate.naturalWidth;
     image.naturalHeight = candidate.naturalHeight;
     image.supportsDeepSearch = request.supportsDeepSearch;
+    image.deepSearchBigMinSize = request.deepSearchBigMinSize;
     image.deepSearch = request.deepSearch;
     image.source = candidate.nodeName.toLowerCase() + " element";  // 'img element';
     image.context = request.nodeName + " element"; // (not really anything to de with found image)
@@ -258,13 +258,14 @@ function bgSearch(request, elem, bgSizes) {
     console.debug("Looking for dimensions of BACKGROUND-IMAGE via " + JSON.stringify(bgSizes));
     for (let bgSrc of bgImgs) {
       let imgData = bgSizes.find(bg => bg.src === bgSrc);
-      if (imgData.width && ((request.deepSearch && ((imgData.width * imgData.height) > forceLargerThanSize)) || (!request.deepSearch && ((imgData.width * imgData.height) > genericLargerThanSize)))) {
+      if (imgData.width && ((request.deepSearch && ((imgData.width * imgData.height) > request.deepSearchBigMinSize)) || (!request.deepSearch && ((imgData.width * imgData.height) > genericLargerThanSize)))) {  // forceLargerThanSize
         let image = {};
         image.imageURL = bgSrc;
         image.mediaType = 'image';
         image.naturalWidth = imgData.width;
         image.naturalHeight = imgData.height;
         image.supportsDeepSearch = request.supportsDeepSearch;
+        image.deepSearchBigMinSize = request.deepSearchBigMinSize;
         image.deepSearch = request.deepSearch;
         image.source = 'background-image of an element'; // probably elem.nodeName, but not for sure
         image.context = request.nodeName + " element"; // (not really anything to de with found image)
@@ -331,6 +332,7 @@ if (typeof contentListenerAdded === 'undefined') {
         image.imageURL = request.imageURL;
         image.mediaType = 'image';
         image.supportsDeepSearch = request.supportsDeepSearch; // false
+        image.deepSearchBigMinSize = request.deepSearchBigMinSize;
         image.deepSearch = request.deepSearch;
         image.source = "img element";
         image.context = request.nodeName + " element"; // (not really anything to de with found image)
