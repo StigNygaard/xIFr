@@ -1,20 +1,18 @@
-# xIFr Beta
+# xIFr Beta 2
 
-xIFr is a browser extension for viewing EXIF, IPTC and XMP metadata in jpg image files. It is currently "in beta", but mostly feature complete.
+xIFr is a browser extension for viewing EXIF, IPTC and XMP metadata in jpg image files. It is currently "in beta", but considered feature complete.
 Launch it from the browser's right-click context menu.
 
 * [Install from Mozilla Firefox Add-ons](https://addons.mozilla.org/firefox/addon/xifr?src=external-github)
 
-In principle xIFr a "cross-browser compatible" webextension. It currently _ain't_ available via Chrome Web Store, but it still works with Chrome/Chromium based browsers if you load it directly via the browser´s developer features. 
-However the _"deep search" functionality_ (described below) requires Firefox 63 (compatible) or newer, so compared to running in Firefox, the functionality are to some degree restricted when running in Chrome/Chromium based browsers. 
+In principle xIFr a "cross-browser compatible" webextension. While it currently _ain't_ available via Chrome Web Store, it still works with Chrome/Chromium based browsers if you load [the webextension](https://github.com/StigNygaard/xIFr/releases) directly via the browser´s developer features. 
+However the _"deep search" functionality_ (described below) requires Firefox 63 (compatible) or newer. 
 
 ![Screenshot](https://addons.cdn.mozilla.net/user-media/previews/full/222/222226.png)
 
 ### Beta version?
 
-Do you know the frustrating feeling of working on something new, that's not quite in the state you originally imagined it should be in before showing it to
-the World. But getting the last details and polishing done is a bit boring and progressing rather slow, and you really don't want to keep it for yourself anymore?
-This is _it_, xIFr Beta !
+Current "Beta 2" is considered feature complete. I'm only planning to do a little "internal polishing" before I release something I want to call a "final" version.
 
 ### Why another Exif viewer?
 
@@ -24,28 +22,21 @@ but you should really check the _"deep search" feature_. It works sooo well - in
 ![Screenshot](https://addons.cdn.mozilla.net/user-media/previews/full/222/222227.png)
 
 ### "Deep Search" feature?
-Most other Exif viewers only works if you can right-click directly on an html _img_ element. But xIFr finds the image you want to see details about,
+Most other Exif viewers only works if you can right-click directly on an html _img_ element. But with "Deep Search" xIFr finds the image you want to see details about,
 no matter if it is below a layer, or is defined as a background-image of another element. In 99% of the times, it just works as you expect.
 You wont even know if you were right-clicking directly on an img element or not. This is in my opinion the most important feature distinguishing
 xIFr from other Exif-viewers.
 
 Also with Deep Search, you can avoid overlayered logos and icons. By shift-clicking when selecting xIFr in browser's context-menu, you will force
-xIFr to look for images larger than a minimum-size (This minimum size is planned to be configurable in final release).
+xIFr to look for images larger than a minimum-size (From "Beta 2" this size is configurable).
 
-Deep Search is supported in Firefox 63 or newer (If using Chrome or earlier versions of Firefox, there's unfortunately no deep search support,
-and you you can only launch xIFr by right-clicking _directly on_ an img-element).
+Deep Search is supported in **Firefox 63 or newer** (It requires an API feature currently only available in Firefox 63+). In other browser versions you can only launch xIFr if you are able to right-click _directly_ on an html _img_ element.
 
 ### Dark Theme support
-On Windows 10 1903+ and MacOS Mojave 10.14+, system-setting for [preferred Dark Theme](https://developer.mozilla.org/docs/Web/CSS/@media/prefers-color-scheme) should be supported when installing xIFr on Firefox 67+ or Chrome 76+. Might also be supported on other platforms.
+On Windows 10 1903+ and MacOS Mojave 10.14+, system-setting for [preferred Dark Theme](https://developer.mozilla.org/docs/Web/CSS/@media/prefers-color-scheme) should be supported when installing xIFr on Firefox 67+ or Chrome 76+, but it might also be supported on other platforms.
+From "Beta 2" it is also possible to configure xIFr to force it into Dark mode, ignoring systems settings in general. 
 
 ![Screenshot](https://addons.cdn.mozilla.net/user-media/previews/full/222/222236.png)
-
-### When will it be out of beta?
-When I released the beta-version in summer 2019, I expected to follow up with a "final" version a month or two later.
-But as we are approaching end of 2019, I must admit I haven't coded a single line of code on xIFr since the initial release.
-In the beginning I just needed a little break, but later other stuff has been stealing my time and energy.
-But I promise, there _WILL_ be a version 1.0, and hopefully not too long into 2020. Don't expect big changes though.
-There will be an _Options page_ with a few configuration options, but besides that xIFr 1.0 is planned to look and work very much like the current beta. 
 
 ### A handy Firefox tip!
 Some websites overrides the browser's default right-click context menu. But you can always hold down the _shift_ key while
