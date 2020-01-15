@@ -150,7 +150,7 @@ function loadparseshow(imgrequest) {
       let infosArr = [];
 
       console.debug("request: " + JSON.stringify(imgrequest));
-      if (imgrequest.naturalWidth && imgrequest.supportsDeepSearch && !imgrequest.deepSearch && (imgrequest.naturalWidth * imgrequest.naturalHeight <= imgrequest.deepSearchBigMinSize)) {  // forceLargerThanSize !!!!!
+      if (imgrequest.naturalWidth && imgrequest.supportsDeepSearch && !imgrequest.deepSearch && (imgrequest.naturalWidth * imgrequest.naturalHeight <= imgrequest.deepSearchBiggerLimit)) {
         infosArr.push('Not the expected image? You can force xIFr to look for a larger image than this, by holding down Shift key when selecting xIFr in the context menu!');
       }
 
@@ -199,7 +199,7 @@ function loadparseshow(imgrequest) {
 }
 
 
-var genericLargerThanSize = 10 * 10; // Just not relevant if that small
+var deepSearchGenericLimit = 10 * 10; // Just not relevant if that small
 
 function imageSearch(request, elem) {
   console.debug("imageSearch(): Looking for img elements on/below " + elem.nodeName.toLowerCase());
@@ -208,14 +208,14 @@ function imageSearch(request, elem) {
     if (elem.contains(img)) { // img is itself/elem or img is a "sub-node"
       console.debug("Found image within target element! img.src=" + img.src + " and naturalWidth=" + img.naturalWidth + ", naturalHeight=" + img.naturalHeight);
       // We could look for best match, or just continue with the first we find?
-      if (img.naturalWidth > 10) { // Can't remember why I made this check? Superfluous? We compare with genericLargerThanSize further down
+      if (img.naturalWidth > 10) { // Can't remember why I made this check? Superfluous? We compare with deepSearchGenericLimit further down
         console.debug("Candidate!?");
         let propDisplay = window.getComputedStyle(img, null).getPropertyValue('display'); // none?
         let propVisibility = window.getComputedStyle(img, null).getPropertyValue('visibility'); // hidden?
         // Maybe also look at computed opacity ??!
         console.debug("PROPs! display=" + propDisplay + ", visibility=" + propVisibility);
         if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && propDisplay !== 'none' && propVisibility !== 'hidden' ) {
-          if ((request.deepSearch && (img.naturalWidth * img.naturalHeight) > request.deepSearchBigMinSize) || (!request.deepSearch && (img.naturalWidth * img.naturalHeight) > genericLargerThanSize)) {  // forceLargerThanSize
+          if ((request.deepSearch && (img.naturalWidth * img.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearch && (img.naturalWidth * img.naturalHeight) > deepSearchGenericLimit)) {
             if (typeof candidate !== "undefined") {
               console.debug("Compare img with candidate: " + img.naturalWidth * img.naturalHeight + " > " + candidate.naturalWidth * candidate.naturalHeight + "? -  document.images.length = " + document.images.length);
               if ((img.naturalWidth * img.naturalHeight) > (candidate.naturalWidth * candidate.naturalHeight)) {
@@ -239,7 +239,7 @@ function imageSearch(request, elem) {
     image.naturalWidth = candidate.naturalWidth;
     image.naturalHeight = candidate.naturalHeight;
     image.supportsDeepSearch = request.supportsDeepSearch;
-    image.deepSearchBigMinSize = request.deepSearchBigMinSize;
+    image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
     image.deepSearch = request.deepSearch;
     image.source = candidate.nodeName.toLowerCase() + " element";  // 'img element';
     image.context = request.nodeName + " element"; // (not really anything to de with found image)
@@ -258,14 +258,14 @@ function bgSearch(request, elem, bgSizes) {
     console.debug("Looking for dimensions of BACKGROUND-IMAGE via " + JSON.stringify(bgSizes));
     for (let bgSrc of bgImgs) {
       let imgData = bgSizes.find(bg => bg.src === bgSrc);
-      if (imgData.width && ((request.deepSearch && ((imgData.width * imgData.height) > request.deepSearchBigMinSize)) || (!request.deepSearch && ((imgData.width * imgData.height) > genericLargerThanSize)))) {  // forceLargerThanSize
+      if (imgData.width && ((request.deepSearch && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearch && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
         let image = {};
         image.imageURL = bgSrc;
         image.mediaType = 'image';
         image.naturalWidth = imgData.width;
         image.naturalHeight = imgData.height;
         image.supportsDeepSearch = request.supportsDeepSearch;
-        image.deepSearchBigMinSize = request.deepSearchBigMinSize;
+        image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
         image.deepSearch = request.deepSearch;
         image.source = 'background-image of an element'; // probably elem.nodeName, but not for sure
         image.context = request.nodeName + " element"; // (not really anything to de with found image)
@@ -332,7 +332,7 @@ if (typeof contentListenerAdded === 'undefined') {
         image.imageURL = request.imageURL;
         image.mediaType = 'image';
         image.supportsDeepSearch = request.supportsDeepSearch; // false
-        image.deepSearchBigMinSize = request.deepSearchBigMinSize;
+        image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
         image.deepSearch = request.deepSearch;
         image.source = "img element";
         image.context = request.nodeName + " element"; // (not really anything to de with found image)

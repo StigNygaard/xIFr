@@ -7,8 +7,8 @@ function setDisplayMode(dispMode) {
 }
 
 function updateDeepSearchSize() {
-  var inp = document.getElementById("deepSearchBigMinSize");
-  var out = document.getElementById("deepSearchBigMinSizeEx");
+  var inp = document.getElementById("deepSearchBiggerLimit");
+  var out = document.getElementById("deepSearchBiggerLimitEx");
   out.textContent = "";
   var d = parseInt(inp.value);
   if (!isNaN(d)) {
@@ -25,7 +25,7 @@ function saveOptions(e) {
   context.setOptions({
     dispMode: document.forms[0].dispMode.value,
     popupPos: document.forms[0].popupPos.value,
-    deepSearchBigMinSize: document.querySelector("form#xIFroptions #deepSearchBigMinSize").value,
+    deepSearchBiggerLimit: document.querySelector("form#xIFroptions #deepSearchBiggerLimit").value,
     mlinkOSM: document.querySelector("form#xIFroptions #mlinkOSM").checked,
     mlinkGoogle: document.querySelector("form#xIFroptions #mlinkGoogle").checked,
     mlinkBing: document.querySelector("form#xIFroptions #mlinkBing").checked,
@@ -60,7 +60,7 @@ function initializeOptionsPage() {
   }
   if (context.supportsDeepSearch()) {
     document.body.classList.add("supportsDeepSearch");
-    document.getElementById("deepSearchBigMinSize").addEventListener("keyup", updateDeepSearchSize);
+    document.getElementById("deepSearchBiggerLimit").addEventListener("keyup", updateDeepSearchSize);
   }
   context.getOptions().then(handlerInitOptionsForm);
 }

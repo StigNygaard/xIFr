@@ -3,7 +3,7 @@ var context = (function Context() {
   let defaults = {
     dispMode: "defaultMode",
     popupPos: "defaultPos",
-    deepSearchBigMinSize: 175 * 175, // forceLargerThanSize 30625   deepSearchBiggerLimit? // Go bigger than this when "force larger size" (shift-select in context menu - Firefox 63+ feature) to avoid overlayed icons and logos
+    deepSearchBiggerLimit: 175 * 175, // 30625 - Go bigger than this when "force larger size" (shift-select in context menu - Firefox 63+ feature) to avoid overlayed icons and logos
     mlinkOSM: true,
     mlinkGoogle: true,
     mlinkBing: true,

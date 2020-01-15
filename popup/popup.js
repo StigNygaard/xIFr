@@ -1,15 +1,17 @@
 function setup(options) {
   if (context.prefersDark(options["dispMode"])) {
-    document.body.classList.add("dark");
+    document.body.classList.replace("light", "dark"); // If light, then swap with dark
+    document.body.classList.add("dark"); // But also set dark if light wasn't set
   } else {
-    document.body.classList.remove("dark");
+    document.body.classList.replace("dark", "light"); // If dark, then swap with light
+    document.body.classList.add("light"); // But also set light if dark wasn't set
   }
   // Enable selected maplinks...
   ["OSM", "Google", "Bing", "MapQuest", "Here", "Flickr"].forEach((v) => {
     if (options["mlink" + v]) {
       document.body.classList.add("show" + v);
     }
-  })
+  });
 }
 function init() {
   context.getOptions().then(setup);
@@ -67,10 +69,24 @@ browser.runtime.sendMessage({
     document.getElementById("dimensions").textContent = response.properties.naturalWidth + "x" + response.properties.naturalHeight + " pixels";
   }
 
+  function addMessages(list, icon, alt) {
+    list.forEach(function(item) {
+      let msg = document.createElement('i');
+      msg.textContent = item;
+      let sign = document.createElement('img');
+      sign.src = icon;
+      sign.alt = alt;
+      let div = document.createElement('div');
+      div.appendChild(sign);
+      div.appendChild(document.createTextNode(' '));
+      div.appendChild(msg);
+      document.getElementById('messages').appendChild(div);
+    });
+  }
   if (response.errors.length > 0 || response.warnings.length > 0 || response.infos.length > 0) {
-    response.errors.forEach(item => document.getElementById('messages').insertAdjacentHTML("beforeend", "<div><img src='/icons/error-7-32w.png' alt='!' /> <i>" + item + "</i></div>"));
-    response.warnings.forEach(item => document.getElementById('messages').insertAdjacentHTML("beforeend", "<div><img src='/icons/warn-32w.png' alt='!' /> <i>" + item + "</i></div>"));
-    response.infos.forEach(item => document.getElementById('messages').insertAdjacentHTML("beforeend", "<div><img src='/icons/info-32w.png' alt='i' /> <i>" + item + "</i></div>"));
+    addMessages(response.errors, '/icons/error-7-32w.png', '!');
+    addMessages(response.warnings, '/icons/warn-32w.png', '!');
+    addMessages(response.infos, '/icons/info-32w.png', 'i');
     document.getElementById('messages').style.display = 'block';
   }
 
@@ -108,18 +124,27 @@ browser.runtime.sendMessage({
     };
 
     var maplinks = document.getElementById('maplinks');
+    function maplink(title, className, url, letter) {
+      let link = document.createElement('a');
+      link.href = url;
+      link.textContent = letter;
+      let div = document.createElement('div');
+      div.title = title;
+      div.className = className;
+      div.appendChild(link);
+      return div;
+    }
     if (maplinks) {
       let lat = response.data.GPSPureDdLat.value;
       let lon = response.data.GPSPureDdLon.value;
       let lang = browser.i18n.getUILanguage();
       let titleString = encodeURIComponent('Photo location').replace(/_/gu, ' '); // Used by Bing. Could potentially be filename or title, but underscores means trouble :-/ ...
-      maplinks.insertAdjacentHTML("beforeend", ` <div title="Locate on OpenStreetMap" class="OSM"><a href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}&layers=M">O</a></div>`);
-      maplinks.insertAdjacentHTML("beforeend", ` <div title="Locate on Google Maps" class="Google"><a href="https://www.google.com/maps/search/?api=1&query=${lat},${lon}">G</a></div>`);
-      maplinks.insertAdjacentHTML("beforeend", ` <div title="Locate on Bing Maps" class="Bing"><a href="https://www.bing.com/maps/?cp=%lat%~%lon%&lvl=16&sp=point.${lat}_${lon}_${titleString}">B</a></div>`); // var href = 'http://www.bing.com/maps/?cp=%lat%~%lon%&lvl=16&sp=point.%lat%_%lon%_%titleString%_%notesString%_%linkURL%_%photoURL%'; // Can't get it to handle underscores in strings/urls :-/
-      maplinks.insertAdjacentHTML("beforeend", ` <div title="Locate on MapQuest" class="MapQuest"><a href="https://www.mapquest.com/latlng/${lat},${lon}">Q</a></div>`);
-      maplinks.insertAdjacentHTML("beforeend", ` <div title="Locate on Here WeGo" class="Here"><a href="https://share.here.com/l/${lat},${lon}">H</a></div>`);
-      maplinks.insertAdjacentHTML("beforeend", ` <div title="Explore nearby on Flickr" class="Flickr"><a href="https://www.flickr.com/map/?fLat=${lat}&fLon=${lon}&zl=15">F</a></div>`);
-      // maplinks.insertAdjacentHTML("beforeend", ` <div title="Explore nearby on Flickr"><a href="https://www.flickr.com/map/?fLat=${lat}&fLon=${lon}&zl=15&everyone_nearby=1">F</a></div>`); // &zl=15&min_upload_date=2019-06-07%2000%3A00%3A00&max_upload_date=2019-07-08%2000%3A00%3A00 ?
+      maplinks.appendChild(maplink('Locate on OpenStreetMap', 'OSM', `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}&layers=M`, 'O'));
+      maplinks.appendChild(maplink('Locate on Google Maps', 'Google', `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`, 'G'));
+      maplinks.appendChild(maplink('Locate on Bing Maps', 'Bing', `https://www.bing.com/maps/?cp=%lat%~%lon%&lvl=16&sp=point.${lat}_${lon}_${titleString}`, 'B'));
+      maplinks.appendChild(maplink('Locate on MapQuest', 'MapQuest', `https://www.mapquest.com/latlng/${lat},${lon}`, 'Q'));
+      maplinks.appendChild(maplink('Locate on Here WeGo', 'Here', `https://share.here.com/l/${lat},${lon}`, 'H'));
+      maplinks.appendChild(maplink('Explore nearby on Flickr', 'Flickr', `https://www.flickr.com/map/?fLat=${lat}&fLon=${lon}&zl=15`, 'F')); // "https://www.flickr.com/map/?fLat=${lat}&fLon=${lon}&zl=15&everyone_nearby=1"  -  &zl=15&min_upload_date=2019-06-07%2000%3A00%3A00&max_upload_date=2019-07-08%2000%3A00%3A00 ?
     }
   } else {
     // Disable map-tab
