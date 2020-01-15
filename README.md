@@ -1,4 +1,4 @@
-# xIFr Beta 2
+# xIFr Beta 3
 
 xIFr is a browser extension for viewing EXIF, IPTC and XMP metadata in jpg image files. It is currently "in beta", but considered feature complete.
 Launch it from the browser's right-click context menu.
@@ -12,7 +12,7 @@ However the _"deep search" functionality_ (described below) requires Firefox 63 
 
 ### Beta version?
 
-Current "Beta 2" is considered feature complete. I'm only planning to do a little "internal polishing" before I release something I want to call a "final" version.
+Current beta-version is considered feature complete. I'm mostly planning to do a little "internal polishing" before I release something I want to call a "final" version.
 
 ### Why another Exif viewer?
 
@@ -28,13 +28,12 @@ You wont even know if you were right-clicking directly on an img element or not.
 xIFr from other Exif-viewers.
 
 Also with Deep Search, you can avoid overlayered logos and icons. By shift-clicking when selecting xIFr in browser's context-menu, you will force
-xIFr to look for images larger than a minimum-size (From "Beta 2" this size is configurable).
+xIFr to look for images larger than a minimum-size (This size is configurable).
 
-Deep Search is supported in **Firefox 63 or newer** (It requires an API feature currently only available in Firefox 63+). In other browser versions you can only launch xIFr if you are able to right-click _directly_ on an html _img_ element.
+Deep Search is supported in **Firefox 63 or newer** (It requires an API feature currently only available in Firefox 63+). In other browser versions you can only launch xIFr if you are able to right-click _directly on_ an html _img_ element.
 
 ### Dark Theme support
-On Windows 10 1903+ and MacOS Mojave 10.14+, system-setting for [preferred Dark Theme](https://developer.mozilla.org/docs/Web/CSS/@media/prefers-color-scheme) should be supported when installing xIFr on Firefox 67+ or Chrome 76+, but it might also be supported on other platforms.
-From "Beta 2" it is also possible to configure xIFr to force it into Dark mode, ignoring systems settings in general. 
+
 
 ![Screenshot](https://addons.cdn.mozilla.net/user-media/previews/full/222/222236.png)
 
