@@ -1,11 +1,11 @@
 {
   "extensionDescription": {
-    "message": "xIFr beta-version. New viewer to see EXIF, IPTC and XMP metadata in images.",
+    "message": "New EXIF reader. A viewer to see EXIF, IPTC and XMP metadata in images.",
     "description": "Description of the extension."
   },
 
   "contextMenuText": {
-    "message": "xIFr - View EXIF data"
+    "message": "View EXIF data"
   },
 
   "Copy": {

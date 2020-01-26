@@ -21,15 +21,15 @@ function xmpClass() {
     if (xmlString.indexOf('>') < xmlString.indexOf('<')) {
       // We are probably missing the first character("<") in xmp data. This dirty fix which apparently usually works...
       xmlString = '<' + xmlString; // But do xIFr have an addressing bug, or or is it an error in the image file???
-      pushWarning(dataObj, "[xmp]", "Addressing/truncate error while parsing XMP, but was able to recover from it(?)...");
+      pushWarning(dataObj, "[xmp]", "Addressing/offset error when trying to read XMP, but was able to recover from it(?)...");
     }
-    console.debug("xmp xmlString: \n" + xmlString);
-    // There is at least one programm which includes a null byte at the end of the document.
+    // There is at least one program which includes a null byte at the end of the document.
     // The parser doesn't like this, so shorten the length by one byte of the last one is null.
     if (xmlString && xmlString.length > 0 && xmlString.charCodeAt(xmlString.length - 1) === 0) {
       xmlString = xmlString.substring(0, xmlString.length - 1);
-      console.debug("xmp xmlString modified: \n" + xmlString);
     }
+
+    context.info("xmp xmlString: \n" + xmlString);
     let dom = parser.parseFromString(xmlString, 'application/xml'); // alternatively "text/xml" ?
 
     if (dom.documentElement.nodeName === 'parsererror') {
@@ -42,7 +42,7 @@ function xmpClass() {
       // but getting correct characters isn’t the objective here, just to be able reading the document
       // somehow. The document is corrupt anyway.
       if (dom.documentElement.nodeName === 'parsererror') {
-        console.error("Error parsing XML - xmp xmlString: \n" + xmlString);
+        context.error("Error parsing XML - xmp xmlString: \n" + xmlString);
         throw ("Error parsing XMP in parseXML()");
         // pushError(dataObj, "[xmp]", ex);
         return;
@@ -97,7 +97,7 @@ function xmpClass() {
 
     val = getXMPOrderedArray(dom, "http://ns.adobe.com/xap/1.0/mm/", "History", "http://ns.adobe.com/xap/1.0/sType/ResourceEvent#", "softwareAgent");
     if (val && val.length) {
-      dataObj.Software = val[val.length - 1];
+      dataObj.Software = val[val.length - 1]; // [length-1] = First is the last used ? Might want all?
     }
 
     var lang = fxifUtils.getLang();
@@ -593,7 +593,7 @@ function xmpClass() {
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "ColorSpace");
     if (val) {
-      console.debug("xmp.js 1 colorspace val =" + val);
+      context.debug("xmp.js 1 colorspace val =" + val);
       if (val == 1) {
         dataObj.ColorSpace = "sRGB";
       } else if (val == 2) {
@@ -606,7 +606,7 @@ function xmpClass() {
       // a defined colorspace which is documented in ICCProfile
       val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "ICCProfile");
       if (val) {
-        console.debug("xmp.js 1.1 colorspace val =" + val);
+        context.debug("xmp.js 1.1 colorspace val =" + val);
         dataObj.ColorSpace = val;
       }
     }

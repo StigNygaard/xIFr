@@ -7,13 +7,12 @@
   <script src="/lib/mozilla/browser-polyfill.js"></script>
 </head>
 <body>
-
 <div id="xIFroptionspage">
-  <p style="float:right">xIFr version <span id="verstr"></span> "Beta 3"</p>
-  <img src="/icons/xIFr-256.png" alt="xIFr" style="width:128px;height:auto;margin:-10px 0 0 0" />
+  <p id="version">xIFr version <span id="verstr"></span></p>
+  <img src="/icons/xIFr-256.png" id="logo" alt="xIFr" />
   <form id="xIFroptions">
-    <fieldset style="position:relative">
-      <legend>&nbsp;Display mode </legend>
+    <fieldset>
+      <legend>&nbsp;Display mode&nbsp;</legend>
       <p>
         <input type="radio"
                name="dispMode"
@@ -29,7 +28,7 @@
         <label for="darkMode">Dark theme</label>
       </p>
     </fieldset>
-    <fieldset style="position:relative">
+    <fieldset>
       <legend>&nbsp;Popup position&nbsp;</legend>
       <div class="twoColumns">
       <p>
@@ -98,7 +97,7 @@
       </div>
       <p class="note ffo"><b class="up">*</b>Because of a <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1271047" title="Bugzilla - Bug 1271047: Panel window type is not opening on given position">bug in Firefox</a>, you might see a quick glimpse of popup centered or in the default position, before it moves to the requested position.</p>
     </fieldset>
-    <fieldset style="position:relative" id="deepSearchSettings">
+    <fieldset id="deepSearchSettings">
       <legend>&nbsp;Deep Search&nbsp;</legend>
       <p><em>Deep Search</em> is the name given to the method xIFr uses to find/guess which image you where thinking of when right-clicking on a webpage (No, it's not always as obvious as it may seem).</p>
       <p>A special <em>"force big" mode</em><b class="note up">*</b> of <em>Deep Search</em> makes it possible to ignore smaller images:</p>
@@ -109,7 +108,7 @@
       </p>
       <p class="note"><b class="up">*</b>You initiate the "force big" image search by using shift-click to select xIFr in browser's context menu.</p>
     </fieldset>
-    <fieldset style="position:relative">
+    <fieldset>
       <legend>&nbsp;Map links&nbsp;</legend>
       <p>Besides the integrated Map tab available for geotagged photos, xIFr can offer links to see position using various map providers.</p>
       <div class="twoColumns">
@@ -152,10 +151,12 @@
       </div>
     </fieldset>
 
-    <button type="submit" class="browser-style">Save xIFr options</button>
+    <button type="submit" class="browser-style">Save xIFr options</button> <span id="submitresult"></span>
 
   </form>
 
+  <p class="tagline ffo smaller">Love photos? Flickr user? Also try my <a href="https://addons.mozilla.org/addon/flickr-fixr?src=external-xIFr">Flickr Fixr</a> add-on!</p>
+  <p class="smaller">/Stig<br /><a href="https://www.rockland.dk/">rockland.dk</a>, <a href="https://www.flickr.com/photos/stignygaard/">flickr.com/photos/stignygaard</a></p>
 </div>
 <script src="/context.js"></script>
 <script src="options.js"></script>

@@ -1,5 +1,5 @@
 
-browser-polyfill.js from webextension-polyfill by Mozilla
+browser-polyfill.js from webextension-polyfill by Mozilla:
 https://github.com/mozilla/webextension-polyfill
 Available under Mozilla Public License Version 2.0.
 

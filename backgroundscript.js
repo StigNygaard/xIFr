@@ -10,21 +10,20 @@ let options = {};
 let win = {};
 let previous = {};
 let popupData = {};
-if (browser.menus && browser.menus.getTargetElement) { // A bit dirty? But an easy way to use Firefox extended API while preserving Chrome (an older Firefox) compatibility.
+if (browser.menus && browser.menus.getTargetElement) { // An easy way to use Firefox extended API while preserving Chrome (and older Firefox) compatibility.
   browser.contextMenus = browser.menus;
 }
 
 function createPopup(request) {
 
-  console.debug("!!! window.screen.width: " + window.screen.width);
-  console.debug("!!! window.screen.availWidth: " + window.screen.availWidth);
-  console.debug("!!! window.screen.height: " + window.screen.height);
-  console.debug("!!! window.screen.availHeight: " + window.screen.availHeight);
-  console.debug("!!! browser.windows.Window.width: " + win.width);
-  console.debug("!!! browser.windows.Window.height: " + win.height);
-  console.debug("!!! browser.windows.Window.top: " + win.top);
-  console.debug("!!! browser.windows.Window.left: " + win.left);
-
+  context.debug("window.screen.width: " + window.screen.width);
+  context.debug("window.screen.availWidth: " + window.screen.availWidth);
+  context.debug("window.screen.height: " + window.screen.height);
+  context.debug("window.screen.availHeight: " + window.screen.availHeight);
+  context.debug("browser.windows.Window.width: " + win.width);
+  context.debug("browser.windows.Window.height: " + win.height);
+  context.debug("browser.windows.Window.top: " + win.top);
+  context.debug("browser.windows.Window.left: " + win.left);
   var pos = {};
   switch (options["popupPos"]) {
     case "center":
@@ -43,7 +42,7 @@ function createPopup(request) {
       pos = {left: win.left + 10, top: win.top + 10};
       break;
     case "topRightBrowser":
-      pos = {left: win.left + win.width - 650 - 10 , top: win.top + 10}; // todo: not working !?!
+      pos = {left: win.left + win.width - 650 - 10 , top: win.top + 10};
       break;
     case "leftish":
       pos = {left: Math.max(win.left - 200, 10), top: Math.max(win.top + Math.floor(win.height/2) - 300, 10)};
@@ -67,21 +66,22 @@ function createPopup(request) {
     });
 }
 
-browser.contextMenus.create({ // Can I prevent it on about: pages?
+browser.contextMenus.create({ // Can I somehow prevent it on about: pages?
   id: "viewexif",
   title: browser.i18n.getMessage("contextMenuText"),
   // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/ContextType
-  contexts: browser.menus && browser.menus.getTargetElement ? ["editable", "frame", "image", "link", "page", "video", "audio"] : ["image"] // Firefox 63+ supports getTargetElement()/targetElementId  // include "video" & "audio" ?
+  contexts: browser.menus && browser.menus.getTargetElement ? ["editable", "frame", "image", "link", "page", "video", "audio"] : ["image"] // Firefox 63+ supports getTargetElement()/targetElementId
 });
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "viewexif") {
-    console.debug("Context menu clicked. mediaType=" + info.mediaType);
+    context.debug("Context menu clicked. mediaType=" + info.mediaType);
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/OnClickData
     if ((info.mediaType && info.mediaType === "image" && info.srcUrl) || info.targetElementId) {
 
       var scripts = [
         "/lib/mozilla/browser-polyfill.js",
+        "/context.js",
         "/stringBundle.js",
         "/contentscript.js",
         "/parseJpeg.js",
@@ -97,7 +97,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
         });
       });
       Promise.all([context.getOptions(), browser.windows.getCurrent(), ...scriptLoadPromises]).then((values) => {
-        console.debug("All scripts started from background is ready...");
+        context.debug("All scripts started from background is ready...");
         options = values[0];
         win = values[1];
         browser.tabs.sendMessage(tab.id, {
@@ -118,7 +118,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.message === "EXIFready") { // 1st, create popup
+  if (request.message === "EXIFready") { // 1st msg, create popup
     popupData.infos = request.infos;
     popupData.warnings = request.warnings;
     popupData.errors = request.errors;
@@ -126,11 +126,14 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (Object.keys(request.data).length === 0) {
       popupData.infos.push(browser.i18n.getMessage("noEXIFdata"));
     }
+    if (popupData.properties.URL && popupData.properties.URL.startsWith('file:') && context.isFirefox()) {
+      popupData.warnings.push("Images from file system might not be shown in this popup, but meta data should still be correctly read.");
+    }
     popupData.data = request.data;
 
     if (previous.imgURL && previous.imgURL === request.properties.URL) {
-      console.debug("Previous popup was same - Focus to previous if still open...");
-      browser.windows.update(previous.winId, {focused: true}).then(() => {console.debug("Existing popup was attempted REfocused.")}).catch(() => {console.debug("REfocusing didn't succeed. Creating a new popup..."); createPopup(request)});
+      context.debug("Previous popup was same - Focus to previous if still open...");
+      browser.windows.update(previous.winId, {focused: true}).then(() => {context.debug("Existing popup was attempted REfocused.")}).catch(() => {context.debug("REfocusing didn't succeed. Creating a new popup..."); createPopup(request)});
     } else {
       if (previous.winId) {
         browser.windows.remove(previous.winId);
@@ -138,7 +141,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
       createPopup(request);
     }
 
-  } else if (request.message === "popupReady") { // 2nd, populate popup
+  } else if (request.message === "popupReady") { // 2nd msg, populate popup
     sendResponse(popupData);
   }
 });

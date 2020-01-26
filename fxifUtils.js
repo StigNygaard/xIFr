@@ -9,7 +9,7 @@
 "use strict";
 
 /*
- *  Some utility functions for FxIF.
+ *  Some utility functions for FxIF/xIFr.
  */
 
 function fxifUtilsClass() {

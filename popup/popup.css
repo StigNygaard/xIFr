@@ -1,6 +1,5 @@
 
 /* Dark or Light mode: */
-
 body.dark {
   background-color: rgb(43, 43, 43);
   color: rgb(249, 249, 249);
@@ -10,7 +9,7 @@ body.light {
   background-color: #fff;
   color: #242424;
 }
-body.dark img#wheel {
+body.dark img#settings {
   filter: invert(100%) ;
 }
 body.dark #tabs {
@@ -38,9 +37,14 @@ body.dark.mapmode #maptab, body.dark.mainmode #maintab {
 body.light.mapmode #maptab, body.light.mainmode #maintab {
   background-color: #fff;
 }
+body.dark #data tr:hover {
+  background-color: rgb(49, 49, 49);
+}
+body.light #data tr:hover {
+  background-color: rgb(248, 248, 248);
+}
 
-/* Layout and content: */
-
+/* General ayout and visibility: */
 html, body {
   box-sizing: border-box;
   margin: 0;
@@ -61,7 +65,7 @@ body {
   background-position: right 1.3rem top 1.5rem;
   background-repeat: no-repeat;
 }
-img#wheel {
+img#settings {
   display: block;
   position: absolute;
   width: 24px;
@@ -71,7 +75,7 @@ img#wheel {
   margin: 0;
   opacity: 0.2;
   right: 1.3rem;
-  bottom: 1rem; /* .4rem; */
+  bottom: .5rem;
   cursor: pointer;
 }
 #map {
@@ -109,10 +113,8 @@ img#wheel {
   display: block;
   background-image: url("/icons/background.png");
 }
-#messages, #data {
-  margin: 1ch 0;
-}
 #messages {
+  margin: 1ch 0;
   clear: both;
   display: none;
 }
@@ -125,6 +127,7 @@ img#wheel {
   vertical-align: sub;
 }
 #data {
+  margin: 1ch 0 0 0;
   clear: both;
   width: 100%;
 }
@@ -134,12 +137,15 @@ img#wheel {
 #data td {
   vertical-align: top;
 }
+#data tr:hover {
+  background-color: rgb(49, 49, 49);
+}
 #maplinks {
   margin: 0;
   padding: 0;
   border: none;
-  float:right;
-  width:auto;
+  float: right;
+  width: auto;
 }
 #maplinks > div {
   float: left;
@@ -176,7 +182,6 @@ body.mainmode #maptab.disabled {
 }
 
 /* Tabs: */
-
 #tabs {
   overflow: hidden;
   border: none;

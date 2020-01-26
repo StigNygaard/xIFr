@@ -1,40 +1,99 @@
-body {background-color: rgb(248, 248, 248); color: rgb(32, 32, 32);}
-form {background-color: rgb(255, 255, 255); color: rgb(32, 32, 32); box-shadow: rgba(12, 12, 13, 0.1) 0 1px 4px 0;}
-div#xIFroptionspage {margin:1em auto 1em auto; max-width: 980px; font-family: Verdana, Arial, Helvetica, sans-serif;}
-div#xIFroptionspage form {padding: .4em; border-radius: .4em}
-div#xIFroptionspage>p {margin-left: 1em}
-div#xIFroptionspage .note {font-style: italic}
-div#xIFroptionspage .up {position: relative; top: -0.2em; margin: 0 .1em}
-div#xIFroptionspage .ffo {display: none}
-.isFirefox div#xIFroptionspage .ffo {display: inherit}
-div#xIFroptionspage #deepSearchSettings {display: none}
-.supportsDeepSearch div#xIFroptionspage #deepSearchSettings {display: inherit}
-#xIFroptions fieldset {margin: 0 0 .3em 0; position:relative}
-#xIFroptions button {margin-top:.7em; margin-bottom:.7em; font-size: 100%; font-family: Verdana, Arial, Helvetica, sans-serif;}
-#xIFroptions button, input, select, textarea {
-  font-family : inherit;
-  font-size   : 100%;
-}
-div.twoColumns>p:first-child {margin-top: 0}
-legend + div.twoColumns {
-  padding-top:1em;
-}
-div.twoColumns {
-  column-count: 2;
-  column-fill: balance;
-}
 
-
-body.dark {background-color: black; color: rgb(220, 220, 220);}
-body.dark form {
-  background-color: rgb(42, 42, 46);
+/* Dark or Light mode: */
+body.dark {
+  background-color: #151515;
   color: rgb(220, 220, 220);
+}
+body.light {
+  background-color: rgb(248, 248, 248);
+  color: rgb(32, 32, 32);
+}
+body.dark form {
+  background-color: rgb(43, 43, 43);
+  color: rgb(220, 220, 220);
+}
+body.light form {
+  background-color: rgb(255, 255, 255);
+  color: rgb(32, 32, 32);
 }
 body.dark a, body.dark a:hover, body.dark a:active, body.dark a:visited {
   color: rgb(69, 161, 255);
 }
 body.dark input {
-  background-color: rgb(42, 42, 46);
+  background-color: rgb(43, 43, 43);
   color: white;
   border: 1px solid white;
+}
+
+/* General ayout and visibility: */
+body {
+  margin-bottom: 3em;
+}
+#xIFroptionspage {
+  margin: 1em auto 1em auto;
+  max-width: 980px;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+#version {
+  float: right;
+}
+#logo {
+  width: 128px;
+  height: auto;
+  margin: -10px 0 0 0;
+}
+#xIFroptionspage > p {
+  margin-left: 1em;
+}
+.note {
+  font-style: italic;
+}
+.up {
+  position: relative;
+  top: -0.2em;
+  margin: 0 .1em;
+}
+.ffo {
+  display: none;
+}
+.isFirefox .ffo {
+  display: inherit;
+}
+#deepSearchSettings {
+  display: none;
+}
+.supportsDeepSearch #deepSearchSettings {
+  display: inherit;
+}
+#xIFroptions {
+  padding: .4em;
+  border-radius: .4em;
+  box-shadow: rgba(12, 12, 13, 0.1) 0 1px 4px 0;
+}
+#xIFroptions fieldset {
+  position: relative;
+  margin: 0 0 .3em 0;
+}
+#xIFroptions button {
+  margin-top: .7em;
+  margin-bottom: .7em;
+  font-size: 100%;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+#xIFroptions button, #xIFroptions input, #xIFroptions select, #xIFroptions textarea {
+  font-family: inherit;
+  font-size: 100%;
+}
+div.twoColumns > p:first-child {
+  margin-top: 0;
+}
+legend + div.twoColumns {
+  padding-top: 1em;
+}
+div.twoColumns {
+  column-count: 2;
+  column-fill: balance;
+}
+.smaller {
+  font-size: smaller;
 }

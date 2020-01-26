@@ -100,7 +100,7 @@ function iptcClass(stringBundle) {
           if (dataLen > 0) {
             if (pos + 5 + dataLen > data.length) { // Don't read outside the array.
               let read = pos + 5 + dataLen;
-              alert("Read outside of array, read to: " + read + ", array length: " + data.length);
+              alert("Read outside of array, read to: " + read + ", array length: " + data.length); // todo: Shouldn't report error with an alert (But have never seen it)
               break;
             }
             if (tag == TAG_IPTC_CODEDCHARSET) {
@@ -117,10 +117,11 @@ function iptcClass(stringBundle) {
           if (dataLen > 0) {
             if (pos + 5 + dataLen > data.length) { // Don't read outside the array.
               let read = pos + 5 + dataLen;
-              alert("Read outside of array, read to: " + read + ", array length: " + data.length);
+              alert("Read outside of array, read to: " + read + ", array length: " + data.length); // todo: Shouldn't report error with an alert (But have never seen it)
               break;
             }
             let val = utf8Strings ? utf8BytesToString(data, pos + 5, dataLen) : fxifUtils.bytesToString(data, pos + 5, dataLen, false, 1);
+            context.info("binIptc tag=" + tag + " (" + tag.toString(16) + "), value=" + val);
             switch (tag) {
               case TAG_IPTC_DATECREATED:
                 iptcDate = val;
@@ -173,13 +174,16 @@ function iptcClass(stringBundle) {
               case TAG_IPTC_INSTRUCTIONS:
                 dataObj.Instructions = val;
                 break;
+
+              default:
+                context.info("binIptc UNHANDLED TAG: tag=" + tag + " (" + tag.toString(16) + "), value=" + val);
             }
           }
         } else {
-          //      alert("Tag: " + tag + ", dataLen: " + dataLen);
+          context.info("binIptc UNHANDLED TAG: tag=" + tag + " (" + tag.toString(16) + "), dataLen=" + dataLen);
         }
       } else {
-        //        alert("Wrong entryMarker (" + entryMarker + ")");
+        context.info("binIptc Wrong entryMarker UNHANDLED TAG: tag=" + tag + " (" + tag.toString(16) + ")");
         break;
       }
 

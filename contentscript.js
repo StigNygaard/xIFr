@@ -15,7 +15,7 @@ function addByteStreamIF(arr) {
   };
   arr.readBytes = byteCount => {
     if (byteCount < 0) {
-      console.error("readBytes(byteCount): Can't read negative byteCount=" + byteCount);
+      context.error("readBytes(byteCount): Can't read negative byteCount=" + byteCount);
       throw "xIFr contentscript.js, readBytes(byteCount): Can't read negative byteCount=" + byteCount;
       // pushError(dataObj, "[xmp]", ex);
       return;
@@ -52,7 +52,7 @@ function translateFields(data) {
 }
 
 
-// Finding an loading backgrounds is code slightly modified from https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/ (by CRIMX) ...
+// Finding and loading backgrounds is slightly modified code from https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/ (by CRIMX) ...
 function getBgImgs (elem) {
   const srcChecker = /url\(\s*?['"]?\s*?(\S+?)\s*?["']?\s*?\)/giu;
   return Array.from(
@@ -104,7 +104,7 @@ function loadImgAll (imgList, timeout = 500) { // Could we use https://developer
 
 function loadparseshow(imgrequest) {
   if (!imgrequest) {
-    console.debug("Exit loadparseshow. Nothing to show!");
+    context.debug("Exit loadparseshow. Nothing to show!");
     return;
   }
   var xhr = new XMLHttpRequest(); // Any issues with cross-domain in Chrome? Apparently not despite https://www.chromium.org/Home/chromium-security/extension-content-script-fetches ? I don't understand...
@@ -114,27 +114,27 @@ function loadparseshow(imgrequest) {
     var arrayBuffer = xhr.response;
 
     if (arrayBuffer) {
-      console.debug("Looking at the xhr response (arrayBuffer)...");
+      context.debug("Looking at the xhr response (arrayBuffer)...");
 
       // This is the raw input from image file
 
       // DEBUG
       //let utf8decoder = new TextDecoder('utf-8');
       //var raw1 = utf8decoder.decode(arrayBuffer);
-      //console.debug("raw1: \n:" + raw1.substr(0,25000));
+      //context.debug("raw1: \n:" + raw1.substr(0,25000));
 
       var byteArray = new Uint8Array(arrayBuffer);
 
       // DEBUG
       // let utf8decoder = new TextDecoder('utf-8');
       //var raw2 = utf8decoder.decode(byteArray);
-      //console.debug("raw2: \n:" + raw2.substr(0,25000));
+      //context.debug("raw2: \n:" + raw2.substr(0,25000));
       //var dom = parser.parseFromString(raw, 'application/xml');
-      //console.debug();
+      //context.debug();
 
-      console.debug("Call addByteStreamIF(byteArray)...");
+      context.debug("Call addByteStreamIF(byteArray)...");
       addByteStreamIF(byteArray);
-      console.debug("Gather data from image header (fxifObj.gatherData(byteArray) = fxifClass.gatherData() in parseJpeg.js)...");
+      context.debug("Gather data from image header (fxifObj.gatherData(byteArray) = fxifClass.gatherData() in parseJpeg.js)...");
       var dataObj = fxifObj.gatherData(byteArray); // Gather data from header (via "markers" found in file)
 
       let errorsArr = []; // move errors from dataObj to this
@@ -149,7 +149,7 @@ function loadparseshow(imgrequest) {
       }
       let infosArr = [];
 
-      console.debug("request: " + JSON.stringify(imgrequest));
+      context.debug("request: " + JSON.stringify(imgrequest));
       if (imgrequest.naturalWidth && imgrequest.supportsDeepSearch && !imgrequest.deepSearch && (imgrequest.naturalWidth * imgrequest.naturalHeight <= imgrequest.deepSearchBiggerLimit)) {
         infosArr.push('Not the expected image? You can force xIFr to look for a larger image than this, by holding down Shift key when selecting xIFr in the context menu!');
       }
@@ -172,11 +172,11 @@ function loadparseshow(imgrequest) {
 
       // Todo: Actually used colorprofile/colorspace would be nice too? How to find?
 
-      console.debug("Gathered data: \n" + JSON.stringify(dataObj));
+      context.debug("Gathered data: \n" + JSON.stringify(dataObj));
       let xlatData = translateFields(dataObj);
-      console.debug("Gathered data after translation: \n" + JSON.stringify(xlatData));
+      context.debug("Gathered data after translation: \n" + JSON.stringify(xlatData));
 
-      console.debug("EXIF parsing done. Send EXIFready message...");
+      context.debug("EXIF parsing done. Send EXIFready message...");
       browser.runtime.sendMessage({
         message: "EXIFready",
         data: xlatData,
@@ -186,15 +186,15 @@ function loadparseshow(imgrequest) {
         infos: infosArr
       });
     } else {
-      console.debug("xhr response (arrayBuffer) is empty!...");
+      context.debug("xhr response (arrayBuffer) is empty!...");
     }
   });
 
   xhr.addEventListener("error", () => {
-    console.debug("wxIF xhr error:" + xhr.statusText);
+    context.debug("wxIF xhr error:" + xhr.statusText);
   });
 
-  console.debug("Read image data (xhr.send())...");
+  context.debug("Read image data (xhr.send())...");
   xhr.send();
 }
 
@@ -202,28 +202,28 @@ function loadparseshow(imgrequest) {
 var deepSearchGenericLimit = 10 * 10; // Just not relevant if that small
 
 function imageSearch(request, elem) {
-  console.debug("imageSearch(): Looking for img elements on/below " + elem.nodeName.toLowerCase());
+  context.debug("imageSearch(): Looking for img elements on/below " + elem.nodeName.toLowerCase());
   let candidate;
   for (var img of document.images) {
     if (elem.contains(img)) { // img is itself/elem or img is a "sub-node"
-      console.debug("Found image within target element! img.src=" + img.src + " and naturalWidth=" + img.naturalWidth + ", naturalHeight=" + img.naturalHeight);
+      context.debug("Found image within target element! img.src=" + img.src + " and naturalWidth=" + img.naturalWidth + ", naturalHeight=" + img.naturalHeight);
       // We could look for best match, or just continue with the first we find?
       if (img.naturalWidth > 10) { // Can't remember why I made this check? Superfluous? We compare with deepSearchGenericLimit further down
-        console.debug("Candidate!?");
+        context.debug("Candidate!?");
         let propDisplay = window.getComputedStyle(img, null).getPropertyValue('display'); // none?
         let propVisibility = window.getComputedStyle(img, null).getPropertyValue('visibility'); // hidden?
         // Maybe also look at computed opacity ??!
-        console.debug("PROPs! display=" + propDisplay + ", visibility=" + propVisibility);
+        context.debug("PROPs! display=" + propDisplay + ", visibility=" + propVisibility);
         if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && propDisplay !== 'none' && propVisibility !== 'hidden' ) {
           if ((request.deepSearch && (img.naturalWidth * img.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearch && (img.naturalWidth * img.naturalHeight) > deepSearchGenericLimit)) {
             if (typeof candidate !== "undefined") {
-              console.debug("Compare img with candidate: " + img.naturalWidth * img.naturalHeight + " > " + candidate.naturalWidth * candidate.naturalHeight + "? -  document.images.length = " + document.images.length);
+              context.debug("Compare img with candidate: " + img.naturalWidth * img.naturalHeight + " > " + candidate.naturalWidth * candidate.naturalHeight + "? -  document.images.length = " + document.images.length);
               if ((img.naturalWidth * img.naturalHeight) > (candidate.naturalWidth * candidate.naturalHeight)) {
-                console.debug("Setting new candidate. -  document.images.length = " + document.images.length);
+                context.debug("Setting new candidate. -  document.images.length = " + document.images.length);
                 candidate = img;
               }
             } else {
-              console.debug("Setting first candidate. -  document.images.length = " + document.images.length);
+              context.debug("Setting first candidate. -  document.images.length = " + document.images.length);
               candidate = img;
             }
           }
@@ -232,7 +232,7 @@ function imageSearch(request, elem) {
     }
   }
   if (typeof candidate !== "undefined") {
-    console.debug("Found! Let's use best candidate: " + candidate.src);
+    context.debug("Found! Let's use best candidate: " + candidate.src);
     let image = {}; // result
     image.imageURL = candidate.currentSrc || candidate.src;
     image.mediaType = 'image';
@@ -243,19 +243,19 @@ function imageSearch(request, elem) {
     image.deepSearch = request.deepSearch;
     image.source = candidate.nodeName.toLowerCase() + " element";  // 'img element';
     image.context = request.nodeName + " element"; // (not really anything to de with found image)
-    console.debug("imageSearch(): Returning found image (img) " + JSON.stringify(image));
+    context.debug("imageSearch(): Returning found image (img) " + JSON.stringify(image));
     return image;
   }
   // nothing found by simple search
 }
 
 function bgSearch(request, elem, bgSizes) {
-  console.debug("bgSearch(): Looking for backgrounds on/below " + elem.nodeName.toLowerCase());
+  context.debug("bgSearch(): Looking for backgrounds on/below " + elem.nodeName.toLowerCase());
   let bgImgs = getBgImgs(elem);
-  console.debug("bgSearch(): Following bgImgs are found on/below: " + JSON.stringify(bgImgs));
+  context.debug("bgSearch(): Following bgImgs are found on/below: " + JSON.stringify(bgImgs));
   if (bgImgs && bgImgs.length > 0) {
-    console.debug("Found BACKGROUND-IMAGE: " + bgImgs[0]);
-    console.debug("Looking for dimensions of BACKGROUND-IMAGE via " + JSON.stringify(bgSizes));
+    context.debug("Found BACKGROUND-IMAGE: " + bgImgs[0]);
+    context.debug("Looking for dimensions of BACKGROUND-IMAGE via " + JSON.stringify(bgSizes));
     for (let bgSrc of bgImgs) {
       let imgData = bgSizes.find(bg => bg.src === bgSrc);
       if (imgData.width && ((request.deepSearch && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearch && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
@@ -269,7 +269,7 @@ function bgSearch(request, elem, bgSizes) {
         image.deepSearch = request.deepSearch;
         image.source = 'background-image of an element'; // probably elem.nodeName, but not for sure
         image.context = request.nodeName + " element"; // (not really anything to de with found image)
-        console.debug("bgSearch(): Returning found image (background) " + JSON.stringify(image));
+        context.debug("bgSearch(): Returning found image (background) " + JSON.stringify(image));
         return image;
       }
     }
@@ -277,20 +277,20 @@ function bgSearch(request, elem, bgSizes) {
 }
 
 function deeperSearch(request, elem, bgSizes) {
-  console.debug("Entering deeperSearch() with elem=" + elem.nodeName + " and elem.parentNode=" + elem.parentNode.nodeName);
+  context.debug("Entering deeperSearch() with elem=" + elem.nodeName + " and elem.parentNode=" + elem.parentNode.nodeName);
   let image = bgSearch(request, elem, bgSizes);
   if (!image) {
-    console.debug("deeperSearch(): No image from bgSearch()");
+    context.debug("deeperSearch(): No image from bgSearch()");
     if (elem.nodeName.toLowerCase() === 'html' || elem.nodeName.toLowerCase() === '#document' || elem instanceof HTMLDocument || !elem.parentNode) {
-      console.debug("deeperSearch(): Cannot go higher from " + elem.nodeName.toLowerCase() + ", return without image!  typeof elem.parentNode = " + typeof elem.parentNode);
+      context.debug("deeperSearch(): Cannot go higher from " + elem.nodeName.toLowerCase() + ", return without image!  typeof elem.parentNode = " + typeof elem.parentNode);
       return; // no image found
     }
-    console.debug("deeperSearch(): Going from " + elem.nodeName + " element, up to " + elem.parentNode.nodeName + " element...");
+    context.debug("deeperSearch(): Going from " + elem.nodeName + " element, up to " + elem.parentNode.nodeName + " element...");
     elem = elem.parentNode;
     image = imageSearch(request, elem);
   }
   if (image) {
-    console.debug("deeperSearch(): Return with image");
+    context.debug("deeperSearch(): Return with image");
     return image;
   } else {
     return deeperSearch(request, elem, bgSizes);
@@ -316,7 +316,7 @@ if (typeof contentListenerAdded === 'undefined') {
           if (image) {
             loadparseshow(image);
           } else {
-            bgImages.then(bgSizes => {console.debug("Going deep search with preloaded backgrounds: " + JSON.stringify(bgSizes)); loadparseshow(deeperSearch(request, elem, bgSizes))});
+            bgImages.then(bgSizes => {context.debug("Going deep search with preloaded backgrounds: " + JSON.stringify(bgSizes)); loadparseshow(deeperSearch(request, elem, bgSizes))});
           }
         }
 
@@ -327,7 +327,7 @@ if (typeof contentListenerAdded === 'undefined') {
         /************************************************************************/
 
         request.nodeName = 'img'; // node name of context (right-click) target
-        console.debug("parseImage message received with URL = " + request.imageURL);
+        context.debug("parseImage message received with URL = " + request.imageURL);
         let image = {};
         image.imageURL = request.imageURL;
         image.mediaType = 'image';

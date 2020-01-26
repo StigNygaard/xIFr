@@ -153,7 +153,7 @@ function exifClass() {
   function ConvertAnyFormat(data, format, offset, components, numbytes, swapbytes, charWidth) {
     // centralised check if the data lays within the data array
     if (offset + numbytes > data.length) {
-      console.error("Data outside array.");
+      context.error("Data outside array.");
       // throw "Data outside array.";
       return;
     }
@@ -169,7 +169,7 @@ function exifClass() {
           else
             value = fxifUtils.bytesToString(data, offset, numbytes, swapbytes, charWidth);
         } catch (e) {
-          console.error("catch");
+          context.debug("catch!");
           value = fxifUtils.bytesToString(data, offset, numbytes, swapbytes, charWidth);
         }
         // strip trailing whitespace
@@ -276,9 +276,12 @@ function exifClass() {
       // outside of the data array, it returns undefined.
       // We don’t want to assign this but to try again with
       // the next tag.
-      if (val === undefined)
+      if (val === undefined) {
+        context.info("binExif [GPS] UNDEFINED val(ue) for tag=" + tag + " (" + tag.toString(16) + ") ... SKIP!");
         continue;
+      }
 
+      context.info("binExif [GPS] tag=" + tag + " (" + tag.toString(16) + "), value=" + val);
       switch (tag) {
         case TAG_GPS_LAT_REF:
           gpsLatHemisphere = val;
@@ -318,6 +321,7 @@ function exifClass() {
           break;
 
         default:
+          context.info("binExif [GPS] UNHANDLED TAG: tag=" + tag + " (" + tag.toString(16) + "), value=" + val);
           break;
       }
       //      } catch(e){}
@@ -420,10 +424,13 @@ function exifClass() {
       // outside of the data array, it returns undefined.
       // We don’t want to assign this but to try again with
       // the next tag.
-      if (val === undefined)
+      if (val === undefined) {
+        context.info("binExif [Canon] UNDEFINED val(ue) for tag=" + tag + " (" + tag.toString(16) + ") ... SKIP!");
         continue;
+      }
 
       ntags++;
+      context.info("binExif [Canon] tag=" + tag + " (" + tag.toString(16) + "), value=" + val);
       switch (tag) {
         case TAG_CAMERA_INFO:
           dataObj.CameraInfo = val;
@@ -435,6 +442,7 @@ function exifClass() {
           dataObj.Lens = val;
           break;
         default:
+          context.info("binExif [Canon] UNHANDLED TAG: tag=" + tag + " (" + tag.toString(16) + "), value=" + val);
           ntags--;
       }
     }
@@ -601,10 +609,13 @@ function exifClass() {
       // outside of the data array, it returns undefined.
       // We don’t want to assign this but to try again with
       // the next tag.
-      if (val === undefined)
+      if (val === undefined) {
+        context.info("binExif UNDEFINED val(ue) for tag=" + tag + " (" + tag.toString(16) + ") ... SKIP!");
         continue;
+      }
 
       ntags++;
+      context.info("binExif tag=" + tag + " (" + tag.toString(16) + "), value=" + val);
       switch (tag) {
         case TAG_MAKE:
           dataObj.Make = val;
@@ -909,7 +920,7 @@ function exifClass() {
               dataObj.ExposureIndex = val.toFixed(0);
             } catch (e) {
               let tmp = parseInt(val, 10);
-              if (!isNaN(tmp))
+              if (!Number.isNaN(tmp))
                 dataObj.ExposureIndex = tmp;
             }
           }
@@ -935,7 +946,7 @@ function exifClass() {
             dataObj.ISOequivalent = val.toFixed(0);
           } catch (e) {
             let tmp = parseInt(val, 10);
-            if (!isNaN(tmp))
+            if (!Number.isNaN(tmp))
               dataObj.ISOequivalent = tmp;
           }
           break;
@@ -1005,13 +1016,13 @@ function exifClass() {
 
         case TAG_COLORSPACE:
           if (!dataObj.ColorSpace) {
-            console.debug("binExif readExifDir (1) colorspace val="+val);
+            context.debug("binExif readExifDir (1) colorspace val="+val);
             if (val == 1)
               dataObj.ColorSpace = "sRGB";
             else
               colorSpace = val;
           }
-          console.debug("binExif readExifDir (1.1) colorspace dataObj.ColorSpace="+dataObj.ColorSpace);
+          context.debug("binExif readExifDir (1.1) colorspace dataObj.ColorSpace="+dataObj.ColorSpace);
           break;
 
         case TAG_MAKER_NOTE:
@@ -1038,7 +1049,7 @@ function exifClass() {
           break;
 
         default:
-          console.debug('*** Unhandled exif tag: ' + tag);
+          context.info("binExif UNHANDLED TAG: tag=" + tag + " (" + tag.toString(16) + "), value=" + val);
           ntags--;
       }
     }
@@ -1057,7 +1068,7 @@ function exifClass() {
         dataObj.Date = dataObj.Date.replace(/:(\d{2}):/, "-$1-") + " " + stringBundle.getString("noTZ");
     }
 
-    console.debug("binExif readExifDir (2) colorSpace=" + colorSpace + ", interopIndex.search=" + interopIndex.search(/^R03$/));
+    context.debug("binExif readExifDir (2) colorSpace=" + colorSpace + ", interopIndex.search=" + interopIndex.search(/^R03$/));
     if (colorSpace != 0) {
       if (dataObj.ColorSpace == 2 ||
           dataObj.ColorSpace == 65535 && interopIndex.search(/^R03$/))
@@ -1069,7 +1080,7 @@ function exifClass() {
       var fl = stringBundle.getFormattedString("millimeters", [dataObj.FocalLength.toFixed(1)]);
       if (dataObj.FocalLength35mmEquiv) {
         dataObj.FocalLength35mmEquiv = parseFloat(dataObj.FocalLength35mmEquiv);
-        fl += ", " + stringBundle.getFormattedString("35mmequiv", [dataObj.FocalLength35mmEquiv.toFixed(0)]);  //  Todo: Keep this? Redo how focal lengt data is handled?
+        fl += ", " + stringBundle.getFormattedString("35mmequiv", [dataObj.FocalLength35mmEquiv.toFixed(0)]);  //  Todo: Keep this? Or redo how focal length data is handled?
       }
 
       dataObj.FocalLengthText = fl;

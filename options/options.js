@@ -1,8 +1,10 @@
 function setDisplayMode(dispMode) {
   if (context.prefersDark(dispMode)) {
-    document.body.classList.add("dark");
+    document.body.classList.replace("light", "dark"); // If light, then swap with dark
+    document.body.classList.add("dark"); // But also set dark if light wasn't set
   } else {
-    document.body.classList.remove("dark");
+    document.body.classList.replace("dark", "light"); // If dark, then swap with light
+    document.body.classList.add("light"); // But also set light if dark wasn't set
   }
 }
 
@@ -11,13 +13,25 @@ function updateDeepSearchSize() {
   var out = document.getElementById("deepSearchBiggerLimitEx");
   out.textContent = "";
   var d = parseInt(inp.value);
-  if (!isNaN(d)) {
+  if (!Number.isNaN(d)) {
     d = Math.sqrt(d);
-    if (!isNaN(d)) {
+    if (!Number.isNaN(d)) {
       d = Math.floor(d);
       out.textContent = d + "x" + d;
     }
   }
+}
+
+function clearSaveResult() {
+  if(document.getElementById('submitresult')) document.getElementById('submitresult').textContent = '';
+}
+function setSaveResult(success) {
+  if (success) {
+    document.getElementById('submitresult').textContent = '✔️ Options saved.';
+  } else {
+    document.getElementById('submitresult').textContent = '❌ ERROR saving options!';
+  }
+  setTimeout(clearSaveResult, 2500);
 }
 
 function saveOptions(e) {
@@ -33,7 +47,7 @@ function saveOptions(e) {
     mlinkHere: document.querySelector("form#xIFroptions #mlinkHere").checked,
     mlinkFlickr: document.querySelector("form#xIFroptions #mlinkFlickr").checked
   }).then(
-    () => {setDisplayMode(document.forms[0].dispMode.value); updateDeepSearchSize()}, (error) => {console.error('Failed saving xIFr options: ' + error)}
+    () => {setDisplayMode(document.forms[0].dispMode.value); updateDeepSearchSize(); setSaveResult(true)}, (error) => {context.error('Failed saving xIFr options: ' + error); setSaveResult(false)}
   );
 }
 

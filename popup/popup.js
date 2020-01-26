@@ -1,26 +1,16 @@
-function setup(options) {
-  if (context.prefersDark(options["dispMode"])) {
-    document.body.classList.replace("light", "dark"); // If light, then swap with dark
-    document.body.classList.add("dark"); // But also set dark if light wasn't set
-  } else {
-    document.body.classList.replace("dark", "light"); // If dark, then swap with light
-    document.body.classList.add("light"); // But also set light if dark wasn't set
-  }
-  // Enable selected maplinks...
-  ["OSM", "Google", "Bing", "MapQuest", "Here", "Flickr"].forEach((v) => {
-    if (options["mlink" + v]) {
-      document.body.classList.add("show" + v);
+function createRichElement(tagName, attributes, ...content) {
+  let element = document.createElement(tagName);
+  if (attributes) {
+    for (const [attr, value] of Object.entries(attributes)) {
+      element.setAttribute(attr, value);
     }
-  });
+  }
+  if (content && content.length) {
+    element.append(...content);
+  }
+  return element;
 }
-function init() {
-  context.getOptions().then(setup);
-}
-window.addEventListener("DOMContentLoaded", init);
-
-browser.runtime.sendMessage({
-  message: "popupReady"
-}).then( response => {
+function populate(response) {
   if (response.properties.URL) {
     var image = document.querySelector("#image img");
     if (response.properties.naturalWidth) {
@@ -36,13 +26,8 @@ browser.runtime.sendMessage({
       image.style.width = w + 'px';
       image.style.height = h + 'px';
     }
-    if (browser.runtime.getURL("./").startsWith("moz-extension://") && response.properties.URL.startsWith("file:")) { // Firefox won't show images from file: system
-      image.src = response.properties.URL; // Todo: Some "dummy"/info image instead?
-    } else {
-      image.src = response.properties.URL;
-    }
-    let url = document.createElement('a');
-    url.href = response.properties.URL;
+    image.src = response.properties.URL;
+    let url = createRichElement('a', {href: response.properties.URL});
     if (response.properties.URL.startsWith("data:")) {
       document.getElementById("filename").textContent = "[ inline imagedata ]";
       document.getElementById("filename").title = "";
@@ -50,12 +35,12 @@ browser.runtime.sendMessage({
       document.getElementById("filename").textContent = "[ blob imagedata ]";
       document.getElementById("filename").title = response.properties.URL;
     } else {
-      document.getElementById("filename").textContent = (url.pathname.length > 1 ? url.pathname.substring(url.pathname.lastIndexOf("/") + 1) : url.hostname || url.host ) || "[ ./ ]";
+      document.getElementById("filename").textContent = (url.pathname.length > 1 ? url.pathname.substring(url.pathname.lastIndexOf("/") + 1) : url.hostname || url.host) || "[ ./ ]";
       document.getElementById("filename").title = response.properties.URL;
     }
     document.getElementById("filename").href = response.properties.URL;
     document.getElementById("imgsize").textContent = response.properties.byteLength;
-    document.getElementById("imgsize2").textContent = response.properties.byteLength >= 1048576 ? ((response.properties.byteLength/1048576).toFixed(2)).toString() + " MB" : ((response.properties.byteLength/1024).toFixed(2)).toString() + " kB";
+    document.getElementById("imgsize2").textContent = response.properties.byteLength >= 1048576 ? ((response.properties.byteLength / 1048576).toFixed(2)).toString() + " MB" : ((response.properties.byteLength / 1024).toFixed(2)).toString() + " kB";
     if (response.properties.URL.startsWith("file:")) {
       document.getElementById("contenttype").textContent = "";
       document.getElementById("lastmodified").textContent = "";
@@ -63,24 +48,16 @@ browser.runtime.sendMessage({
       document.getElementById("contenttype").textContent = response.properties.contentType;
       document.getElementById("lastmodified").textContent = response.properties.lastModified;
     }
-    if (typeof response.properties.naturalWidth === 'number' ) {
+    if (typeof response.properties.naturalWidth === 'number') {
       document.getElementById("dimensions").textContent = response.properties.naturalWidth + "x" + response.properties.naturalHeight + " pixels";
     }
     document.getElementById("dimensions").textContent = response.properties.naturalWidth + "x" + response.properties.naturalHeight + " pixels";
   }
-
   function addMessages(list, icon, alt) {
-    list.forEach(function(item) {
-      let msg = document.createElement('i');
-      msg.textContent = item;
-      let sign = document.createElement('img');
-      sign.src = icon;
-      sign.alt = alt;
-      let div = document.createElement('div');
-      div.appendChild(sign);
-      div.appendChild(document.createTextNode(' '));
-      div.appendChild(msg);
-      document.getElementById('messages').appendChild(div);
+    list.forEach(function (item) {
+      let msg = createRichElement('i', {}, item);
+      let sign = createRichElement('img', {src: icon, alt: alt});
+      document.getElementById('messages').appendChild(createRichElement('div', {}, sign, ' ', msg));
     });
   }
   if (response.errors.length > 0 || response.warnings.length > 0 || response.infos.length > 0) {
@@ -89,8 +66,6 @@ browser.runtime.sendMessage({
     addMessages(response.infos, '/icons/info-32w.png', 'i');
     document.getElementById('messages').style.display = 'block';
   }
-
-  // todo: Rewrite? Something not table?
   var table = document.getElementById("data");
   Object.keys(response.data).forEach(key_v => {
     if (key_v !== "GPSPureDdLat" && key_v !== "GPSPureDdLon") { // Ignore GPS _decimal_ values (for now) ...
@@ -102,12 +77,10 @@ browser.runtime.sendMessage({
       value.textContent = response.data[key_v].value;
       value.id = key_v + "ValueCell";
       if (key_v === 'GPSLat') {
-        value.insertAdjacentHTML("afterbegin", "<div id='maplinks'></div>");
+        value.insertBefore(createRichElement('div', {id: 'maplinks'}), value.firstChild);
       }
     }
   });
-
-  // todo: Also find and add direction and height?
   if (response.data.GPSPureDdLat && response.data.GPSPureDdLon && typeof response.data.GPSPureDdLat.value === 'number' && typeof response.data.GPSPureDdLon.value === 'number') {
     document.getElementById("maintab").onclick = () => {
       document.body.classList.replace("mapmode", "mainmode")
@@ -122,17 +95,10 @@ browser.runtime.sendMessage({
       document.getElementById("osmap").src = "https://www.openstreetmap.org/export/embed.html?bbox=" + (response.data.GPSPureDdLon.value - 0.003) + "%2C" + (response.data.GPSPureDdLat.value - 0.007) + "%2C" + (response.data.GPSPureDdLon.value + 0.003) + "%2C" + (response.data.GPSPureDdLat.value + 0.007) + "&layer=mapnik&marker=" + response.data.GPSPureDdLat.value + "%2C" + response.data.GPSPureDdLon.value;
       document.getElementById("largermap").href = "https://www.openstreetmap.org/?mlat=" + response.data.GPSPureDdLat.value + "&mlon=" + response.data.GPSPureDdLon.value + "#map=15/" + response.data.GPSPureDdLat.value + "/" + response.data.GPSPureDdLon.value;
     };
-
     var maplinks = document.getElementById('maplinks');
     function maplink(title, className, url, letter) {
-      let link = document.createElement('a');
-      link.href = url;
-      link.textContent = letter;
-      let div = document.createElement('div');
-      div.title = title;
-      div.className = className;
-      div.appendChild(link);
-      return div;
+      let link = createRichElement('a', {href: url}, letter);
+      return createRichElement('div', {title: title, class: className}, link);
     }
     if (maplinks) {
       let lat = response.data.GPSPureDdLat.value;
@@ -150,21 +116,41 @@ browser.runtime.sendMessage({
     // Disable map-tab
     document.getElementById('maptab').classList.add('disabled');
   }
-
-  document.querySelectorAll('a').forEach( (elem) => {
+  document.querySelectorAll('a').forEach((elem) => {
     elem.addEventListener('click', (event) => {
       event.stopPropagation();
       event.preventDefault();
       window.open(event.target.href, '_blank', 'noopener,noreferrer');
       self.close();
     }, true)
-  } );
-
-  document.getElementById("wheel").addEventListener('click', (event) => {
+  });
+  document.getElementById("settings").addEventListener('click', (event) => {
     event.stopPropagation();
     event.preventDefault();
     browser.runtime.openOptionsPage();
     self.close();
   }, true);
+}
+function setup(options) {
+  if (context.prefersDark(options["dispMode"])) {
+    document.body.classList.replace("light", "dark"); // If light, then swap with dark
+    document.body.classList.add("dark"); // But also set dark if light wasn't set
+  } else {
+    document.body.classList.replace("dark", "light"); // If dark, then swap with light
+    document.body.classList.add("light"); // But also set light if dark wasn't set
+  }
+  // Enable selected maplinks...
+  ["OSM", "Google", "Bing", "MapQuest", "Here", "Flickr"].forEach((v) => {
+    if (options["mlink" + v]) {
+      document.body.classList.add("show" + v);
+    }
+  });
+}
 
-});
+function init() {
+  context.getOptions().then(setup);
+  browser.runtime.sendMessage({
+    message: "popupReady"
+  }).then(populate);
+}
+window.addEventListener("DOMContentLoaded", init);
