@@ -1,20 +1,20 @@
 # xIFr
 
-xIFr is a browser addon for viewing EXIF, IPTC and XMP metadata in jpg image files. Launch it from the browser's right-click context menu.
+xIFr is a browser extension for viewing EXIF, IPTC and XMP metadata in jpg image files. Launch it from the browser's right-click context menu.
 
 * [Install from Mozilla Firefox Add-ons](https://addons.mozilla.org/firefox/addon/xifr?src=external-github)
 
 In principle xIFr a "cross-browser compatible" webextension. While it currently _ain't_ available via Chrome Web Store, it still works with Chrome/Chromium based browsers if you load [the webextension](https://github.com/StigNygaard/xIFr/releases) directly via the browser´s developer features. 
 However the _"deep search" functionality_ (described below) requires Firefox 63 (compatible) or newer. 
 
-![Screenshot](https://addons.cdn.mozilla.net/user-media/previews/full/222/222226.png)
+![Screenshot](https://www.rockland.dk/img/xIFr100-1-1400x1050.jpg)
 
 ### Why another Exif viewer?
 
 Because I felt other Exif readers annoyed me or I felt they were missing something. It is probably a matter of personal preferences,
 but you should really check the _"deep search" feature_. It works sooo well - in my own very humble opinion :-)
 
-![Screenshot](https://addons.cdn.mozilla.net/user-media/previews/full/222/222227.png)
+![Screenshot](https://www.rockland.dk/img/xIFr100-2-1400x1050.jpg)
 
 ### "Deep Search" feature?
 Most other Exif viewers only works if you can right-click directly on an html _img_ element. But with "Deep Search" xIFr finds the image you want to see details about,
@@ -30,7 +30,7 @@ Deep Search is supported in **Firefox 63 or newer** (It requires an API feature 
 ### Dark Theme support
 
 
-![Screenshot](https://addons.cdn.mozilla.net/user-media/previews/full/222/222236.png)
+![Screenshot](https://www.rockland.dk/img/xIFr100-3-1400x1050.jpg)
 
 ### A handy Firefox tip!
 Some websites overrides the browser's default right-click context menu. But you can always hold down the _shift_ key while
