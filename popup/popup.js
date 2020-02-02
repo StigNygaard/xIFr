@@ -40,7 +40,7 @@ function populate(response) {
     }
     document.getElementById("filename").href = response.properties.URL;
     document.getElementById("imgsize").textContent = response.properties.byteLength;
-    document.getElementById("imgsize2").textContent = response.properties.byteLength >= 1048576 ? ((response.properties.byteLength / 1048576).toFixed(2)).toString() + " MB" : ((response.properties.byteLength / 1024).toFixed(2)).toString() + " kB";
+    document.getElementById("imgsize2").textContent = response.properties.byteLength >= 1048576 ? ((response.properties.byteLength / 1048576).toFixed(2)).toString() + " MB" : ((response.properties.byteLength / 1024).toFixed(2)).toString() + " KB";
     if (response.properties.URL.startsWith("file:")) {
       document.getElementById("contenttype").textContent = "";
       document.getElementById("lastmodified").textContent = "";
