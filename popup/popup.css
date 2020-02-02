@@ -130,15 +130,19 @@ img#settings {
   margin: 1ch 0 0 0;
   clear: both;
   width: 100%;
+  border: none;
+  padding: 0;
+  border-collapse: collapse;
 }
 #data .labels {
-  width: 18ch;
+  width: 19ch;
 }
 #data td {
   vertical-align: top;
+  padding: 1px;
 }
-#data tr:hover {
-  background-color: rgb(49, 49, 49);
+#data td:first-child {
+  padding-right: .5rem;
 }
 #maplinks {
   margin: 0;
