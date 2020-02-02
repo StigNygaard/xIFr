@@ -239,6 +239,34 @@ function exifClass() {
     return value;
   }
 
+  function cardinal16Direction(val) {
+    // https://en.wikipedia.org/wiki/Points_of_the_compass
+    // http://snowfence.umn.edu/Components/winddirectionanddegrees.htm
+    const card16 = [  {min: 0, max: 11.25, dir: 'N'},
+      {min: 11.25, max: 33.75, dir: 'NNE'},
+      {min: 33.75, max: 56.25, dir: 'NE'},
+      {min: 56.25, max: 78.75, dir: 'ENE'},
+      {min: 78.75, max: 101.25, dir: 'E'},
+      {min: 101.25, max: 123.75, dir: 'ESE'},
+      {min: 123.75, max: 146.25, dir: 'SE'},
+      {min: 146.25, max: 168.75, dir: 'SSE'},
+      {min: 168.75, max: 191.25, dir: 'S'},
+      {min: 191.25, max: 213.75, dir: 'SSW'},
+      {min: 213.75, max: 236.25, dir: 'SW'},
+      {min: 236.25, max: 258.75, dir: 'WSW'},
+      {min: 258.75, max: 281.25, dir: 'W'},
+      {min: 281.25, max: 303.75, dir: 'WNW'},
+      {min: 303.75, max: 326.25, dir: 'NW'},
+      {min: 326.25, max: 348.75, dir: 'NNW'},
+      {min: 348.75, max: 360, dir: 'N'} ];
+    for (const cardinal of card16) {
+      if (cardinal.min <= val && cardinal.max >= val) {
+        return cardinal.dir;
+      }
+    }
+    return '';
+  }
+
   function readGPSDir(dataObj, data, dirStart, swapbytes) {
     var numEntries = fxifUtils.read16(data, dirStart, swapbytes);
     // check if all entries lay within the data array
@@ -359,7 +387,7 @@ function exifClass() {
       dataObj.GPSAlt = stringBundle.getFormattedString("meters", [vals[TAG_GPS_ALT] * (gpsAltReference ? -1.0 : 1.0)]);
     }
     if (vals[TAG_GPS_IMG_DIR] !== undefined && (gpsImgDirReference === 'M' || gpsImgDirReference === 'T')) {
-      dataObj.GPSImgDir = stringBundle.getFormattedString("dir" + gpsImgDirReference, [vals[TAG_GPS_IMG_DIR]]);
+      dataObj.GPSImgDir = cardinal16Direction(vals[TAG_GPS_IMG_DIR]) + ' ' + stringBundle.getFormattedString("dir" + gpsImgDirReference, [vals[TAG_GPS_IMG_DIR]]);
     }
     // Get the straight decimal values without rounding.
     // For creating links to map services.
