@@ -200,7 +200,7 @@ function loadparseshow(imgrequest) {
 
 
 var deepSearchGenericLimit = 10 * 10; // Just not relevant if that small
-function blacklistedImg(src) { // todo: Make blacklist configurable!
+function blacklistedImage(src) { // todo: Make blacklist configurable!
   return [{url: "https://combo.staticflickr.com/ap/build/images/sprites/icons-cc4be245.png", regexp: false}].some(function(item){return src === item.url});
 }
 function imageSearch(request, elem) {
@@ -210,24 +210,22 @@ function imageSearch(request, elem) {
     if (elem.contains(img)) { // img is itself/elem or img is a "sub-node"
       context.debug("Found image within target element! img.src=" + img.src + " and naturalWidth=" + img.naturalWidth + ", naturalHeight=" + img.naturalHeight);
       // We could look for best match, or just continue with the first we find?
-      if (img.naturalWidth > 10) { // Can't remember why I made this check? Superfluous? We compare with deepSearchGenericLimit further down
-        context.debug("Candidate!?");
-        let propDisplay = window.getComputedStyle(img, null).getPropertyValue('display'); // none?
-        let propVisibility = window.getComputedStyle(img, null).getPropertyValue('visibility'); // hidden?
-        // Maybe also look at computed opacity ??!
-        context.debug("PROPs! display=" + propDisplay + ", visibility=" + propVisibility);
-        if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && propDisplay !== 'none' && propVisibility !== 'hidden' ) {
-          if (!blacklistedImg(img.src) && ((request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > deepSearchGenericLimit))) {
-            if (typeof candidate !== "undefined") {
-              context.debug("Compare img with candidate: " + img.naturalWidth * img.naturalHeight + " > " + candidate.naturalWidth * candidate.naturalHeight + "? -  document.images.length = " + document.images.length);
-              if ((img.naturalWidth * img.naturalHeight) > (candidate.naturalWidth * candidate.naturalHeight)) {
-                context.debug("Setting new candidate. -  document.images.length = " + document.images.length);
-                candidate = img;
-              }
-            } else {
-              context.debug("Setting first candidate. -  document.images.length = " + document.images.length);
+      context.debug("Candidate!?");
+      let propDisplay = window.getComputedStyle(img, null).getPropertyValue('display'); // none?
+      let propVisibility = window.getComputedStyle(img, null).getPropertyValue('visibility'); // hidden?
+      // Maybe also look at computed opacity ??!
+      context.debug("PROPs! display=" + propDisplay + ", visibility=" + propVisibility);
+      if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && propDisplay !== 'none' && propVisibility !== 'hidden' ) {
+        if (!blacklistedImage(img.src) && ((request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > deepSearchGenericLimit))) {
+          if (typeof candidate !== "undefined") {
+            context.debug("Compare img with candidate: " + img.naturalWidth * img.naturalHeight + " > " + candidate.naturalWidth * candidate.naturalHeight + "? -  document.images.length = " + document.images.length);
+            if ((img.naturalWidth * img.naturalHeight) > (candidate.naturalWidth * candidate.naturalHeight)) {
+              context.debug("Setting new candidate. -  document.images.length = " + document.images.length);
               candidate = img;
             }
+          } else {
+            context.debug("Setting first candidate. -  document.images.length = " + document.images.length);
+            candidate = img;
           }
         }
       }
@@ -260,7 +258,7 @@ function bgSearch(request, elem, bgSizes) {
     context.debug("Looking for dimensions of BACKGROUND-IMAGE via " + JSON.stringify(bgSizes));
     for (let bgSrc of bgImgs) {
       let imgData = bgSizes.find(bg => bg.src === bgSrc);
-      if (imgData.width && !blacklistedImg(imgData.src) && ((request.deepSearchBigger && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearchBigger && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
+      if (imgData.width && !blacklistedImage(imgData.src) && ((request.deepSearchBigger && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearchBigger && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
         let image = {};
         image.imageURL = bgSrc;
         image.mediaType = 'image';
