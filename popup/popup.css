@@ -154,7 +154,7 @@ img#settings {
 .expandable {
   display: none;
 }
-.expandGps .expandable.gps {
+.expandGps .expandable.gps, .expandSoftware .expandable.software {
   display: inline;
 }
 #maplinks {

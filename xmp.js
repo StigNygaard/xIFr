@@ -97,7 +97,10 @@ function xmpClass() {
 
     val = getXMPOrderedArray(dom, "http://ns.adobe.com/xap/1.0/mm/", "History", "http://ns.adobe.com/xap/1.0/sType/ResourceEvent#", "softwareAgent");
     if (val && val.length) {
-      dataObj.Software = val[val.length - 1]; // [length-1] = First is the last used ? Might want all?
+      if (!dataObj.Software) {
+        dataObj.Software = val[val.length - 1]; // [length-1] = Last is the last used ?
+      }
+      dataObj.AdditionalSoftware = [...(new Set(val.filter(s => s !== dataObj.Software)))];
     }
 
     var lang = fxifUtils.getLang();

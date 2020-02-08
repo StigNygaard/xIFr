@@ -78,8 +78,23 @@ function populate(response) {
         row.removeEventListener("click", gpsRowClick, {capture: true, once: true});
       });
   }
+  function softwareRowClick(event) {
+    event.preventDefault();
+    document.body.classList.add('expandSoftware');
+    let elm = document.querySelector('.software.expandable');
+    if (elm) {
+      let row = elm.parentNode.parentNode;
+      row.removeAttribute('title');
+      row.classList.remove('clickable');
+    }
+  }
+  function arrayToNodeAppendables(arr) {
+    let ret = [];
+    arr.forEach(function(item) {ret.push(item); ret.push(document.createElement('br'))});
+    return ret;
+  }
   Object.keys(response.data).forEach(key_v => {
-    if (key_v !== "GPSPureDdLat" && key_v !== "GPSPureDdLon") {
+    if (key_v !== "GPSPureDdLat" && key_v !== "GPSPureDdLon" && key_v !== "AdditionalSoftware") {
       var row = table.insertRow(-1);
       var label = row.insertCell(0);
       var value = row.insertCell(1);
@@ -89,14 +104,19 @@ function populate(response) {
       value.id = key_v + "ValueCell";
       if (key_v === 'GPSLat') {
         value.insertBefore(createRichElement('div', {id: 'maplinks'}), value.firstChild);
-        value.insertAdjacentElement("beforeend", createRichElement('span',{class: 'gps expandable'}, document.createElement('br'), response.data['GPSPureDdLat'].value + " (decimal)"));
+        value.insertAdjacentElement("beforeend", createRichElement('span', {class: 'gps expandable'}, document.createElement('br'), response.data['GPSPureDdLat'].value + " (decimal)"));
         row.title = "Click for decimal latitude and longitude values";
         row.classList.add('clickable');
         row.addEventListener("click", gpsRowClick, {capture: true, once: true});
       } else if (key_v === 'GPSLon') {
-        value.insertAdjacentElement("beforeend", createRichElement('span',{class: 'gps expandable'}, document.createElement('br'), response.data['GPSPureDdLon'].value + " (decimal)"));
+        value.insertAdjacentElement("beforeend", createRichElement('span', {class: 'gps expandable'}, document.createElement('br'), response.data['GPSPureDdLon'].value + " (decimal)"));
         row.title = "Click for decimal latitude and longitude values";
         row.addEventListener("click", gpsRowClick, {capture: true, once: true});
+        row.classList.add('clickable');
+      } else if (key_v ==="Software") {
+        value.insertAdjacentElement("afterbegin", createRichElement('span', {class: 'software expandable'}, ...arrayToNodeAppendables(response.data['AdditionalSoftware'].value)));
+        row.title = "Click for additional software used";
+        row.addEventListener("click", softwareRowClick, {capture: true, once: true});
         row.classList.add('clickable');
       }
     }
