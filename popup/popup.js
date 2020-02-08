@@ -113,7 +113,7 @@ function populate(response) {
         row.title = "Click for decimal latitude and longitude values";
         row.addEventListener("click", gpsRowClick, {capture: true, once: true});
         row.classList.add('clickable');
-      } else if (key_v ==="Software") {
+      } else if (key_v === "Software" && response.data['AdditionalSoftware']) {
         value.insertAdjacentElement("afterbegin", createRichElement('span', {class: 'software expandable'}, ...arrayToNodeAppendables(response.data['AdditionalSoftware'].value)));
         row.title = "Click for additional software used";
         row.addEventListener("click", softwareRowClick, {capture: true, once: true});
