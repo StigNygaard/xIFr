@@ -1,0 +1,462 @@
+{
+  "extensionDescription": {
+    "message": "Vis EXIF/IPTC/XMP data i billeder.",
+    "description": "Description of the extension."
+  },
+
+  "contextMenuText": {
+    "message": "xIFr - Vis EXIF data"
+  },
+
+  "Copy": {
+    "message": "Kopiér"
+  },
+
+  "CameraMake": {
+    "message": "Kamera fabrikant"
+  },
+
+  "CameraModel": {
+    "message": "Kamera model"
+  },
+
+  "CameraLens": {
+    "message": "Objektiv"
+  },
+
+  "Software": {
+    "message": "Software"
+  },
+
+  "ImageDate": {
+    "message": "Billed dato"
+  },
+
+  "ImageOrientation": {
+    "message": "Orientering"
+  },
+
+  "ImageBW": {
+    "message": "Sort/Hvid"
+  },
+
+  "FlashUsed": {
+    "message": "Flash affyret"
+  },
+
+  "FocalLength": {
+    "message": "Brændvidde"
+  },
+
+  "DigitalZoom": {
+    "message": "Digital zoom"
+  },
+
+  "CCDWidth": {
+    "message": "CCD bredde"
+  },
+
+  "ExposureTime": {
+    "message": "Eksponeringstid"
+  },
+
+  "Aperture": {
+    "message": "Blænde"
+  },
+
+  "FocusDist": {
+    "message": "Afstands indstilling"
+  },
+
+  "ISOequivalent": {
+    "message": "ISO ækvivalent"
+  },
+
+  "ExposureBias": {
+    "message": "Eksponerings bias"
+  },
+
+  "WhiteBalance": {
+    "message": "Hvidbalance"
+  },
+
+  "LightSource": {
+    "message": "Lyskilde"
+  },
+
+  "MeteringMode": {
+    "message": "Metering Mode"
+  },
+
+  "ExposureProgram": {
+    "message": "Exposure"
+  },
+
+  "ExposureMode": {
+    "message": "Exposure Mode"
+  },
+
+  "ImageColorSpace": {
+    "message": "Color Space"
+  },
+
+  "GPSCoord": {
+    "message": "GPS Coordinate"
+  },
+
+  "MapLink": {
+    "message": "Map Link"
+  },
+
+  "GPSAlt": {
+    "message": "GPS Altitude"
+  },
+
+  "GPSImgDir": {
+    "message": "Viewing Direction"
+  },
+
+  "Creator": {
+    "message": "Creator"
+  },
+
+  "City": {
+    "message": "City"
+  },
+
+  "Sublocation": {
+    "message": "Sublocation"
+  },
+
+  "ProvinceState": {
+    "message": "Province/State"
+  },
+
+  "CountryName": {
+    "message": "Country"
+  },
+
+  "Copyright": {
+    "message": "Copyright"
+  },
+
+  "Title": {
+    "message": "Title"
+  },
+
+  "Caption": {
+    "message": "Caption"
+  },
+
+  "Comment": {
+    "message": "Comment"
+  },
+
+  "Instructions": {
+    "message": "Instructions"
+  },
+
+  "NoData": {
+    "message": "No meta data found"
+  },
+
+  "GPSFormat": {
+    "message": "Coordinates format to use"
+  },
+
+  "DD_label": {
+    "message": "Decimal degree"
+  },
+
+  "DM_label": {
+    "message": "Degree Minute"
+  },
+
+  "DMS_label": {
+    "message": "Degree Minutes Second"
+  },
+
+  "windowtitle": {
+    "message": "FxIF Data for"
+  },
+
+  "orientation0": {
+    "message": "Undefined"
+  },
+
+  "orientation1": {
+    "message": "Normal"
+  },
+
+  "orientation2": {
+    "message": "Flip Horizontal"
+  },
+
+  "orientation3": {
+    "message": "Rotate 180"
+  },
+
+  "orientation4": {
+    "message": "Flip Vertical"
+  },
+
+  "orientation5": {
+    "message": "Transpose"
+  },
+
+  "orientation6": {
+    "message": "Rotate 90"
+  },
+
+  "orientation7": {
+    "message": "Transverse"
+  },
+
+  "orientation8": {
+    "message": "Rotate 270"
+  },
+
+  "infinite": {
+    "message": "Infinite"
+  },
+
+  "meters": {
+    "message": "m"
+  },
+
+  "millimeters": {
+    "message": "mm"
+  },
+
+  "seconds": {
+    "message": "s"
+  },
+
+  "ev": {
+    "message": "EV"
+  },
+
+  "yes": {
+    "message": "Yes"
+  },
+
+  "no": {
+    "message": "No"
+  },
+
+  "enforced": {
+    "message": "enforced"
+  },
+
+  "manual": {
+    "message": "Manual"
+  },
+
+  "auto": {
+    "message": "Auto"
+  },
+
+  "semiauto": {
+    "message": "semi-auto"
+  },
+
+  "none": {
+    "message": "none"
+  },
+
+  "daylight": {
+    "message": "Daylight"
+  },
+
+  "fluorescent": {
+    "message": "Fluorescent"
+  },
+
+  "incandescent": {
+    "message": "Incandescent"
+  },
+
+  "flash": {
+    "message": "Flash"
+  },
+
+  "fineweather": {
+    "message": "Fine Weather"
+  },
+
+  "cloudy": {
+    "message": "Cloudy"
+  },
+
+  "shade": {
+    "message": "Shade"
+  },
+
+  "daylightfluorescent": {
+    "message": "Daylight Fluorescent"
+  },
+
+  "daywhitefluorescent": {
+    "message": "Day White Fluorescent"
+  },
+
+  "coolwhitefluorescent": {
+    "message": "Cool White Fluorescent"
+  },
+
+  "whitefluorescent": {
+    "message": "White Fluorescent"
+  },
+
+  "studiotungsten": {
+    "message": "ISO Studio Tungsten"
+  },
+
+  "noflash": {
+    "message": "No Flash available"
+  },
+
+  "noreturnlight": {
+    "message": "return light not detected"
+  },
+
+  "returnlight": {
+    "message": "return light detected"
+  },
+
+  "redeye": {
+    "message": "red eye reduction mode"
+  },
+
+  "average": {
+    "message": "Average"
+  },
+
+  "centerweight": {
+    "message": "Center Weight"
+  },
+
+  "spot": {
+    "message": "Spot"
+  },
+
+  "multispot": {
+    "message": "Multispot"
+  },
+
+  "matrix": {
+    "message": "Matrix"
+  },
+
+  "partial": {
+    "message": "Partial"
+  },
+
+  "autobracketing": {
+    "message": "Auto Bracketing"
+  },
+
+  "35mmequiv": {
+    "message": "mm (35mm equivalent)"
+  },
+
+  "program": {
+    "message": "program"
+  },
+
+  "apriority": {
+    "message": "aperture priority"
+  },
+
+  "spriority": {
+    "message": "shutter priority"
+  },
+
+  "creative": {
+    "message": "Creative Program (based towards depth of field)"
+  },
+
+  "action": {
+    "message": "Action program (based towards fast shutter speed)"
+  },
+
+  "portrait": {
+    "message": "Portrait Mode"
+  },
+
+  "landscape": {
+    "message": "Landscape Mode"
+  },
+
+  "latlondms": {
+    "message": " (deg, min, sec)"
+  },
+
+  "latlondm": {
+    "message": " (deg, min)"
+  },
+
+  "latlondd": {
+    "message": " (deg )"
+  },
+
+  "dirT": {
+    "message": "° (true north)"
+  },
+
+  "dirM": {
+    "message": "° (magnetic north)"
+  },
+
+  "noTZ": {
+    "message": "(no TZ)"
+  },
+
+  "unknown": {
+    "message": "Unknown"
+  },
+
+  "generalError": {
+    "message": " Error while interpreting the meta data. Meta data shown might not be complete. Please report this problem with an example image. "
+  },
+
+  "generalWarning": {
+    "message": " There was an issue interpreting meta data. Might not show all meta data. "
+  },
+
+  "specialError": {
+    "message": " Error while interpreting %S data. %S meta data shown might not be complete. Please report this problem with an example image. "
+  },
+
+  "UserComment": {
+    "message": "User Comment"
+  },
+
+  "ColorSpace": {
+    "message": "Color Space"
+  },
+
+  "FocalLengthText": {
+    "message": "Focal Length"
+  },
+
+  "ApertureFNumber": {
+    "message": "Aperture"
+  },
+
+  "FocalLength35mmEquiv": {
+    "message": "Focal Length (35mm)"
+  },
+
+  "GPSLat": {
+    "message": "GPS Latitude"
+  },
+
+  "GPSLon": {
+    "message": "GPS Longitude"
+  },
+
+  "noEXIFdata": {
+    "message": "No image metadata found"
+  }
+}
