@@ -106,7 +106,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
           mediaType: info.mediaType,
           targetId: info.targetElementId,
           supportsDeepSearch: !!(info.targetElementId && info.modifiers),  // "deep-search" supported in Firefox 63+
-          deepSearch: info.modifiers && info.modifiers.includes("Shift"),
+          deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
           deepSearchBiggerLimit: options["deepSearchBiggerLimit"],
           frameId : info.frameId, // related to globalThis/window/frames ?
           frameUrl : info.frameUrl
