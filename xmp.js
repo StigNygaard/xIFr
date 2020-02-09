@@ -100,7 +100,7 @@ function xmpClass() {
       if (!dataObj.Software) {
         dataObj.Software = val[val.length - 1]; // [length-1] = Last is the last used ?
       }
-      dataObj.AdditionalSoftware = [...(new Set(val.filter(s => s !== dataObj.Software)))];
+      dataObj.AdditionalSoftware = [...(new Set(val.filter(s => s !== dataObj.Software)))]; // Might become an empty array
     }
 
     var lang = fxifUtils.getLang();
