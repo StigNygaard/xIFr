@@ -11,7 +11,6 @@
  */
 
 function exifClass() {
-  var fxifUtils = new fxifUtilsClass();
   var loopDetectorArray = new Array();
 
   // data formats
@@ -584,6 +583,7 @@ function exifClass() {
         pushError(dataObj, "[EXIF]", ex);
       }
       fxifUtils.exifDone = true;
+      context.info(" *** exifDone !!!");
     }
   }
 
@@ -1046,7 +1046,7 @@ function exifClass() {
           if (!dataObj.ColorSpace) {
             context.debug("binExif readExifDir (1) colorspace val="+val);
             if (val == 1)
-              dataObj.ColorSpace = "sRGB";
+              dataObj.ColorSpace = "sRGB" + (context.INFO || context.DEBUG ? " (Exif)" : "");
             else
               colorSpace = val;
           }
@@ -1100,7 +1100,7 @@ function exifClass() {
     if (colorSpace != 0) {
       if (dataObj.ColorSpace == 2 ||
           dataObj.ColorSpace == 65535 && interopIndex.search(/^R03$/))
-        dataObj.ColorSpace = "Adobe RGB";
+        dataObj.ColorSpace = "Adobe RGB" + (context.INFO || context.DEBUG ? " (Exif)" : "");
     }
 
     if (dataObj.FocalLength) {

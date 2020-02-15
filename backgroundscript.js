@@ -84,8 +84,8 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
         "/context.js",
         "/stringBundle.js",
         "/contentscript.js",
-        "/parseJpeg.js",
         "/fxifUtils.js",
+        "/parseJpeg.js",
         "/binExif.js",
         "/binIptc.js",
         "/xmp.js"

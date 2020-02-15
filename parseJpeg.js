@@ -62,6 +62,7 @@ function fxifClass() {
             context.debug("dataObj: \n" + JSON.stringify(dataObj));
 
             fxifUtils.exifDone = true;
+            context.info(" *** exifDone !!!");
           } else {
             context.debug("gatherData(bis): Didn't find EXIF, maybe XMP?...");
             if (len > 28) {
@@ -87,6 +88,7 @@ function fxifClass() {
                     pushError(dataObj, "[XMP]", ex);
                   }
                   fxifUtils.xmpDone = true;
+                  context.info(" *** xmpDone !!!");
                 } else {
                   try {
                     bis.readBytes(len - (28 + j));
@@ -128,6 +130,7 @@ function fxifClass() {
               pushError(dataObj, "[IPTC]", ex);
             }
             fxifUtils.iptcDone = true;
+            context.info(" *** iptcDone !!!");
           }
         } else
         // Or perhaps a JFIF comment?

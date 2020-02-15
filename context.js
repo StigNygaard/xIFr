@@ -59,6 +59,10 @@ var context = (function Context() {
 
   // API:
   return {
+    LOG: LOG,
+    INFO: INFO,
+    DEBUG: DEBUG,
+    ERROR: ERROR,
     log: log,
     info: info,
     debug: debug,

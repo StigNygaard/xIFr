@@ -11,24 +11,40 @@
  */
 
 function iptcClass(stringBundle) {
-  var fxifUtils = new fxifUtilsClass();
-
   const BIM_MARKER = 0x3842494D; // 8BIM segment marker
   const UTF8_INDICATOR = "\u001B%G"; // indicates usage of UTF8 in IPTC-NAA strings
 
   // IPTC tags
+
+  // IPTC_SUPLEMENTAL_CATEGORIES 0x14 // SuplementalCategories
+  // IPTC_AUTHOR                 0x7A // Author
+  // IPTC_CATEGORY               0x0F // Category
+  // IPTC_BYLINE_TITLE           0x55 // Byline Title
+  // IPTC_SOURCE                 0x73 // Source
+  // IPTC_OBJECT_NAME            0x05 // Object Name
+  // IPTC_TRANSMISSION_REFERENCE 0x67 // OriginalTransmissionReference
+  // IPTC_COPYRIGHT              0x0A // (C)Flag
+  // IPTC_COUNTRY_CODE           0x64 // Ref. Service (?)
+  // IPTC_REFERENCE_SERVICE      0x2D // Country Code (?)
+  // IPTC_IMAGE_TYPE             0x82 // Image type
+  //                             0xE6 // URLs DocumentNotes ? todo!?
+
+  const TAG_IPTC_KEYWORDS      = 0x19; // Keywords
+  const TAG_IPTC_CREDIT        = 0x6E; // Credit Line
+  const TAG_IPTC_COUNTRY_CODE  = 0x64; // Ref. Service / Country Code (?) // (ISO 3 COUNTRY CODE?)
+
   const TAG_IPTC_CODEDCHARSET  = 0x5A;
-  const TAG_IPTC_INSTRUCTIONS  = 0x28;
-  const TAG_IPTC_BYLINE        = 0x50;
-  const TAG_IPTC_CITY          = 0x5A;
-  const TAG_IPTC_SUBLOCATION   = 0x5C;
-  const TAG_IPTC_PROVINCESTATE = 0x5F;
-  const TAG_IPTC_COUNTRYNAME   = 0x65;
-  const TAG_IPTC_HEADLINE      = 0x69;
-  const TAG_IPTC_COPYRIGHT     = 0x74;
-  const TAG_IPTC_CAPTION       = 0x78;
-  const TAG_IPTC_DATECREATED   = 0x37;
-  const TAG_IPTC_TIMECREATED   = 0x3C;
+  const TAG_IPTC_INSTRUCTIONS  = 0x28; // Spec. Instr.
+  const TAG_IPTC_BYLINE        = 0x50; // Byline
+  const TAG_IPTC_CITY          = 0x5A; // City
+  const TAG_IPTC_SUBLOCATION   = 0x5C; // Sub Location
+  const TAG_IPTC_PROVINCESTATE = 0x5F; // State
+  const TAG_IPTC_COUNTRYNAME   = 0x65; // Country
+  const TAG_IPTC_HEADLINE      = 0x69; // Headline
+  const TAG_IPTC_COPYRIGHT     = 0x74; // (C)Notice
+  const TAG_IPTC_CAPTION       = 0x78; // Caption ( ~description)
+  const TAG_IPTC_DATECREATED   = 0x37; // DateCreated
+  const TAG_IPTC_TIMECREATED   = 0x3C; // Time Created
 
   // Decodes arrays carrying UTF-8 sequences into Unicode strings.
   // Filters out illegal bytes with values between 128 and 191,
@@ -83,6 +99,7 @@ function iptcClass(stringBundle) {
     // only then we have both values.
     var iptcDate;
     var iptcTime;
+    var iptcKeywords = new Set();
 
     // Don't read outside the array, take the 5 bytes into account
     // since they are mandatory for a proper entry.
@@ -131,9 +148,18 @@ function iptcClass(stringBundle) {
                 iptcTime = val;
                 break;
 
+              case TAG_IPTC_KEYWORDS:
+                iptcKeywords.add(val);
+                break;
+
               case TAG_IPTC_BYLINE:
                 if (!dataObj.Creator || !fxifUtils.xmpDone)
                   dataObj.Creator = val;
+                break;
+
+              case TAG_IPTC_CREDIT:
+                if (!dataObj.Creditline || !fxifUtils.xmpDone)
+                  dataObj.Creditline = val;
                 break;
 
               case TAG_IPTC_CITY:
@@ -156,12 +182,12 @@ function iptcClass(stringBundle) {
                   dataObj.CountryName = val;
                 break;
 
-              case TAG_IPTC_CAPTION:
+              case TAG_IPTC_CAPTION:   // ~ description
                 if (!dataObj.Caption || !fxifUtils.xmpDone)
                   dataObj.Caption = val;
                 break;
 
-              case TAG_IPTC_HEADLINE:
+              case TAG_IPTC_HEADLINE:   // title
                 if (!dataObj.Headline || !fxifUtils.xmpDone)
                   dataObj.Headline = val;
                 break;
@@ -217,6 +243,9 @@ function iptcClass(stringBundle) {
 
         dataObj.Date = date;
       }
+    }
+    if (iptcKeywords.size && (!dataObj.Keywords || !fxifUtils.xmpDone || dataObj.Keywords.size < iptcKeywords.size)) {
+      dataObj.Keywords = iptcKeywords;
     }
   }
 

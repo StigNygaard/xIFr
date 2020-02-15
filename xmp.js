@@ -11,8 +11,6 @@
  */
 
 function xmpClass() {
-  var fxifUtils = new fxifUtilsClass();
-
   // Parses and reads through the XMP document within the file.
   this.parseXML = function (dataObj, xml) {
     let parser = new DOMParser();
@@ -29,7 +27,7 @@ function xmpClass() {
       xmlString = xmlString.substring(0, xmlString.length - 1);
     }
 
-    context.info("xmp xmlString: \n" + xmlString);
+    context.info("xmp xmlString (length=" + xmlString.length + ") :\n" + xmlString);
     let dom = parser.parseFromString(xmlString, 'application/xml'); // alternatively "text/xml" ?
 
     if (dom.documentElement.nodeName === 'parsererror') {
@@ -54,7 +52,12 @@ function xmpClass() {
     // Creators come in an ordered list. Get them all.
     val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "creator", "");
     if (val && val.length) {
-      dataObj.Creator = val.join(", ");
+      dataObj.Creator = val.join("; "); // todo: Make a Set and handle later like Software or Keywords?
+    }
+
+    val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "Credit");
+    if (val) {
+      dataObj.Creditline = val;
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "City");
@@ -135,6 +138,12 @@ function xmpClass() {
     }
     if (val) {
       dataObj.Copyright = val;
+    }
+
+    // Subjects (keywords) comes in a list/set. Get them all.
+    val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "subject", "");
+    if (val && val.length) {
+      dataObj.Keywords = new Set(val);
     }
 
     // XMP:EXIF
@@ -597,10 +606,11 @@ function xmpClass() {
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "ColorSpace");
     if (val) {
       context.debug("xmp.js 1 colorspace val =" + val);
+      let postfix = (context.INFO || context.DEBUG ? " (xmp)" : "");
       if (val == 1) {
-        dataObj.ColorSpace = "sRGB";
+        dataObj.ColorSpace = "sRGB" + postfix;
       } else if (val == 2) {
-        dataObj.ColorSpace = "Adobe RGB";
+        dataObj.ColorSpace = "Adobe RGB" + postfix;
       }
     }
 

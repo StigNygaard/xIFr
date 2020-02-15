@@ -66,7 +66,7 @@ function populate(response) {
     addMessages(response.infos, '/icons/info-32w.png', 'i');
     document.getElementById('messages').style.display = 'block';
   }
-  var table = document.getElementById("data");
+
   function gpsRowClick(event) {
     event.preventDefault();
     document.body.classList.add('expandGps');
@@ -93,14 +93,19 @@ function populate(response) {
     arr.forEach(function(item) {ret.push(item); ret.push(document.createElement('br'))});
     return ret;
   }
-  Object.keys(response.data).forEach(key_v => {
+  var table = document.getElementById("data");
+  function addDataRow(key_v) {
     if (key_v !== "GPSPureDdLat" && key_v !== "GPSPureDdLon" && key_v !== "AdditionalSoftware") {
       var row = table.insertRow(-1);
       var label = row.insertCell(0);
       var value = row.insertCell(1);
       label.textContent = response.data[key_v].label;
       label.id = key_v + "LabelCell";
-      value.textContent = response.data[key_v].value;
+      if (key_v === "Keywords") {
+        value.textContent = Array.from(response.data[key_v].value).join("; ");
+      } else {
+        value.textContent = response.data[key_v].value;
+      }
       value.id = key_v + "ValueCell";
       if (key_v === 'GPSLat') {
         value.insertBefore(createRichElement('div', {id: 'maplinks'}), value.firstChild);
@@ -118,9 +123,15 @@ function populate(response) {
         row.title = "Click for additional software used";
         row.addEventListener("click", softwareRowClick, {capture: true, once: true});
         row.classList.add('clickable');
+      } else if (key_v === 'ColorSpace') {
+        row.title = "Notice: Color space given in Exif and XMP meta-data, might not be the same as actual image color space used!";
       }
     }
-  });
+  }
+  let firstKeys = ["Headline", "Caption", "Creator", "Copyright", "Creditline"];
+  let foundKeys = Object.keys(response.data);
+  firstKeys.filter(x => foundKeys.includes(x)).forEach(addDataRow); // First Headline, Description, Creator, Copyright and Credit Line...
+  foundKeys.filter(x => !firstKeys.includes(x)).forEach(addDataRow); // Then the rest...
   if (response.data.GPSPureDdLat && response.data.GPSPureDdLon && typeof response.data.GPSPureDdLat.value === 'number' && typeof response.data.GPSPureDdLon.value === 'number') {
     document.getElementById("maintab").onclick = () => {
       document.body.classList.replace("mapmode", "mainmode")

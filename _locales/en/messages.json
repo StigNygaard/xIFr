@@ -120,6 +120,10 @@
     "message": "Creator"
   },
 
+  "Creditline": {
+    "message": "Credit Line"
+  },
+
   "City": {
     "message": "City"
   },
@@ -144,12 +148,20 @@
     "message": "Title"
   },
 
+  "Headline": {
+    "message": "Title"
+  },
+
   "Caption": {
-    "message": "Caption"
+    "message": "Description"
   },
 
   "Comment": {
     "message": "Comment"
+  },
+
+  "Keywords": {
+    "message": "Keywords"
   },
 
   "Instructions": {
