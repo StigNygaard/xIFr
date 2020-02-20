@@ -120,6 +120,38 @@
     "message": "Creator"
   },
 
+  "CreatorAddress": {
+    "message": "Creator Address"
+  },
+
+  "CreatorCity": {
+    "message": "Creator City"
+  },
+
+  "CreatorRegion": {
+    "message": "Creator Region"
+  },
+
+  "CreatorPostalCode": {
+    "message": "Creator Postal Code"
+  },
+
+  "CreatorCountry": {
+    "message": "Creator Country"
+  },
+
+  "CreatorPhoneNumbers": {
+    "message": "Creator Phone"
+  },
+
+  "CreatorEmails": {
+    "message": "Creator Email"
+  },
+
+  "CreatorURLs": {
+    "message": "Creator URL"
+  },
+
   "Creditline": {
     "message": "Credit Line"
   },
@@ -160,12 +192,20 @@
     "message": "Comment"
   },
 
+  "DocumentNotes": {
+    "message": "Notes"
+  },
+
   "Keywords": {
     "message": "Keywords"
   },
 
   "Instructions": {
     "message": "Instructions"
+  },
+
+  "TransmissionRef": {
+    "message": "Transmission Ref."
   },
 
   "NoData": {
@@ -466,6 +506,94 @@
 
   "GPSLon": {
     "message": "GPS Longitude"
+  },
+
+  "GPano_UsePanoramaViewer": {
+    "message": "GPano:UsePanoramaViewer"
+  },
+
+  "GPano_CaptureSoftware": {
+    "message": "GPano:CaptureSoftware"
+  },
+
+  "GPano_StitchingSoftware": {
+    "message": "GPano:StitchingSoftware"
+  },
+
+  "GPano_ProjectionType": {
+    "message": "GPano:ProjectionType"
+  },
+
+  "GPano_PoseHeadingDegrees": {
+    "message": "GPano:PoseHeadingDegrees"
+  },
+
+  "GPano_PosePitchDegrees": {
+    "message": "GPano:PosePitchDegrees"
+  },
+
+  "GPano_PoseRollDegrees": {
+    "message": "GPano:PoseRollDegrees"
+  },
+
+  "GPano_InitialViewHeadingDegrees": {
+    "message": "GPano:InitialViewHeadingDegrees"
+  },
+
+  "GPano_InitialViewPitchDegrees": {
+    "message": "GPano:InitialViewPitchDegrees"
+  },
+
+  "GPano_InitialViewRollDegrees": {
+    "message": "GPano:InitialViewRollDegrees"
+  },
+
+  "GPano_InitialHorizontalFOVDegrees": {
+    "message": "GPano:InitialHorizontalFOVDegrees"
+  },
+
+  "GPano_FirstPhotoDate": {
+    "message": "GPano:FirstPhotoDate"
+  },
+
+  "GPano_LastPhotoDate": {
+    "message": "GPano:LastPhotoDate"
+  },
+
+  "GPano_SourcePhotosCount": {
+    "message": "GPano:SourcePhotosCount"
+  },
+
+  "GPano_ExposureLockUsed": {
+    "message": "GPano:ExposureLockUsed"
+  },
+
+  "GPano_CroppedAreaImageWidthPixels": {
+    "message": "GPano:CroppedAreaImageWidthPixels"
+  },
+
+  "GPano_CroppedAreaImageHeightPixels": {
+    "message": "GPano:CroppedAreaImageHeightPixels"
+  },
+
+  "GPano_FullPanoWidthPixels": {
+    "message": "GPano:FullPanoWidthPixels"
+  },
+
+  "GPano_FullPanoHeightPixels": {
+    "message": "GPano:FullPanoHeightPixels"
+  },
+
+  "GPano_CroppedAreaLeftPixels": {
+    "message": "GPano:CroppedAreaLeftPixels"
+  },
+
+  "GPano_CroppedAreaTopPixels": {
+    "message": "GPano:CroppedAreaTopPixels"
+  },
+
+  "GPano_InitialCameraDolly": {
+    "message": "GPano:InitialCameraDolly"
   },
 
   "noEXIFdata": {

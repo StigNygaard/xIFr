@@ -107,7 +107,9 @@ function populate(response) {
         value.textContent = response.data[key_v].value;
       }
       value.id = key_v + "ValueCell";
-      if (key_v === 'GPSLat') {
+      if (key_v === "Keywords") {
+        row.classList.add('scsv');
+      } else if (key_v === 'GPSLat') {
         value.insertBefore(createRichElement('div', {id: 'maplinks'}), value.firstChild);
         value.insertAdjacentElement("beforeend", createRichElement('span', {class: 'gps expandable'}, document.createElement('br'), response.data['GPSPureDdLat'].value + " (decimal)"));
         row.title = "Click for decimal latitude and longitude values";
@@ -128,10 +130,13 @@ function populate(response) {
       }
     }
   }
-  let firstKeys = ["Headline", "Caption", "Creator", "Copyright", "Creditline"];
+  let orderedKeys = [ "Headline", "Caption", "Creditline", "Copyright",
+                    "Creator", "CreatorAddress", "CreatorCity", "CreatorRegion", "CreatorPostalCode", "CreatorCountry", "CreatorPhoneNumbers", "CreatorEmails", "CreatorURLs",
+                    "Date", "Make", "Model", "Lens", "FocalLengthText", "ApertureFNumber", "ExposureTime", "ISOequivalent", "FlashUsed", "WhiteBalance", "Distance",
+                    "GPSLat", "GPSLon", "GPSAlt", "GPSImgDir", "CountryName", "ProvinceState", "City", "Sublocation" ];
   let foundKeys = Object.keys(response.data);
-  firstKeys.filter(x => foundKeys.includes(x)).forEach(addDataRow); // First Headline, Description, Creator, Copyright and Credit Line...
-  foundKeys.filter(x => !firstKeys.includes(x)).forEach(addDataRow); // Then the rest...
+  orderedKeys.filter(x => foundKeys.includes(x)).forEach(addDataRow);  // First the orderedKeys (Headline, Description, Creator, Copyright, Credit Line,...)
+  foundKeys.filter(x => !orderedKeys.includes(x)).forEach(addDataRow); // Then the rest...
   if (response.data.GPSPureDdLat && response.data.GPSPureDdLon && typeof response.data.GPSPureDdLat.value === 'number' && typeof response.data.GPSPureDdLon.value === 'number') {
     document.getElementById("maintab").onclick = () => {
       document.body.classList.replace("mapmode", "mainmode")

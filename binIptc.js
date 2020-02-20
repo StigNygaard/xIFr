@@ -15,6 +15,10 @@ function iptcClass(stringBundle) {
   const UTF8_INDICATOR = "\u001B%G"; // indicates usage of UTF8 in IPTC-NAA strings
 
   // IPTC tags
+  // https://exiftool.org/TagNames/IPTC.html
+  // https://www.exiv2.org/metadata.html
+  // https://www.exiv2.org/iptc.html
+
 
   // IPTC_SUPLEMENTAL_CATEGORIES 0x14 // SuplementalCategories
   // IPTC_AUTHOR                 0x7A // Author
@@ -22,29 +26,28 @@ function iptcClass(stringBundle) {
   // IPTC_BYLINE_TITLE           0x55 // Byline Title
   // IPTC_SOURCE                 0x73 // Source
   // IPTC_OBJECT_NAME            0x05 // Object Name
-  // IPTC_TRANSMISSION_REFERENCE 0x67 // OriginalTransmissionReference
   // IPTC_COPYRIGHT              0x0A // (C)Flag
   // IPTC_COUNTRY_CODE           0x64 // Ref. Service (?)
   // IPTC_REFERENCE_SERVICE      0x2D // Country Code (?)
   // IPTC_IMAGE_TYPE             0x82 // Image type
-  //                             0xE6 // URLs DocumentNotes ? todo!?
+  // TAG_IPTC_COUNTRY_CODE       0x64 // Ref. Service / Country Code (?) // (ISO 3 COUNTRY CODE?)
 
-  const TAG_IPTC_KEYWORDS      = 0x19; // Keywords
-  const TAG_IPTC_CREDIT        = 0x6E; // Credit Line
-  const TAG_IPTC_COUNTRY_CODE  = 0x64; // Ref. Service / Country Code (?) // (ISO 3 COUNTRY CODE?)
-
-  const TAG_IPTC_CODEDCHARSET  = 0x5A;
-  const TAG_IPTC_INSTRUCTIONS  = 0x28; // Spec. Instr.
-  const TAG_IPTC_BYLINE        = 0x50; // Byline
-  const TAG_IPTC_CITY          = 0x5A; // City
-  const TAG_IPTC_SUBLOCATION   = 0x5C; // Sub Location
-  const TAG_IPTC_PROVINCESTATE = 0x5F; // State
-  const TAG_IPTC_COUNTRYNAME   = 0x65; // Country
-  const TAG_IPTC_HEADLINE      = 0x69; // Headline
-  const TAG_IPTC_COPYRIGHT     = 0x74; // (C)Notice
-  const TAG_IPTC_CAPTION       = 0x78; // Caption ( ~description)
-  const TAG_IPTC_DATECREATED   = 0x37; // DateCreated
-  const TAG_IPTC_TIMECREATED   = 0x3C; // Time Created
+  const TAG_IPTC_CODEDCHARSET       = 0x5A;
+  const TAG_IPTC_INSTRUCTIONS       = 0x28; // Spec. Instr.
+  const IPTC_TRANSMISSION_REFERENCE = 0x67; // OriginalTransmissionReference
+  const TAG_IPTC_BYLINE             = 0x50; // Byline
+  const TAG_IPTC_CITY               = 0x5A; // City
+  const TAG_IPTC_SUBLOCATION        = 0x5C; // Sub Location
+  const TAG_IPTC_PROVINCESTATE      = 0x5F; // State
+  const TAG_IPTC_COUNTRYNAME        = 0x65; // Country
+  const TAG_IPTC_HEADLINE           = 0x69; // Headline
+  const TAG_IPTC_COPYRIGHT          = 0x74; // (C)Notice
+  const TAG_IPTC_CAPTION            = 0x78; // Caption ( ~description)
+  const TAG_IPTC_DATECREATED        = 0x37; // DateCreated
+  const TAG_IPTC_TIMECREATED        = 0x3C; // Time Created
+  const TAG_IPTC_KEYWORDS           = 0x19; // Keywords
+  const TAG_IPTC_CREDIT             = 0x6E; // Credit Line
+  const TAG_IPTC_DOC_NOTES          = 0xE6; // DocumentNotes
 
   // Decodes arrays carrying UTF-8 sequences into Unicode strings.
   // Filters out illegal bytes with values between 128 and 191,
@@ -152,6 +155,10 @@ function iptcClass(stringBundle) {
                 iptcKeywords.add(val);
                 break;
 
+              case TAG_IPTC_DOC_NOTES:
+                dataObj.DocumentNotes = val; // Might be used similar to CreatorContactInfo in XMP - sometimes...
+                break;
+
               case TAG_IPTC_BYLINE:
                 if (!dataObj.Creator || !fxifUtils.xmpDone)
                   dataObj.Creator = val;
@@ -199,6 +206,10 @@ function iptcClass(stringBundle) {
 
               case TAG_IPTC_INSTRUCTIONS:
                 dataObj.Instructions = val;
+                break;
+
+              case IPTC_TRANSMISSION_REFERENCE:
+                dataObj.TransmissionRef = val;
                 break;
 
               default:

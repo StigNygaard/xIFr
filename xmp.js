@@ -49,15 +49,60 @@ function xmpClass() {
 
     var val;
 
+    val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "Credit");
+    if (val) {
+      dataObj.Creditline = val;
+    }
+
     // Creators come in an ordered list. Get them all.
     val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "creator", "");
     if (val && val.length) {
       dataObj.Creator = val.join("; "); // todo: Make a Set and handle later like Software or Keywords?
     }
 
-    val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "Credit");
-    if (val) {
-      dataObj.Creditline = val;
+    let contactInfo = dom.getElementsByTagNameNS("http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CreatorContactInfo");
+    if (contactInfo.length) {
+      // https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata-2019.1.html#metadata-structures
+      let adr = getSubvalues(contactInfo[0], "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiAdrExtadr");
+      if (!adr) {
+        adr = contactInfo[0].getAttributeNS("http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiAdrExtadr");
+      }
+      if (adr) dataObj.CreatorAddress = adr;
+      let city = getSubvalues(contactInfo[0], "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiAdrCity");
+      if (!city) {
+        city = contactInfo[0].getAttributeNS("http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiAdrCity");
+      }
+      if (city) dataObj.CreatorCity = city;
+      let region = getSubvalues(contactInfo[0], "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiAdrRegion");
+      if (!region) {
+        region = contactInfo[0].getAttributeNS("http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiAdrRegion");
+      }
+      if (region) dataObj.CreatorRegion = region;
+      let postalcode = getSubvalues(contactInfo[0], "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiAdrPcode");
+      if (!postalcode) {
+        postalcode = contactInfo[0].getAttributeNS("http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiAdrPcode");
+      }
+      if (postalcode) dataObj.CreatorPostalCode = postalcode;
+      let country = getSubvalues(contactInfo[0], "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiAdrCtry");
+      if (!country) {
+        country = contactInfo[0].getAttributeNS("http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiAdrCtry");
+      }
+      if (country) dataObj.CreatorCountry = country;
+      let phoneNumbers = getSubvalues(contactInfo[0], "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiTelWork");
+      if (!phoneNumbers) {
+        phoneNumbers = contactInfo[0].getAttributeNS("http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiTelWork");
+      }
+      if (phoneNumbers) dataObj.CreatorPhoneNumbers = phoneNumbers;
+      let emails = getSubvalues(contactInfo[0], "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiEmailWork");
+      if (!emails) {
+        emails = contactInfo[0].getAttributeNS("http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiEmailWork");
+      }
+      if (emails) dataObj.CreatorEmails = emails;
+      let urls = getSubvalues(contactInfo[0], "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiUrlWork");
+      if (!urls) {
+        urls = contactInfo[0].getAttributeNS("http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiUrlWork");
+      }
+      if (urls) dataObj.CreatorURLs = urls;
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "City");
@@ -702,6 +747,120 @@ function xmpClass() {
       dataObj.GPSPureDdLat = gpsLat / 3600;
       dataObj.GPSPureDdLon = gpsLon / 3600;
     }
+
+    // GPano
+    // https://www.exiv2.org/tags-xmp-GPano.html
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "UsePanoramaViewer");
+    if (val) {
+      dataObj.GPano_UsePanoramaViewer = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "CaptureSoftware");
+    if (val) {
+      dataObj.GPano_CaptureSoftware = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "StitchingSoftware");
+    if (val) {
+      dataObj.GPano_StitchingSoftware = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "ProjectionType");
+    if (val) {
+      dataObj.GPano_ProjectionType = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "PoseHeadingDegrees");
+    if (val) {
+      dataObj.GPano_PoseHeadingDegrees = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "PosePitchDegrees");
+    if (val) {
+      dataObj.GPano_PosePitchDegrees = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "PoseRollDegrees");
+    if (val) {
+      dataObj.GPano_PoseRollDegrees = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "InitialViewHeadingDegrees");
+    if (val) {
+      dataObj.GPano_InitialViewHeadingDegrees = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "InitialViewPitchDegrees");
+    if (val) {
+      dataObj.GPano_InitialViewPitchDegrees = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "InitialViewRollDegrees");
+    if (val) {
+      dataObj.GPano_InitialViewRollDegrees = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "InitialHorizontalFOVDegrees");
+    if (val) {
+      dataObj.GPano_InitialHorizontalFOVDegrees = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "FirstPhotoDate");
+    if (val) {
+      dataObj.GPano_FirstPhotoDate = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "LastPhotoDate");
+    if (val) {
+      dataObj.GPano_LastPhotoDate = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "SourcePhotosCount");
+    if (val) {
+      dataObj.GPano_SourcePhotosCount = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "ExposureLockUsed");
+    if (val) {
+      dataObj.GPano_ExposureLockUsed = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "CroppedAreaImageWidthPixels");
+    if (val) {
+      dataObj.GPano_CroppedAreaImageWidthPixels = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "CroppedAreaImageHeightPixels");
+    if (val) {
+      dataObj.GPano_CroppedAreaImageHeightPixels = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "FullPanoWidthPixels");
+    if (val) {
+      dataObj.GPano_FullPanoWidthPixels = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "FullPanoHeightPixels");
+    if (val) {
+      dataObj.GPano_FullPanoHeightPixels = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "CroppedAreaLeftPixels");
+    if (val) {
+      dataObj.GPano_CroppedAreaLeftPixels = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "CroppedAreaTopPixels");
+    if (val) {
+      dataObj.GPano_CroppedAreaTopPixels = val;
+    }
+
+    val = getXMPValue(dom, "http://ns.google.com/photos/1.0/panorama/", "InitialCameraDolly");
+    if (val) {
+      dataObj.GPano_InitialCameraDolly = val;
+    }
+
   };
 
   // Parse a GPS datum.

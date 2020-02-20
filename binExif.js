@@ -698,7 +698,9 @@ function exifClass() {
           break;
 
         case TAG_FOCALLENGTH:
-          dataObj.FocalLength = parseFloat(val);
+          if (val > 0.01) { // ignore extreme low values (0 with rounding error?)
+            dataObj.FocalLength = parseFloat(val);
+          }
           break;
 
         case TAG_SUBJECT_DISTANCE:

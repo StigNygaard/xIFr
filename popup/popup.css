@@ -144,6 +144,10 @@ img#settings {
 #data .labels {
   width: 19ch;
 }
+#data tr.scsv td:last-child {
+  /*overflow: hidden;*/
+  /*white-space: nowrap;*/
+}
 #data td {
   vertical-align: top;
   padding: 2px 1px;
