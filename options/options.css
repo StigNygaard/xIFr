@@ -57,13 +57,13 @@ body {
   display: none;
 }
 .isFirefox .ffo {
-  display: inherit;
+  display: initial;
 }
 #deepSearchSettings {
   display: none;
 }
 .supportsDeepSearch #deepSearchSettings {
-  display: inherit;
+  display: initial;
 }
 #xIFroptions {
   padding: .4em;
@@ -93,6 +93,10 @@ legend + div.twoColumns {
 div.twoColumns {
   column-count: 2;
   column-fill: balance;
+  margin-bottom: 1em;
+}
+.tagline {
+  float: right;
 }
 .smaller {
   font-size: smaller;
