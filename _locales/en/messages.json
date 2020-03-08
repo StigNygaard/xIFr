@@ -176,6 +176,10 @@
     "message": "Copyright"
   },
 
+  "UsageTerms": {
+    "message": "Usage Terms"
+  },
+
   "Title": {
     "message": "Title"
   },
@@ -186,6 +190,10 @@
 
   "Caption": {
     "message": "Description"
+  },
+
+  "ObjectName": {
+    "message": "Object Name"
   },
 
   "Comment": {
@@ -506,6 +514,14 @@
 
   "GPSLon": {
     "message": "GPS Longitude"
+  },
+
+  "MergedCaptures": {
+    "message": "Multicapture"
+  },
+
+  "CameraOwnerName": {
+    "message": "Camera Owner"
   },
 
   "GPano_UsePanoramaViewer": {

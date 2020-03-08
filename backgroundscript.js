@@ -45,10 +45,10 @@ function createPopup(request) {
       pos = {left: win.left + win.width - 650 - 10 , top: win.top + 10};
       break;
     case "leftish":
-      pos = {left: Math.max(win.left - 200, 10), top: Math.max(win.top + Math.floor(win.height/2) - 300, 10)};
+      pos = {left: Math.max(win.left - 200, 10), top: Math.max(win.top + Math.floor(win.height/2) - 350, 10)};
       break;
     case "rightish":
-      pos = {left: Math.min(win.left + win.width - 450, window.screen.availWidth - 650 - 10), top: Math.max(win.top + Math.floor(win.height/2) - 300, 10)};
+      pos = {left: Math.min(win.left + win.width - 450, window.screen.availWidth - 650 - 10), top: Math.max(win.top + Math.floor(win.height/2) - 350, 10)};
       break;
   }
   browser.windows.create( Object.assign(

@@ -130,9 +130,9 @@ function populate(response) {
       }
     }
   }
-  let orderedKeys = [ "Headline", "Caption", "Creditline", "Copyright",
+  let orderedKeys = [ "Headline", "Caption", "ObjectName", "Creditline", "Copyright", "UsageTerms",
                     "Creator", "CreatorAddress", "CreatorCity", "CreatorRegion", "CreatorPostalCode", "CreatorCountry", "CreatorPhoneNumbers", "CreatorEmails", "CreatorURLs",
-                    "Date", "Make", "Model", "Lens", "FocalLengthText", "ApertureFNumber", "ExposureTime", "ISOequivalent", "FlashUsed", "WhiteBalance", "Distance",
+                    "Date", "Make", "Model", "Lens", "FocalLengthText", "DigitalZoomRatio", "ApertureFNumber", "ExposureTime", "ISOequivalent", "FlashUsed", "WhiteBalance", "Distance",
                     "GPSLat", "GPSLon", "GPSAlt", "GPSImgDir", "CountryName", "ProvinceState", "City", "Sublocation" ];
   let foundKeys = Object.keys(response.data);
   orderedKeys.filter(x => foundKeys.includes(x)).forEach(addDataRow);  // First the orderedKeys (Headline, Description, Creator, Copyright, Credit Line,...)

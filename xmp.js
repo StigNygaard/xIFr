@@ -21,6 +21,10 @@ function xmpClass() {
       xmlString = '<' + xmlString; // But do xIFr have an addressing bug, or or is it an error in the image file???
       pushWarning(dataObj, "[xmp]", "Addressing/offset error when trying to read XMP, but was able to recover from it(?)...");
     }
+    let packetEnd = xmlString.indexOf('<?xpacket end="w"?>');
+    if (packetEnd >= 0) {
+      xmlString = xmlString.substring(0, packetEnd + 19); // Ignore any content after packetEnd
+    }
     // There is at least one program which includes a null byte at the end of the document.
     // The parser doesn't like this, so shorten the length by one byte of the last one is null.
     if (xmlString && xmlString.length > 0 && xmlString.charCodeAt(xmlString.length - 1) === 0) {
@@ -151,10 +155,10 @@ function xmpClass() {
       dataObj.AdditionalSoftware = [...(new Set(val.filter(s => s !== dataObj.Software)))]; // Might become an empty array
     }
 
-    var lang = fxifUtils.getLang();
+    const lang = fxifUtils.getLang();
     // Build a regular expression to be used to test the language
     // alternatives available in the XMP.
-    var langTest = new RegExp("^" + lang.match(/^[a-z]{2,3}/i), "i");
+    const langTest = new RegExp("^" + lang.match(/^[a-z]{2,3}/i), "i");
 
     if (!dataObj.Headline) {
       val = getXMPAltValue(dom, "http://purl.org/dc/elements/1.1/", "title", langTest);
@@ -169,20 +173,19 @@ function xmpClass() {
       dataObj.Caption = val;
     }
 
-    //    val = getXMPAltValue(dom, "dc:rights", langTest);
     val = getXMPAltValue(dom, "http://purl.org/dc/elements/1.1/", "rights", langTest);
     if (val) {
       dataObj.Copyright = val;
-    } else {
-      val = getXMPAltValue(dom, "http://ns.adobe.com/xap/1.0/rights/", "UsageTerms ", langTest);
-      if (val) {
-        dataObj.Copyright = val;
-      } else {
-        val = getXMPValue(dom, "http://creativecommons.org/ns#", "license");
-      }
     }
+
+    val = getXMPAltValue(dom, "http://ns.adobe.com/xap/1.0/rights/", "UsageTerms", langTest);
     if (val) {
-      dataObj.Copyright = val;
+      dataObj.UsageTerms = val;
+    } else {
+      val = getXMPValue(dom, "http://creativecommons.org/ns#", "license"); // The license URL
+      if (val) {
+        dataObj.UsageTerms = val;
+      }
     }
 
     // Subjects (keywords) comes in a list/set. Get them all.
@@ -279,18 +282,23 @@ function xmpClass() {
       dataObj.FocalLengthText = fl;
     }
 
-    val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "SubjectDistance");
-    if (val) {
-      try {
-        var distance = parseRational(val).toFixed(2);
-        if (distance < 0) {
-          dataObj.Distance = stringBundle.getString("infinite");
-        } else {
-          dataObj.Distance = stringBundle.getFormattedString("meters", [distance]);
-        }
-      } catch (ex) {
-        if (!dataObj.Distance) {
-          dataObj.Distance = val;
+    if (!dataObj.Distance) {
+      val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "SubjectDistance");
+      if (!val) {
+        val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/aux/", "ApproximateFocusDistance");
+      }
+      if (val) {
+        try {
+          var distance = parseRational(val).toFixed(2);
+          if (distance < 0 || distance > 4294967294) {
+            dataObj.Distance = stringBundle.getString("infinite");
+          } else {
+            dataObj.Distance = stringBundle.getFormattedString("meters", [distance]);
+          }
+        } catch (ex) {
+          if (!dataObj.Distance) {
+            dataObj.Distance = val;
+          }
         }
       }
     }
@@ -314,6 +322,27 @@ function xmpClass() {
           dataObj.ExposureTime = val;
         }
       }
+    }
+
+    val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/aux/", "IsMergedHDR");
+    if (val && val.match(/^true$/i)) {
+      dataObj.MergedCaptures = "HDR";
+    }
+    val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/aux/", "IsMergedPanorama");
+    if (val && val.match(/^true$/i)) {
+      if (dataObj.MergedCaptures) {
+        dataObj.MergedCaptures += " + Panorama"
+      } else {
+        dataObj.MergedCaptures = "Panorama";
+      }
+    }
+
+    val = getXMPValue(dom, "http://cipa.jp/exif/1.0/", "CameraOwnerName");
+    if (!val) {
+      val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/aux/", "OwnerName");
+    }
+    if (val) {
+      dataObj.CameraOwnerName = val;
     }
 
     var el = dom.getElementsByTagNameNS("http://ns.adobe.com/exif/1.0/", "Flash");

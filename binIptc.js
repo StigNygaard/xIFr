@@ -32,6 +32,7 @@ function iptcClass(stringBundle) {
   // IPTC_IMAGE_TYPE             0x82 // Image type
   // TAG_IPTC_COUNTRY_CODE       0x64 // Ref. Service / Country Code (?) // (ISO 3 COUNTRY CODE?)
 
+  const TAG_IPTC_OBJECT_NAME        = 0x05; // Object Name
   const TAG_IPTC_CODEDCHARSET       = 0x5A;
   const TAG_IPTC_INSTRUCTIONS       = 0x28; // Spec. Instr.
   const IPTC_TRANSMISSION_REFERENCE = 0x67; // OriginalTransmissionReference
@@ -189,14 +190,27 @@ function iptcClass(stringBundle) {
                   dataObj.CountryName = val;
                 break;
 
-              case TAG_IPTC_CAPTION:   // ~ description
-                if (!dataObj.Caption || !fxifUtils.xmpDone)
-                  dataObj.Caption = val;
+              case TAG_IPTC_HEADLINE:  // title
+                if (!dataObj.Headline || !fxifUtils.xmpDone) {
+                  dataObj.Headline = val;
+                  if (dataObj.Headline === dataObj.ObjectName) {
+                    delete dataObj.ObjectName;
+                  }
+                }
                 break;
 
-              case TAG_IPTC_HEADLINE:   // title
-                if (!dataObj.Headline || !fxifUtils.xmpDone)
-                  dataObj.Headline = val;
+              case TAG_IPTC_CAPTION:  // ~ description
+                if (!dataObj.Caption || !fxifUtils.xmpDone) {
+                  dataObj.Caption = val;
+                  if (dataObj.Caption === dataObj.ObjectName) {
+                    delete dataObj.ObjectName
+                  }
+                }
+                break;
+
+              case TAG_IPTC_OBJECT_NAME:
+                if ((!dataObj.Object || !fxifUtils.xmpDone) && val !== dataObj.Headline && val !== dataObj.Caption)
+                  dataObj.ObjectName = val;
                 break;
 
               case TAG_IPTC_COPYRIGHT:
