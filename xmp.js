@@ -191,7 +191,7 @@ function xmpClass() {
     // Subjects (keywords) comes in a list/set. Get them all.
     val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "subject", "");
     if (val && val.length) {
-      dataObj.Keywords = new Set(val);
+      dataObj.Keywords = new Set(val); // todo: If already set by iptc, make sure we have same or more keywords!
     }
 
     // XMP:EXIF
