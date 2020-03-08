@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "xIFr",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "default_locale": "en",
 
   "description": "__MSG_extensionDescription__",
@@ -19,7 +19,7 @@
     "512": "icons/xIFr-512.png"
   },
 
-  "applications": {
+  "browser_specific_settings": {
     "gecko": {
       "strict_min_version": "56.0"
     }
