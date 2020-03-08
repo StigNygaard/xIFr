@@ -101,11 +101,7 @@ function populate(response) {
       var value = row.insertCell(1);
       label.textContent = response.data[key_v].label;
       label.id = key_v + "LabelCell";
-      if (key_v === "Keywords") {
-        value.textContent = Array.from(response.data[key_v].value).join("; ");
-      } else {
-        value.textContent = response.data[key_v].value;
-      }
+      value.textContent = response.data[key_v].value;
       value.id = key_v + "ValueCell";
       if (key_v === "Keywords") {
         row.classList.add('scsv');
