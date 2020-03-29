@@ -50,6 +50,7 @@ function createPopup(request) {
     case "rightish":
       pos = {left: Math.min(win.left + win.width - 450, window.screen.availWidth - 650 - 10), top: Math.max(win.top + Math.floor(win.height/2) - 350, 10)};
       break;
+      // todo: Snap right, Snap left, Previous position and dimensions  ???
   }
   browser.windows.create( Object.assign(
     {
@@ -145,5 +146,19 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // Todo: Returning a Promise is the preferred way to send a reply from an onMessage/onMessageExternal listener, as the sendResponse will be removed from the specs
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage#addListener_syntax
     sendResponse(popupData);
+  }
+});
+
+// https://extensionworkshop.com/documentation/develop/onboard-upboard-offboard-users/
+browser.runtime.onInstalled.addListener(async ({ reason, temporary }) => {
+  // if (temporary) return; // Skip during development
+  switch (reason) {
+    case "install":
+    case "update":
+    {
+      const url = browser.runtime.getURL("onboard/onboard.html");
+      await browser.tabs.create({ url });
+    }
+    break;
   }
 });
