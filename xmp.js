@@ -59,7 +59,7 @@ function xmpClass() {
     }
 
     // Creators come in an ordered list. Get them all.
-    val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "creator", "");
+    val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "creator", "").filter( item => item && item.trim()); // filter skips empty values
     if (val && val.length) {
       dataObj.Creator = val.join("; "); // todo: Make a Set and handle later like Software or Keywords?
     }
@@ -147,8 +147,8 @@ function xmpClass() {
       }
     }
 
-    val = getXMPOrderedArray(dom, "http://ns.adobe.com/xap/1.0/mm/", "History", "http://ns.adobe.com/xap/1.0/sType/ResourceEvent#", "softwareAgent");
-    if (val && val.length) {
+    val = getXMPOrderedArray(dom, "http://ns.adobe.com/xap/1.0/mm/", "History", "http://ns.adobe.com/xap/1.0/sType/ResourceEvent#", "softwareAgent").filter( item => item && item.trim()); // filter skips empty values
+    if (val.length) {
       if (!dataObj.Software) {
         dataObj.Software = val[val.length - 1]; // [length-1] = Last is the last used ?
       }
@@ -189,7 +189,7 @@ function xmpClass() {
     }
 
     // Subjects (keywords) comes in a list/set. Get them all.
-    val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "subject", "");
+    val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "subject", "").filter( item => item && item.trim()); // filter skips empty values
     if (val && val.length) {
       dataObj.Keywords = new Set(val); // todo: If already set by iptc, make sure we have same or more keywords!
     }
@@ -343,6 +343,12 @@ function xmpClass() {
     }
     if (val) {
       dataObj.CameraOwnerName = val;
+    }
+
+    val = getXMPValue(dom, "http://cipa.jp/exif/1.0/", "Temperature"); // Temperature by spec. - unit: Celsius
+    if (val) {
+      val = parseRational(val);
+      dataObj.Temperature = stringBundle.getFormattedString("celsius", [val.toFixed(1)]);
     }
 
     var el = dom.getElementsByTagNameNS("http://ns.adobe.com/exif/1.0/", "Flash");
@@ -658,7 +664,7 @@ function xmpClass() {
       }
     }
 
-    val = getXMPOrderedArray(dom, "http://ns.adobe.com/exif/1.0/", "ISOSpeedRatings");
+    val = getXMPOrderedArray(dom, "http://ns.adobe.com/exif/1.0/", "ISOSpeedRatings").filter( item => item && item.trim()); // filter skips empty values
     if (val && val.length) {
       dataObj.ISOequivalent = val.join(", ");
     }

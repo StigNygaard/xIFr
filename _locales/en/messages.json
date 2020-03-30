@@ -292,6 +292,10 @@
     "message": "s"
   },
 
+  "celsius": {
+    "message": "°C"
+  },
+
   "ev": {
     "message": "EV"
   },
