@@ -28,6 +28,7 @@ body.dark input {
 /* General ayout and visibility: */
 body {
   margin-bottom: 3em;
+  line-height: 1.5;
 }
 #xIFroptionspage {
   margin: 1em auto 1em auto;
