@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <title>Image meta data</title>
   <link rel="stylesheet" href="popup.css">
-  <script src="/lib/mozilla/browser-polyfill.js"></script>
+  <script src="/WebExtension/lib/mozilla/browser-polyfill.js"></script>
 </head>
 <body class="mainmode">
-  <img id="settings" src="/icons/wheel-48.png" alt="Options" title="Options" />
+  <img id="settings" src="/WebExtension/icons/wheel-48.png" alt="Options" title="Options" />
   <div id="tabs">
     <button id="maintab"> Image data </button>  <!-- Add an icon ? -->
     <button id="maptab"> Map </button>  <!-- Add an icon ? -->
@@ -26,7 +26,7 @@
     <table id="data"><colgroup><col class="labels" /><col /></colgroup></table>
   </div>
   <div id="map"><iframe sandbox="allow-scripts allow-popups" id="osmap" src=""></iframe><br/>&nbsp;<small><a href="#" id="largermap">View Larger Map</a></small></div>
-  <script src="/context.js"></script>
+  <script src="/WebExtension/context.json/context.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

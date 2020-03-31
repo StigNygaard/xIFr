@@ -68,7 +68,7 @@ body {
 #main {
   padding: 1.5rem 1.3em .5rem 1.5rem;
   height: auto;
-  background-image: url(/icons/xIFr-32.png);
+  background-image: url(/WebExtension/icons/xIFr-32.png);
   background-position: right 1.3rem top 1.5rem;
   background-repeat: no-repeat;
 }
@@ -118,7 +118,7 @@ img#settings {
   margin: 0;
   padding: 0;
   display: block;
-  background-image: url("/icons/background.png");
+  background-image: url("/WebExtension/icons/background.png");
 }
 #messages {
   margin: 1ch 0;
@@ -176,7 +176,7 @@ img#settings {
   border: none;
   padding: 0;
   margin: 0 0 0 .5ch;
-  background-image: url(/icons/globe-32.png);
+  background-image: url(/WebExtension/icons/globe-32.png);
   background-size: 16px 16px;
 }
 #maplinks > div > a {
