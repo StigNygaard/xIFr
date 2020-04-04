@@ -75,24 +75,18 @@ body {
   position: relative;
   margin: 0 0 .3em 0;
 }
-#xIFroptions button {
-  margin-top: .7em;
-  margin-bottom: .7em;
-  font-size: 100%;
-  font-family: Verdana, Arial, Helvetica, sans-serif;
-}
-#xIFroptions button, #xIFroptions input, #xIFroptions select, #xIFroptions textarea {
+#xIFroptions input, #xIFroptions select, #xIFroptions textarea {
   font-family: inherit;
   font-size: 100%;
 }
-div.twoColumns > p:first-child {
+div.threeColumns > p:first-child {
   margin-top: 0;
 }
-legend + div.twoColumns {
+legend + div.threeColumns {
   padding-top: 1em;
 }
-div.twoColumns {
-  column-count: 2;
+div.threeColumns {
+  column-count: 3;
   column-fill: balance;
   margin-bottom: 1em;
 }

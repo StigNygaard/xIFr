@@ -22,18 +22,6 @@ function updateDeepSearchSize() {
   }
 }
 
-function clearSaveResult() {
-  if(document.getElementById('submitresult')) document.getElementById('submitresult').textContent = '';
-}
-function setSaveResult(success) {
-  if (success) {
-    document.getElementById('submitresult').textContent = '✔️ Options saved.';
-  } else {
-    document.getElementById('submitresult').textContent = '❌ ERROR saving options!';
-  }
-  setTimeout(clearSaveResult, 2500);
-}
-
 function saveOptions(e) {
   e.preventDefault();
   context.setOptions({
@@ -47,7 +35,7 @@ function saveOptions(e) {
     mlinkHere: document.querySelector("form#xIFroptions #mlinkHere").checked,
     mlinkFlickr: document.querySelector("form#xIFroptions #mlinkFlickr").checked
   }).then(
-    () => {setDisplayMode(document.forms[0].dispMode.value); updateDeepSearchSize(); setSaveResult(true)}, (error) => {context.error('Failed saving xIFr options: ' + error); setSaveResult(false)}
+    () => {setDisplayMode(document.forms[0].dispMode.value); updateDeepSearchSize()}, (error) => {context.error('Failed saving xIFr options: ' + error)}
   );
 }
 
@@ -63,8 +51,8 @@ function handlerInitOptionsForm(options) {
     }
   });
   updateDeepSearchSize();
-  // Enable Submit:
-  document.querySelector("form#xIFroptions").addEventListener("submit", saveOptions);
+  // save on input event:
+  document.querySelector("form#xIFroptions").addEventListener("input", saveOptions);
 }
 
 function initializeOptionsPage() {
@@ -74,7 +62,6 @@ function initializeOptionsPage() {
   }
   if (context.supportsDeepSearch()) {
     document.body.classList.add("supportsDeepSearch");
-    document.getElementById("deepSearchBiggerLimit").addEventListener("keyup", updateDeepSearchSize);
   }
   context.getOptions().then(handlerInitOptionsForm);
 }

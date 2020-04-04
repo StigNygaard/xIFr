@@ -30,72 +30,86 @@
     </fieldset>
     <fieldset>
       <legend>&nbsp;Popup position&nbsp;</legend>
-      <div class="twoColumns">
-      <p>
-        <input type="radio"
-               name="popupPos"
-               id="defaultPos"
-               value="defaultPos" />
-        <label for="defaultPos">Browser default</label>
-      </p>
-      <p>
-        <input type="radio"
-               name="popupPos"
-               id="center"
-               value="center" />
-        <label for="center">Center of screen<b class="note ffo up">*</b></label>
-      </p>
-      <p>
-        <input type="radio"
-               name="popupPos"
-               id="centerBrowser"
-               value="centerBrowser" />
-        <label for="centerBrowser">Center of browser window<b class="note ffo up">*</b></label>
-      </p>
-      <p>
-        <input type="radio"
-               name="popupPos"
-               id="topLeft"
-               value="topLeft" />
-        <label for="topLeft">Top left of screen<b class="note ffo up">*</b></label>
-      </p>
-      <p>
-        <input type="radio"
-               name="popupPos"
-               id="topRight"
-               value="topRight" />
-        <label for="topRight">Top right of screen<b class="note ffo up">*</b></label>
-      </p>
-      <p>
-        <input type="radio"
-               name="popupPos"
-               id="topLeftBrowser"
-               value="topLeftBrowser" />
-        <label for="topLeftBrowser">Top left of browser window<b class="note ffo up">*</b></label>
-      </p>
-      <p>
-        <input type="radio"
-               name="popupPos"
-               id="topRightBrowser"
-               value="topRightBrowser" />
-        <label for="topRightBrowser">Top right of browser window<b class="note ffo up">*</b></label>
-      </p>
-      <p>
-        <input type="radio"
-               name="popupPos"
-               id="leftish"
-               value="leftish" />
-        <label for="leftish">Left<em>ish</em><b class="note ffo up">*</b></label>
-      </p>
-      <p>
-        <input type="radio"
-               name="popupPos"
-               id="rightish"
-               value="rightish" />
-        <label for="rightish">Right<em>ish</em><b class="note ffo up">*</b></label>
-      </p>
+      <div class="threeColumns">
+        <p>
+          <input type="radio"
+                 name="popupPos"
+                 id="defaultPos"
+                 value="defaultPos" />
+          <label for="defaultPos">Browser default</label>
+        </p>
+        <p>
+          <input type="radio"
+                 name="popupPos"
+                 id="center"
+                 value="center" />
+          <label for="center">Center of screen<b class="note ffo up">*</b></label>
+        </p>
+        <p>
+          <input type="radio"
+                 name="popupPos"
+                 id="centerBrowser"
+                 value="centerBrowser" />
+          <label for="centerBrowser">Center of browser window<b class="note ffo up">*</b></label>
+        </p>
+        <p>
+          <input type="radio"
+                 name="popupPos"
+                 id="topLeft"
+                 value="topLeft" />
+          <label for="topLeft">Top left of screen<b class="note ffo up">*</b></label>
+        </p>
+        <p>
+          <input type="radio"
+                 name="popupPos"
+                 id="topRight"
+                 value="topRight" />
+          <label for="topRight">Top right of screen<b class="note ffo up">*</b></label>
+        </p>
+        <p>
+          <input type="radio"
+                 name="popupPos"
+                 id="topLeftBrowser"
+                 value="topLeftBrowser" />
+          <label for="topLeftBrowser">Top left of browser window<b class="note ffo up">*</b></label>
+        </p>
+        <p>
+          <input type="radio"
+                 name="popupPos"
+                 id="topRightBrowser"
+                 value="topRightBrowser" />
+          <label for="topRightBrowser">Top right of browser window<b class="note ffo up">*</b></label>
+        </p>
+        <p>
+          <input type="radio"
+                 name="popupPos"
+                 id="leftish"
+                 value="leftish" />
+          <label for="leftish">Left<em>ish</em><b class="note ffo up">*</b></label>
+        </p>
+        <p>
+          <input type="radio"
+                 name="popupPos"
+                 id="rightish"
+                 value="rightish" />
+          <label for="rightish">Right<em>ish</em><b class="note ffo up">*</b></label>
+        </p>
+<!--        <p>-->
+<!--          <input type="radio"-->
+<!--                 name="popupPos"-->
+<!--                 id="snapLeft"-->
+<!--                 value="snapLeft" />-->
+<!--          <label for="snapLeft">Snap left<b class="note ffo up">*</b></label>-->
+<!--        </p>-->
+<!--        <p>-->
+<!--          <input type="radio"-->
+<!--                 name="popupPos"-->
+<!--                 id="snapRight"-->
+<!--                 value="snapRight" />-->
+<!--          <label for="snapRight">Snap right<b class="note ffo up">*</b></label>-->
+<!--        </p>-->
       </div>
-      <p class="note ffo"><b class="up">*</b>Because of a <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1271047" title="Bugzilla - Bug 1271047: Panel window type is not opening on given position">bug in Firefox</a>, you might see a quick glimpse of popup centered or in the default position, before it moves to the requested position.</p>
+      <p class="note ffo"><b class="up">*</b>Because of a <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1271047" title="Bugzilla - Bug 1271047: Panel window type is not opening on given position">bug in Firefox</a>, you might see a quick glimpse of popup window centered or in the default position, before it moves to the requested position.</p>
     </fieldset>
     <fieldset id="deepSearchSettings">
       <legend>&nbsp;Deep Search&nbsp;</legend>
@@ -111,48 +125,45 @@
     <fieldset>
       <legend>&nbsp;Map links&nbsp;</legend>
       <p>Besides the integrated Map tab available for geotagged photos, xIFr can offer links to see position using various map providers.</p>
-      <div class="twoColumns">
-      <p>
-        <input type="checkbox"
-               id="mlinkOSM"
-               value="mlinkOSM" />
-        <label for="mlinkOSM">OpenStreetMap</label>
-      </p>
-      <p>
-        <input type="checkbox"
-               id="mlinkGoogle"
-               value="mlinkGoogle" />
-        <label for="mlinkGoogle">Google Maps</label>
-      </p>
-      <p>
-        <input type="checkbox"
-               id="mlinkBing"
-               value="mlinkBing" />
-        <label for="mlinkBing">Bing Maps</label>
-      </p>
-      <p>
-        <input type="checkbox"
-               id="mlinkMapQuest"
-               value="mlinkMapQuest" />
-        <label for="mlinkMapQuest">MapQuest</label>
-      </p>
-      <p>
-        <input type="checkbox"
-               id="mlinkHere"
-               value="mlinkHere" />
-        <label for="mlinkHere">Here WeGo</label>
-      </p>
-      <p>
-        <input type="checkbox"
-               id="mlinkFlickr"
-               value="mlinkFlickr" />
-        <label for="mlinkFlickr">Flickr (Other nearby photos)</label>
-      </p>
+      <div class="threeColumns">
+        <p>
+          <input type="checkbox"
+                 id="mlinkOSM"
+                 value="mlinkOSM" />
+          <label for="mlinkOSM">OpenStreetMap</label>
+        </p>
+        <p>
+          <input type="checkbox"
+                 id="mlinkGoogle"
+                 value="mlinkGoogle" />
+          <label for="mlinkGoogle">Google Maps</label>
+        </p>
+        <p>
+          <input type="checkbox"
+                 id="mlinkBing"
+                 value="mlinkBing" />
+          <label for="mlinkBing">Bing Maps</label>
+        </p>
+        <p>
+          <input type="checkbox"
+                 id="mlinkMapQuest"
+                 value="mlinkMapQuest" />
+          <label for="mlinkMapQuest">MapQuest</label>
+        </p>
+        <p>
+          <input type="checkbox"
+                 id="mlinkHere"
+                 value="mlinkHere" />
+          <label for="mlinkHere">Here WeGo</label>
+        </p>
+        <p>
+          <input type="checkbox"
+                 id="mlinkFlickr"
+                 value="mlinkFlickr" />
+          <label for="mlinkFlickr">Flickr (Other nearby photos)</label>
+        </p>
       </div>
     </fieldset>
-
-    <button type="submit" class="browser-style">Save xIFr options</button> <span id="submitresult"></span>
-
   </form>
 
   <p class="tagline smaller">Love photos? Flickr user? Also try my <a href="https://www.flickr.com/groups/flickrhacks/discuss/72157655601688753/">Flickr Fixr</a>! &nbsp;
