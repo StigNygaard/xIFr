@@ -150,15 +150,15 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 // https://extensionworkshop.com/documentation/develop/onboard-upboard-offboard-users/
-function handleInstalled(details) {
-  context.info("Reason: " + details.reason + ". Temporary: " + details.temporary + ". previousVersion: " + details.previousVersion);
+function handleInstalled({ reason, temporary, previousVersion }) {
+  context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
   // if (details.temporary) return; // Skip during development
-  switch (details.reason) {
+  switch (reason) {
     case "install":
+      browser.tabs.create({ url: "onboard/onboard.html"});
+      break;
     case "update":
-      {
-        browser.tabs.create({ url: "onboard/onboard.html"});
-      }
+      // upboard...
       break;
   }
 }
