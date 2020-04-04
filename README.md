@@ -7,7 +7,7 @@ xIFr is a browser extension for viewing EXIF, IPTC and XMP metadata in jpg image
 In principle xIFr a "cross-browser compatible" webextension. While it currently _ain't_ available via Chrome Web Store, it still works with Chrome/Chromium based browsers if you load [the webextension](https://github.com/StigNygaard/xIFr/releases) directly via the browser´s developer features. 
 However the _"deep search" functionality_ (described below) requires Firefox 63 (compatible) or newer. 
 
-To create a browser extension from content of this repository, simply create a zip-file with content from the WebExtension folder. That's also how the [official releases](https://github.com/StigNygaard/xIFr/releases) are created.
+To create a browser extension from content of this repository, simply create a zip-file with content from the WebExtension folder.
 
 ![Screenshot](https://www.rockland.dk/img/xIFr100-1-1400x1050.jpg)
 
@@ -27,7 +27,7 @@ xIFr from other Exif-viewers.
 Also with Deep Search, you can avoid overlayered logos and icons. By shift-clicking when selecting xIFr in browser's context-menu, you will force
 xIFr to look for images larger than a specified size (The size is configurable).
 
-Deep Search is supported in **Firefox 63 or newer** (It requires an API feature currently only available in Firefox 63+). In other browser versions you can only launch xIFr if you are able to right-click _directly on_ an html _img_ element. You can get a little introduction to xIFr's features including what Deep Search does at https://www.rockland.dk/xIFr/start/ .  
+Deep Search is supported in **Firefox 63 or newer** (It requires an API feature currently only available in Firefox 63+). In other browser versions you can only launch xIFr if you are able to right-click _directly on_ an html _img_ element. You can get a little introduction to xIFr's features including what Deep Search does at [www.rockland.dk/xIFr/start](https://www.rockland.dk/xIFr/start/).  
 
 ### Dark Theme support
 
