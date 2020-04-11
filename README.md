@@ -1,13 +1,13 @@
 # xIFr
 
-xIFr is a browser extension for viewing EXIF, IPTC and XMP metadata in jpg image files. Launch it from the browser's right-click context menu.
+xIFr is a browser extension for viewing EXIF, IPTC and XMP metadata in jpg image files. Launch it from the desktop browser's right-click context menu.
 
-* [Install release versions from Mozilla Firefox Add-ons](https://addons.mozilla.org/firefox/addon/xifr?src=external-github)
+* [Install xIFr from Mozilla Firefox Add-ons](https://addons.mozilla.org/firefox/addon/xifr?src=external-github)
 
-In principle xIFr a "cross-browser compatible" webextension. While it currently _ain't_ available via Chrome Web Store, it still works with Chrome/Chromium based browsers if you load [the webextension](https://github.com/StigNygaard/xIFr/releases) directly via the browser´s developer features. 
+In principle xIFr a "cross-browser compatible" webextension. While it currently _ain't_ available via Chrome Web Store, it still works with Chrome/Chromium based browsers if you install [the webextension](https://github.com/StigNygaard/xIFr/releases) directly from your local filesystem. 
 However the _"deep search" functionality_ (described below) requires Firefox 63 (compatible) or newer. 
 
-To create a browser extension from content of this repository, simply create a zip-file with content from the WebExtension folder.
+To create a browser extension from content of this repository, simply create a zip-file with content from the _WebExtension_ folder.
 
 ![Screenshot](https://www.rockland.dk/img/xIFr100-1-1400x1050.jpg)
 
@@ -39,14 +39,14 @@ Some websites overrides the browser's default right-click context menu. But you 
 right-clicking, to get the browser's native context menu back - and thus launch xIFr...
 
 ### A lot of credit to...
-Vital parts of xIFr, is inherited work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/AUTHORS)
+Vital parts of xIFr, is inherited work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/WebExtension/AUTHORS)
 involved with development of [wxIF](https://github.com/gcp/wxif) (xIFr is a fork of wxIF),
 [FxIF](https://code.google.com/archive/p/fxif/), [JHead](http://www.sentex.net/~mwandel/jhead/) and more.
 Without their work, xIFr wouldn't be.
 
 Also thanks to [crimx](https://github.com/crimx), and his ["Get All Images in DOM" coding-post](https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/) which was great help implementing the Deep Search feature.
 
-Finally, to help make xIFr cross-browser compatible, [browser-polyfill.js](https://github.com/StigNygaard/xIFr/tree/master/lib/mozilla) from
+Finally, to help make xIFr cross-browser compatible, [browser-polyfill.js](https://github.com/StigNygaard/xIFr/tree/master/WebExtension/lib/mozilla) from
 Mozilla's [webextension-polyfill project](https://github.com/mozilla/webextension-polyfill) is used.
 
 ### License
