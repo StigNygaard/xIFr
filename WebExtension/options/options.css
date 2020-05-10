@@ -41,7 +41,7 @@ body {
 #logo {
   width: 128px;
   height: auto;
-  margin: -10px 0 0 0;
+  margin: -10px 0 -30px 0;
 }
 #xIFroptionspage > p {
   margin-left: 1em;
@@ -91,7 +91,7 @@ div.threeColumns {
   margin-bottom: 1em;
 }
 .tagline {
-  float: right;
+  text-align: right;
 }
 .smaller {
   font-size: smaller;

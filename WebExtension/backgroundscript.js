@@ -16,15 +16,17 @@ if (browser.menus && browser.menus.getTargetElement) { // An easy way to use Fir
 
 function createPopup(request) {
 
-  context.debug("window.screen.width: " + window.screen.width);
-  context.debug("window.screen.availWidth: " + window.screen.availWidth);
-  context.debug("window.screen.height: " + window.screen.height);
-  context.debug("window.screen.availHeight: " + window.screen.availHeight);
-  context.debug("browser.windows.Window.width: " + win.width);
-  context.debug("browser.windows.Window.height: " + win.height);
-  context.debug("browser.windows.Window.top: " + win.top);
-  context.debug("browser.windows.Window.left: " + win.left);
-  var pos = {};
+  context.info("window.screen.width: " + window.screen.width);
+  context.info("window.screen.availWidth: " + window.screen.availWidth);
+  context.info("window.screen.height: " + window.screen.height);
+  context.info("window.screen.availHeight: " + window.screen.availHeight);
+  context.info("browser.windows.Window.width: " + win.width);
+  context.info("browser.windows.Window.height: " + win.height);
+  context.info("browser.windows.Window.top: " + win.top);
+  context.info("browser.windows.Window.left: " + win.left);
+  let pos = {};
+  let width = 650;
+  let height = 500;
   switch (options["popupPos"]) {
     case "center":
       pos = {left: Math.floor(window.screen.availWidth/2) - 325, top: Math.floor(window.screen.availHeight/2) - 250};
@@ -36,7 +38,7 @@ function createPopup(request) {
       pos = {left: 10, top: 10};
       break;
     case "topRight":
-      pos = {left: window.screen.availWidth - 650 -10, top: 10};
+      pos = {left: window.screen.availWidth - 650 - 10, top: 10};
       break;
     case "topLeftBrowser":
       pos = {left: win.left + 10, top: win.top + 10};
@@ -50,15 +52,20 @@ function createPopup(request) {
     case "rightish":
       pos = {left: Math.min(win.left + win.width - 450, window.screen.availWidth - 650 - 10), top: Math.max(win.top + Math.floor(win.height/2) - 350, 10)};
       break;
-      // todo: Snap right, Snap left, Previous position and dimensions  ???
+    case "snapLeft":
+      pos = {left: 0, top: 0, height: window.screen.availHeight};
+      break;
+    case "snapRight":
+      pos = {left: window.screen.availWidth - width, top: 0, height: window.screen.availHeight};
+      break;
   }
-  browser.windows.create( Object.assign(
-    {
-      url: browser.extension.getURL("/popup/popup.html"),
-      type: "popup",
-      width: 650,
-      height: 500
-    }, pos) ).then( win => {
+    browser.windows.create(Object.assign(
+      {
+        url: browser.extension.getURL("/popup/popup.html"),
+        type: "popup",
+        width: width,
+        height: height
+      }, pos)).then(win => {
       previous.winId = win.id;
       previous.imgURL = request.data.URL;
       if (options["popupPos"] !== "defaultPos" && context.isFirefox()) {  // https://bugzilla.mozilla.org/show_bug.cgi?id=1271047
@@ -67,7 +74,7 @@ function createPopup(request) {
     });
 }
 
-browser.contextMenus.create({ // Can I somehow prevent it on about: pages?
+browser.contextMenus.create({ // Can I somehow prevent it on about: and AMO pages?
   id: "viewexif",
   title: browser.i18n.getMessage("contextMenuText"),
   // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/ContextType
@@ -77,6 +84,9 @@ browser.contextMenus.create({ // Can I somehow prevent it on about: pages?
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "viewexif") {
     context.debug("Context menu clicked. mediaType=" + info.mediaType);
+
+    // todo: Sidebar option!? But it would require some refactoring to be an alternative to popups...
+
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/OnClickData
     if ((info.mediaType && info.mediaType === "image" && info.srcUrl) || info.targetElementId) {
 
@@ -151,14 +161,14 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // https://extensionworkshop.com/documentation/develop/onboard-upboard-offboard-users/
 function handleInstalled({ reason, temporary, previousVersion }) {
-  context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
+  // context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
   // if (details.temporary) return; // Skip during development
   switch (reason) {
     case "install":
       browser.tabs.create({ url: "onboard/onboard.html"});
       break;
     case "update":
-      // upboard...
+      // No upboarding in this version...
       break;
   }
 }
