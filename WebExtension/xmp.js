@@ -22,6 +22,9 @@ function xmpClass() {
       pushWarning(dataObj, "[xmp]", "Addressing/offset error when trying to read XMP, but was able to recover from it(?)...");
     }
     let packetEnd = xmlString.indexOf('<?xpacket end="w"?>');
+    if (packetEnd === -1) {
+      packetEnd = xmlString.indexOf("<?xpacket end='w'?>");
+    }
     if (packetEnd >= 0) {
       xmlString = xmlString.substring(0, packetEnd + 19); // Ignore any content after packetEnd
     }
@@ -264,7 +267,7 @@ function xmpClass() {
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "FocalLengthIn35mmFilm");
     if (!val)
-    // this name is no official one, but written by some applications
+      // this name is no official one, but written by some applications
     {
       val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "FocalLengthIn35mmFormat");
     }
@@ -481,7 +484,7 @@ function xmpClass() {
         if (val === 0) {
           dataObj.ExposureBias = stringBundle.getString("none");
         } else
-        // add a + sign before positive values
+          // add a + sign before positive values
         {
           dataObj.ExposureBias = (val > 0 ? '+' : '') + stringBundle.getFormattedString("ev", [val]);
         }

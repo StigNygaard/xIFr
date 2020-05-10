@@ -23,16 +23,15 @@ function iptcClass(stringBundle) {
   // IPTC_SUPLEMENTAL_CATEGORIES 0x14 // SuplementalCategories
   // IPTC_AUTHOR                 0x7A // Author
   // IPTC_CATEGORY               0x0F // Category
-  // IPTC_BYLINE_TITLE           0x55 // Byline Title
-  // IPTC_SOURCE                 0x73 // Source
-  // IPTC_OBJECT_NAME            0x05 // Object Name
   // IPTC_COPYRIGHT              0x0A // (C)Flag
   // IPTC_COUNTRY_CODE           0x64 // Ref. Service (?)
   // IPTC_REFERENCE_SERVICE      0x2D // Country Code (?)
   // IPTC_IMAGE_TYPE             0x82 // Image type
   // TAG_IPTC_COUNTRY_CODE       0x64 // Ref. Service / Country Code (?) // (ISO 3 COUNTRY CODE?)
+  // IPTC_SOURCE                 0x73 // Source (Could be an Agency ?)
+  // IPTC_BYLINE_TITLE           0x55 // Byline Title ( ~ Creator Title ?)
 
-  const TAG_IPTC_OBJECT_NAME        = 0x05; // Object Name
+  const TAG_IPTC_OBJECT_NAME        = 0x05; // Object Name (One of the tags Flickr can parse as the title)
   const TAG_IPTC_CODEDCHARSET       = 0x5A;
   const TAG_IPTC_INSTRUCTIONS       = 0x28; // Spec. Instr.
   const IPTC_TRANSMISSION_REFERENCE = 0x67; // OriginalTransmissionReference
@@ -43,10 +42,10 @@ function iptcClass(stringBundle) {
   const TAG_IPTC_COUNTRYNAME        = 0x65; // Country
   const TAG_IPTC_HEADLINE           = 0x69; // Headline
   const TAG_IPTC_COPYRIGHT          = 0x74; // (C)Notice
-  const TAG_IPTC_CAPTION            = 0x78; // Caption ( ~description)
-  const TAG_IPTC_DATECREATED        = 0x37; // DateCreated
+  const TAG_IPTC_CAPTION            = 0x78; // Caption ( ~ description)
+  const TAG_IPTC_DATECREATED        = 0x37; // Date Created
   const TAG_IPTC_TIMECREATED        = 0x3C; // Time Created
-  const TAG_IPTC_KEYWORDS           = 0x19; // Keywords
+  const TAG_IPTC_KEYWORDS           = 0x19; // Keywords (Multiple - Max 64 bytes each)
   const TAG_IPTC_CREDIT             = 0x6E; // Credit Line
   const TAG_IPTC_DOC_NOTES          = 0xE6; // DocumentNotes
 
