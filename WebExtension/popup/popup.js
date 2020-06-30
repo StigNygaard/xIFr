@@ -107,7 +107,7 @@ function populate(response) {
   }
   var table = document.getElementById("data");
   function addDataRow(key_v) {
-    if (key_v !== "GPSPureDdLat" && key_v !== "GPSPureDdLon" && key_v !== "AdditionalSoftware") {
+    if (key_v !== "GPSPureDdLat" && key_v !== "GPSPureDdLon" && key_v !== "AdditionalSoftware" && response.data[key_v].value !== null && response.data[key_v].value !== "") {
       var row = table.insertRow(-1);
       var label = row.insertCell(0);
       var value = row.insertCell(1);
