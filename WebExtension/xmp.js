@@ -112,6 +112,12 @@ function xmpClass() {
       if (urls) dataObj.CreatorURLs = urls;
     }
 
+    val = getXMPOrderedArray(dom, "http://iptc.org/std/Iptc4xmpExt/2008-02-29/", "PersonInImage", "").filter( item => item && item.trim()); // filter skips empty values
+    if (val && val.length) {
+      dataObj.Depicted = new Set(val);
+    }
+    // There's also an "PersonInImageWDetails": https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#person-shown-in-the-image
+
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "City");
     if (val) {
       dataObj.City = val;
@@ -156,6 +162,11 @@ function xmpClass() {
         dataObj.Software = val[val.length - 1]; // [length-1] = Last is the last used ?
       }
       dataObj.AdditionalSoftware = [...(new Set(val.filter(s => s !== dataObj.Software)))]; // Might become an empty array
+    }
+
+    val = getXMPValue(dom, "http://ns.adobe.com/xap/1.0/mm/", "PreservedFileName");
+    if (val) {
+      dataObj.PreservedFileName = val;
     }
 
     const lang = fxifUtils.getLang();

@@ -28,6 +28,14 @@
     "message": "Software"
   },
 
+  "PreservedFileName": {
+    "message": "Preserved Filename"
+  },
+
+  "PersonInImage": {
+    "message": "Persons in Image"
+  },
+
   "ImageDate": {
     "message": "Image Date"
   },

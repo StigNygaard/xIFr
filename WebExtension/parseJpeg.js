@@ -156,8 +156,11 @@ function fxifClass() {
       context.debug("gatherData(bis): First marker found wasn't the expected SOI_MARKER");
     }
 
-    if (dataObj.Keywords) { // Hack!? For some reason Chrome can't handle this sent as a Set or Array via message API? (Though AdditionalSoftware can be sent!?) - Todo: Look closer into this?
+    if (dataObj.Keywords) { // For some reason Chrome can't handle this sent as a Set via message API? (Would probably also work sent as an Array?)
       dataObj.Keywords = (Array.from(dataObj.Keywords)).join("; ");
+    }
+    if (dataObj.Depicted) { // For some reason Chrome can't handle this sent as a Set via message API? (Would probably also work sent as an Array?)
+      dataObj.Depicted = (Array.from(dataObj.Depicted)).join("; ");
     }
 
     context.debug("gatherData(bis): returning dataObj...");
