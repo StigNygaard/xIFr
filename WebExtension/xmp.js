@@ -220,7 +220,7 @@ function xmpClass() {
       dataObj.Model = val;
     }
 
-    val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/aux/", "Lens");
+    val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/aux/", "Lens"); // Also look for lens data in exifEX? https://exiftool.org/TagNames/XMP.html#exifEX (AUX is deprecated!?)
     if (val) {
       dataObj.Lens = val;
     }
@@ -359,7 +359,7 @@ function xmpClass() {
       dataObj.CameraOwnerName = val;
     }
 
-    val = getXMPValue(dom, "http://cipa.jp/exif/1.0/", "Temperature"); // Temperature by spec. - unit: Celsius
+    val = getXMPValue(dom, "http://cipa.jp/exif/1.0/", "Temperature"); // Ambient temperature - unit: Celsius  - Also see binEXIF 0x9400
     if (val) {
       val = parseRational(val);
       dataObj.Temperature = stringBundle.getFormattedString("celsius", [val.toFixed(1)]);

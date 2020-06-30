@@ -74,14 +74,22 @@ function exifClass() {
   const TAG_COLORSPACE         = 0xa001;
   const TAG_INTEROPINDEX       = 0x0001;
 
-  const TAG_GPS_LAT_REF    = 0x0001;
-  const TAG_GPS_LAT        = 0x0002;
-  const TAG_GPS_LON_REF    = 0x0003;
-  const TAG_GPS_LON        = 0x0004;
-  const TAG_GPS_ALT_REF    = 0x0005;
-  const TAG_GPS_ALT        = 0x0006;
-  const TAG_GPS_IMG_DIR_REF      = 0x0010;
-  const TAG_GPS_IMG_DIR      = 0x0011;
+  // https://jmoliver.wordpress.com/2018/07/07/capturing-the-moment-and-the-ambient-weather-information-in-photos/   todo ?
+  const TAG_TEMPERATURE        = 0x9400; // Ambient temperature in degrees C, called Temperature by the EXIF spec.
+  const TAG_HUMIDITY           = 0x9401; // Ambient relative humidity in percent
+  const TAG_PRESSURE           = 0x9402; // Air pressure in hPa or mbar
+  const TAG_WATER_DEPTH        = 0x9403; // Depth under water in metres, negative for above water.
+
+  const TAG_GPS_LAT_REF        = 0x0001;
+  const TAG_GPS_LAT            = 0x0002;
+  const TAG_GPS_LON_REF        = 0x0003;
+  const TAG_GPS_LON            = 0x0004;
+  const TAG_GPS_ALT_REF        = 0x0005;
+  const TAG_GPS_ALT            = 0x0006;
+  const TAG_GPS_IMG_DIR_REF    = 0x0010;
+  const TAG_GPS_IMG_DIR        = 0x0011;
+
+  // https://exiftool.org/TagNames/EXIF.html
 
   var BytesPerFormat = [0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8];
 
