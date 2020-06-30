@@ -93,6 +93,18 @@ function populate(response) {
     arr.forEach(function(item) {ret.push(item); ret.push(document.createElement('br'))});
     return ret;
   }
+  function formattedTextToNodeAppendables(s) {
+    if (s.indexOf("\\r") > -1) {
+      s = s.split("\\n").join("");
+    } else {
+      s = s.split("\\n").join("\r");
+    }
+    let lines = s.split("\\r");
+    for (let i = lines.length - 1; i > 0; i--) {
+      lines.splice(i, 0, document.createElement('br'));
+    }
+    return lines;
+  }
   var table = document.getElementById("data");
   function addDataRow(key_v) {
     if (key_v !== "GPSPureDdLat" && key_v !== "GPSPureDdLon" && key_v !== "AdditionalSoftware") {
@@ -103,7 +115,11 @@ function populate(response) {
       label.id = key_v + "LabelCell";
       value.textContent = response.data[key_v].value;
       value.id = key_v + "ValueCell";
-      if (key_v === "Keywords") {
+      if (key_v === "Caption") {
+        let description = value.textContent.trim();
+        value.textContent = ''; // clear
+        value.append(...formattedTextToNodeAppendables(description));  // Description with linebreaks
+      } else if (key_v === "Keywords") {
         row.classList.add('scsv');
       } else if (key_v === 'GPSLat') {
         value.insertBefore(createRichElement('div', {id: 'maplinks'}), value.firstChild);
