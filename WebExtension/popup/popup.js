@@ -97,7 +97,7 @@ function populate(response) {
     if (s.indexOf("\\r") > -1) {
       s = s.split("\\n").join("");
     } else {
-      s = s.split("\\n").join("\r");
+      s = s.split("\\n").join("\\r");
     }
     let lines = s.split("\\r");
     for (let i = lines.length - 1; i > 0; i--) {
