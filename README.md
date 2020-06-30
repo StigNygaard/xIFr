@@ -54,4 +54,4 @@ Mozilla's [webextension-polyfill project](https://github.com/mozilla/webextensio
 [MPL 2.0 - Mozilla Public License Version 2.0](https://raw.githubusercontent.com/StigNygaard/xIFr/master/LICENSE)
 
 ### Flickr Fixr
-Love photos? Flickr user? Also take a look at my [Flickr Fixr](https://github.com/StigNygaard/Stigs_Flickr_Fixr) !
+Are you a Flickr user? Also take a look at my [Flickr Fixr](https://github.com/StigNygaard/Stigs_Flickr_Fixr) !
