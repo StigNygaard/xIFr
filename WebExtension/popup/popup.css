@@ -9,7 +9,7 @@ body.light {
   background-color: #fff;
   color: #242424;
 }
-body.dark img#settings {
+body.dark img#settings, body.dark img#cpClipboard{
   filter: invert(100%) ;
 }
 body.dark #tabs {
@@ -72,7 +72,7 @@ body {
   background-position: right 1.3rem top 1.5rem;
   background-repeat: no-repeat;
 }
-img#settings {
+img#settings, img#cpClipboard {
   display: block;
   position: absolute;
   width: 24px;
@@ -84,6 +84,12 @@ img#settings {
   right: 1.3rem;
   bottom: .5rem;
   cursor: pointer;
+}
+img#cpClipboard {
+  right: 3rem;
+}
+body.mapmode img#cpClipboard, body.copyUnsupported img#cpClipboard {
+  display: none;
 }
 #map {
   height: calc(100% - 5rem); /* room for the larger-map link */
@@ -190,6 +196,9 @@ img#settings {
 #maplinks a, #maplinks a:hover, #maplinks a:active, #maplinks a:visited {
   color: white;
   text-decoration: none;
+}
+body.copypastemode #maplinks {
+  display: none;
 }
 .OSM, .Google, .Bing, .MapQuest, .Here, .Flickr {
   display: none;

@@ -12,7 +12,7 @@ function createRichElement(tagName, attributes, ...content) {
 }
 function populate(response) {
   if (response.properties.URL) {
-    var image = document.querySelector("#image img");
+    let image = document.querySelector("#image img");
     if (response.properties.naturalWidth) {
       let w;
       let h;
@@ -105,19 +105,19 @@ function populate(response) {
     }
     return lines;
   }
-  var table = document.getElementById("data");
+  let table = document.getElementById("data");
   function addDataRow(key_v) {
     if (key_v !== "GPSPureDdLat" && key_v !== "GPSPureDdLon" && key_v !== "AdditionalSoftware" && response.data[key_v].value !== null && response.data[key_v].value !== "") {
-      var row = table.insertRow(-1);
-      var label = row.insertCell(0);
-      var value = row.insertCell(1);
+      let row = table.insertRow(-1);
+      let label = row.insertCell(0);
+      let value = row.insertCell(1);
       label.textContent = response.data[key_v].label;
       label.id = key_v + "LabelCell";
       value.textContent = response.data[key_v].value;
       value.id = key_v + "ValueCell";
       if (key_v === "Caption") {
         let description = value.textContent.trim();
-        value.textContent = ''; // clear
+        value.textContent = ''; // Clear - In Firefox 78+ we could use ParentNode.replaceChildren() here ...
         value.append(...formattedTextToNodeAppendables(description));  // Description with linebreaks
       } else if (key_v === "Keywords") {
         row.classList.add('scsv');
@@ -163,7 +163,7 @@ function populate(response) {
       document.getElementById("osmap").src = "https://www.openstreetmap.org/export/embed.html?bbox=" + (response.data.GPSPureDdLon.value - 0.003) + "%2C" + (response.data.GPSPureDdLat.value - 0.007) + "%2C" + (response.data.GPSPureDdLon.value + 0.003) + "%2C" + (response.data.GPSPureDdLat.value + 0.007) + "&layer=mapnik&marker=" + response.data.GPSPureDdLat.value + "%2C" + response.data.GPSPureDdLon.value;
       document.getElementById("largermap").href = "https://www.openstreetmap.org/?mlat=" + response.data.GPSPureDdLat.value + "&mlon=" + response.data.GPSPureDdLon.value + "#map=15/" + response.data.GPSPureDdLat.value + "/" + response.data.GPSPureDdLon.value;
     };
-    var maplinks = document.getElementById('maplinks');
+    let maplinks = document.getElementById('maplinks');
     function maplink(title, className, url, letter) {
       let link = createRichElement('a', {href: url}, letter);
       return createRichElement('div', {title: title, class: className}, link);
@@ -198,6 +198,33 @@ function populate(response) {
     browser.runtime.openOptionsPage();
     self.close();
   }, true);
+  if (navigator.clipboard && navigator.clipboard.writeText) { // Firefox 63+
+    document.getElementById("cpClipboard").addEventListener('click', (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      // Copy to clipboard
+      navigator.clipboard.writeText(copyPasteContent());
+    }, true);
+  } else {
+    document.body.classList.add('copyUnsupported'); // Hide copy button
+  }
+}
+function copyPasteContent() {
+  let s = 'FILE PROPERTIES\n\n';
+  s += document.getElementById('properties').innerText + '\n\n';
+  let rows = document.querySelectorAll('table#data tr');
+  if (rows && rows.length > 0) {
+    document.body.classList.add("copypastemode");
+    s += 'IMAGE META DATA\n\n';
+    rows.forEach((row) => {
+      let tds = row.getElementsByTagName('td');
+      if (tds && tds.length > 1) {
+        s += tds[0].innerText + ': ' + tds[1].innerText + '\n';
+      }
+    });
+    document.body.classList.remove("copypastemode");
+  }
+  return s;
 }
 function setup(options) {
   if (context.prefersDark(options["dispMode"])) {
