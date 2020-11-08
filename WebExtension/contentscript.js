@@ -201,7 +201,7 @@ function loadparseshow(imgrequest) {
 
 var deepSearchGenericLimit = 10 * 10; // Just not relevant if that small
 function blacklistedImage(src) { // todo: Make blacklist configurable!
-  return [{url: "https://combo.staticflickr.com/ap/build/images/sprites/icons-cc4be245.png", regexp: false}].some(function(item){return src === item.url});
+  return [{url: "https://combo.staticflickr.com/ap/build/images/sprites/icons-cc4be245.png", regexp: false}, {url: "https://combo.staticflickr.com/ap/build/images/fave-test/white@1x.png", regexp: false}, {url: "https://static.kuula.io/prod/assets/sprites-main.png", regexp: false}].some(function(item){return src === item.url});
 }
 function imageSearch(request, elem) {
   context.debug("imageSearch(): Looking for img elements on/below " + elem.nodeName.toLowerCase());
