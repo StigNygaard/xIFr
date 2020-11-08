@@ -99,6 +99,7 @@ function populate(response) {
     } else {
       s = s.split("\\n").join("\\r");
     }
+    s = s.split("\n").join("\\r");
     let lines = s.split("\\r");
     for (let i = lines.length - 1; i > 0; i--) {
       lines.splice(i, 0, document.createElement('br'));
@@ -115,10 +116,10 @@ function populate(response) {
       label.id = key_v + "LabelCell";
       value.textContent = response.data[key_v].value;
       value.id = key_v + "ValueCell";
-      if (key_v === "Caption") {
-        let description = value.textContent.trim();
+      if (["Caption", "DocumentNotes", "UserComment", "Comment", "Instructions"].includes(key_v)) {
+        let text = value.textContent.trim();
         value.textContent = ''; // Clear - In Firefox 78+ we could use ParentNode.replaceChildren() here ...
-        value.append(...formattedTextToNodeAppendables(description));  // Description with linebreaks
+        value.append(...formattedTextToNodeAppendables(text));  // Text with linebreaks
       } else if (key_v === "Keywords") {
         row.classList.add('scsv');
       } else if (key_v === 'GPSLat') {
