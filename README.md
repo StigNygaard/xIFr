@@ -7,7 +7,7 @@ xIFr is a browser extension for viewing EXIF, IPTC and XMP metadata in jpg image
 In principle xIFr a "cross-browser compatible" webextension. While it currently _ain't_ available via Chrome Web Store, it still works with Chrome/Chromium based browsers if you install [the webextension](https://github.com/StigNygaard/xIFr/releases) directly from your local filesystem. 
 However the _"deep search" functionality_ (described below) requires Firefox 63 (compatible) or newer. 
 
-To create a browser extension from this repository, simply create a zip-file with content from the _WebExtension_ folder.
+To create a browser extension from this repository, simply create a zip-file with content of the _WebExtension_ folder.
 
 ![Screenshot](https://www.rockland.dk/img/xIFr100-1-1400x1050.jpg)
 
@@ -37,6 +37,17 @@ Deep Search is supported in **Firefox 63 or newer** (It requires an API feature 
 ### A handy Firefox tip!
 Some websites overrides the browser's default right-click context menu. But you can usually hold down the _shift_ key while
 right-clicking, to get the browser's native context menu back - and thus launch xIFr...
+
+### Would you like a full-featured version for Chrome/Chromium?
+
+If you would like to see xIFr with "Deep Search" support in Chromium based desktop web-browsers, it might help to
+[give issue 39507 a vote (star)](https://bugs.chromium.org/p/chromium/issues/detail?id=39507) in Chromium Bug tracker.
+The issue is a feature request for same or similar API functionality that made "Deep Search" possible in Firefox. 
+
+Chromium-based browsers are currently also lacking the feature that makes it possible to use Shift-modifier in
+context-menu to initiate the special "bigger image search" mode of xIFr. It
+[looks like issue 646862 could be the fix for that](https://bugs.chromium.org/p/chromium/issues/detail?id=646862#c6). 
+However, I could just make two menu-items in context-menus instead. So not as vital as issue 39507. 
 
 ### A lot of credit to...
 Vital parts of xIFr, is inherited work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/WebExtension/AUTHORS)
