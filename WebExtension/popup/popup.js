@@ -10,13 +10,11 @@ function createRichElement(tagName, attributes, ...content) {
   }
   return element;
 }
-/*
 // "Linkified text" from text With URLs converted to DOMStrings and Nodes to (spread and) insert with ParentNode.append() or ParentNode.replaceChildren()
 function linkifyWithNodeAppendables(str, anchorattributes) { // Needs a better name? :-)
-  // Regex inspired from https://www.regextester.com/96146 (Must NOT be too good. Try to avoid things that's not supposed to be an url/webaddress)
-  let purl = /((http|https):\/\/)?(?<![@-a-zA-Z0-9.])[a-zA-Z0-9][-a-zA-Z0-9.]{1,249}\.[a-zA-Z][a-zA-Z0-9]{1,62}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)/i;  // Negative Lookbehind requires Firefox 78+ (Chrome 62+)
+  let purl = /(?<=[:;,(\[{]|^|\s)((http|https):\/\/)?[a-zA-Z0-9][-a-zA-Z0-9.]{1,249}\.[a-zA-Z][a-zA-Z0-9]{1,62}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)/im; // Lookbehind requires Firefox 78+ (Chrome 62+)
   function mailtoWithNodeAppendables(str, anchorattributes) {
-    let pemail = /(mailto:)?([a-zA-Z0-9._-]+@[a-zA-Z0-9][-a-zA-Z0-9.]{1,249}\.[a-zA-Z][a-zA-Z0-9]{1,62})/i;
+    let pemail = /(?<=[:;,(\[{]|^|\s)(mailto:)?([a-zA-Z0-9._-]+@[a-zA-Z0-9][-a-zA-Z0-9.]{1,249}\.[a-zA-Z][a-zA-Z0-9]{1,62})/im; // Lookbehind requires Firefox 78+ (Chrome 62+)
     let e = str.match(pemail);
     if (e === null) {
       return [str];
@@ -41,9 +39,7 @@ function linkifyWithNodeAppendables(str, anchorattributes) { // Needs a better n
     return [...mailtoWithNodeAppendables(begin), createRichElement('a', anchorattributes, durl), ...linkifyWithNodeAppendables(end, anchorattributes)]; // recursive
   }
 }
-*/
-
-// "Formatted text" from text with (real or escaped) linebreaks [and from xIFr 2.x: linkified URLs] converted to DOMStrings and Nodes to (spread and) insert with ParentNode.append() or ParentNode.replaceChildren()
+// "Formatted text" from text with (real or escaped) linebreaks linkified URLs converted to DOMStrings and Nodes to (spread and) insert with ParentNode.append() or ParentNode.replaceChildren()
 function formatWithNodeAppendables(s) { // Needs a better name? :-)
   if (s.indexOf("\\r") > -1) {
     s = s.split("\\n").join("");
@@ -54,10 +50,9 @@ function formatWithNodeAppendables(s) { // Needs a better name? :-)
   let lines = s.split("\\r");
   for (let i = lines.length - 1; i > 0; i--) {
     lines.splice(i, 0, document.createElement('br'));
-    // lines.splice(i + 1, 1, ...linkifyWithNodeAppendables(lines[i + 1])); // xIF 2.x
+    lines.splice(i + 1, 1, ...linkifyWithNodeAppendables(lines[i + 1]));
   }
-  // return [...linkifyWithNodeAppendables(lines[0]), ...lines.slice(1)]; // xIFr 2.x
-  return lines;
+  return [...linkifyWithNodeAppendables(lines[0]), ...lines.slice(1)];
 }
 function populate(response) {
   if (response.properties.URL) {
@@ -152,15 +147,13 @@ function populate(response) {
       label.id = key_v + "LabelCell";
       value.textContent = response.data[key_v].value;
       value.id = key_v + "ValueCell";
-      // if (["LicenseURL", "CreditLine", "Copyright", "CreatorEmails"].includes(key_v)) {
-      //   let text = value.textContent.trim();
-      //   value.textContent = ''; // Clear - In Firefox 78+ (and Chrome/Edge 86+) we could use ParentNode.replaceChildren() here ...
-      //   value.append(...linkifyWithNodeAppendables(text));  // Text with links
-      // } else
+      if (["LicenseURL", "CreditLine", "Copyright", "CreatorEmails"].includes(key_v)) {
+        let text = value.textContent.trim();
+        value.replaceChildren(...linkifyWithNodeAppendables(text));  // Text with links - ParentNode.replaceChildren() requires Firefox 78+ (or Chrome/Edge 86+)
+      } else
       if (["Caption", "UsageTerms", "DocumentNotes", "UserComment", "Comment", "Instructions"].includes(key_v)) {
         let text = value.textContent.trim();
-        value.textContent = ''; // Clear - In Firefox 78+ (and Chrome/Edge 86+) we could use ParentNode.replaceChildren() here ...
-        value.append(...formatWithNodeAppendables(text));  // Text with linebreaks (and links from xIFr 2.x)
+        value.replaceChildren(...formatWithNodeAppendables(text));  // Text with linebreaks - ParentNode.replaceChildren() requires Firefox 78+ (or Chrome/Edge 86+)
       } else if (key_v === "Keywords") {
         row.classList.add('scsv');
       } else if (key_v === 'GPSLat') {
