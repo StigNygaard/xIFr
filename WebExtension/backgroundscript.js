@@ -168,7 +168,7 @@ function handleInstalled({ reason, temporary, previousVersion }) {
       browser.tabs.create({ url: "onboard/onboard.html"});
       break;
     case "update":
-      // No upboarding in this version...
+      browser.tabs.create({ url: "onboard/onboard.html"});
       break;
   }
 }
