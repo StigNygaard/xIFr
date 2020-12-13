@@ -192,14 +192,18 @@ function xmpClass() {
       dataObj.Copyright = val;
     }
 
-    val = getXMPAltValue(dom, "http://ns.adobe.com/xap/1.0/rights/", "UsageTerms", langTest);
+    val = getXMPValue(dom, "http://ns.adobe.com/xap/1.0/rights/", "WebStatement"); // License URL used by Google Image Search
     if (val) {
-      dataObj.UsageTerms = val;
+      dataObj.LicenseURL = val;
     } else {
-      val = getXMPValue(dom, "http://creativecommons.org/ns#", "license"); // The license URL
+      val = getXMPValue(dom, "http://creativecommons.org/ns#", "license"); // License URL
       if (val) {
-        dataObj.UsageTerms = val;
+        dataObj.LicenseURL = val;
       }
+    }
+    val = getXMPAltValue(dom, "http://ns.adobe.com/xap/1.0/rights/", "UsageTerms", langTest); // Written terms (but might be or include license URL?)
+    if (val && !dataObj.LicenseURL || val && val !== dataObj.LicenseURL) {
+      dataObj.UsageTerms = val;
     }
 
     // Subjects (keywords) comes in a list/set. Get them all.

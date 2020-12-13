@@ -188,6 +188,10 @@
     "message": "Usage Terms"
   },
 
+  "LicenseURL": {
+    "message": "License URL"
+  },
+
   "Title": {
     "message": "Title"
   },

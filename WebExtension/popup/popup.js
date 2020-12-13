@@ -143,7 +143,7 @@ function populate(response) {
       }
     }
   }
-  let orderedKeys = [ "Headline", "Caption", "ObjectName", "Creditline", "Copyright", "UsageTerms",
+  let orderedKeys = ["Headline", "Caption", "ObjectName", "Creditline", "Copyright", "UsageTerms", "LicenseURL",
                     "Creator", "CreatorAddress", "CreatorCity", "CreatorRegion", "CreatorPostalCode", "CreatorCountry", "CreatorPhoneNumbers", "CreatorEmails", "CreatorURLs",
                     "Date", "Make", "Model", "Lens", "FocalLengthText", "DigitalZoomRatio", "ApertureFNumber", "ExposureTime", "ISOequivalent", "FlashUsed", "WhiteBalance", "Distance",
                     "GPSLat", "GPSLon", "GPSAlt", "GPSImgDir", "CountryName", "ProvinceState", "City", "Sublocation" ];
