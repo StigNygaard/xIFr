@@ -2,7 +2,7 @@ var context = (function Context() {
 
   // Console:
   const LOG = false; // false
-  const INFO = false; // false
+  const INFO = true; // false
   const DEBUG = false; // false
   const ERROR = true;
   function log(...arg) {
@@ -47,7 +47,7 @@ var context = (function Context() {
 
   // Misc:
   function supportsDeepSearch() {
-    return !!(typeof browser !== 'undefined' && browser.menus && browser.menus.getTargetElement); // Well, might not be enough. But for the time being this check should tell. In practice Firefox 63+ supports...
+    return !!(typeof browser !== 'undefined' && browser.menus && browser.menus.getTargetElement); // Well, might not be enough. But for the time being this check should tell. In practice Firefox 63+ supports, Chrome does not...
   }
   function prefersDark(dispMode) {
     return dispMode === "darkMode" || (window && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
