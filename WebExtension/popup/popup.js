@@ -10,6 +10,55 @@ function createRichElement(tagName, attributes, ...content) {
   }
   return element;
 }
+/*
+// "Linkified text" from text With URLs converted to DOMStrings and Nodes to (spread and) insert with ParentNode.append() or ParentNode.replaceChildren()
+function linkifyWithNodeAppendables(str, anchorattributes) { // Needs a better name? :-)
+  // Regex inspired from https://www.regextester.com/96146 (Must NOT be too good. Try to avoid things that's not supposed to be an url/webaddress)
+  let purl = /((http|https):\/\/)?(?<![@-a-zA-Z0-9.])[a-zA-Z0-9][-a-zA-Z0-9.]{1,249}\.[a-zA-Z][a-zA-Z0-9]{1,62}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)/i;  // Negative Lookbehind requires Firefox 78+ (Chrome 62+)
+  function mailtoWithNodeAppendables(str, anchorattributes) {
+    let pemail = /(mailto:)?([a-zA-Z0-9._-]+@[a-zA-Z0-9][-a-zA-Z0-9.]{1,249}\.[a-zA-Z][a-zA-Z0-9]{1,62})/i;
+    let e = str.match(pemail);
+    if (e === null) {
+      return [str];
+    } else {
+      if (!anchorattributes) anchorattributes = {};
+      let demail = e[0];
+      anchorattributes.href = demail.search(/^mailto:/) === -1 ? "mailto:" + demail : demail;
+      let begin = str.substring(0,str.search(demail));
+      let end = str.substring(begin.length + demail.length);
+      return [begin, createRichElement('a', anchorattributes, demail), ...mailtoWithNodeAppendables(end, anchorattributes)]; // recursive
+    }
+  }
+  let a = str.match(purl);
+  if (a === null) {
+    return [...mailtoWithNodeAppendables(str)];
+  } else {
+    if (!anchorattributes) anchorattributes = {};
+    let durl = a[0].replace(/\.+$/, "");
+    anchorattributes.href = durl.search(/^https?:\/\//) === -1 ? "http://" + durl : durl;
+    let begin = str.substring(0,str.search(durl));
+    let end = str.substring(begin.length + durl.length);
+    return [...mailtoWithNodeAppendables(begin), createRichElement('a', anchorattributes, durl), ...linkifyWithNodeAppendables(end, anchorattributes)]; // recursive
+  }
+}
+*/
+
+// "Formatted text" from text with (real or escaped) linebreaks [and from xIFr 2.x: linkified URLs] converted to DOMStrings and Nodes to (spread and) insert with ParentNode.append() or ParentNode.replaceChildren()
+function formatWithNodeAppendables(s) { // Needs a better name? :-)
+  if (s.indexOf("\\r") > -1) {
+    s = s.split("\\n").join("");
+  } else {
+    s = s.split("\\n").join("\\r");
+  }
+  s = s.split("\n").join("\\r");
+  let lines = s.split("\\r");
+  for (let i = lines.length - 1; i > 0; i--) {
+    lines.splice(i, 0, document.createElement('br'));
+    // lines.splice(i + 1, 1, ...linkifyWithNodeAppendables(lines[i + 1])); // xIF 2.x
+  }
+  // return [...linkifyWithNodeAppendables(lines[0]), ...lines.slice(1)]; // xIFr 2.x
+  return lines;
+}
 function populate(response) {
   if (response.properties.URL) {
     let image = document.querySelector("#image img");
@@ -88,23 +137,10 @@ function populate(response) {
       row.classList.remove('clickable');
     }
   }
-  function arrayToNodeAppendables(arr) {
+  function listArrayWithNodeAppendables(arr) { // Inserting linebreaks to get one item pr. line
     let ret = [];
     arr.forEach(function(item) {ret.push(item); ret.push(document.createElement('br'))});
     return ret;
-  }
-  function formattedTextToNodeAppendables(s) {
-    if (s.indexOf("\\r") > -1) {
-      s = s.split("\\n").join("");
-    } else {
-      s = s.split("\\n").join("\\r");
-    }
-    s = s.split("\n").join("\\r");
-    let lines = s.split("\\r");
-    for (let i = lines.length - 1; i > 0; i--) {
-      lines.splice(i, 0, document.createElement('br'));
-    }
-    return lines;
   }
   let table = document.getElementById("data");
   function addDataRow(key_v) {
@@ -116,10 +152,15 @@ function populate(response) {
       label.id = key_v + "LabelCell";
       value.textContent = response.data[key_v].value;
       value.id = key_v + "ValueCell";
-      if (["Caption", "DocumentNotes", "UserComment", "Comment", "Instructions"].includes(key_v)) {
+      // if (["LicenseURL", "CreditLine", "Copyright", "CreatorEmails"].includes(key_v)) {
+      //   let text = value.textContent.trim();
+      //   value.textContent = ''; // Clear - In Firefox 78+ (and Chrome/Edge 86+) we could use ParentNode.replaceChildren() here ...
+      //   value.append(...linkifyWithNodeAppendables(text));  // Text with links
+      // } else
+      if (["Caption", "UsageTerms", "DocumentNotes", "UserComment", "Comment", "Instructions"].includes(key_v)) {
         let text = value.textContent.trim();
-        value.textContent = ''; // Clear - In Firefox 78+ we could use ParentNode.replaceChildren() here ...
-        value.append(...formattedTextToNodeAppendables(text));  // Text with linebreaks
+        value.textContent = ''; // Clear - In Firefox 78+ (and Chrome/Edge 86+) we could use ParentNode.replaceChildren() here ...
+        value.append(...formatWithNodeAppendables(text));  // Text with linebreaks (and links from xIFr 2.x)
       } else if (key_v === "Keywords") {
         row.classList.add('scsv');
       } else if (key_v === 'GPSLat') {
@@ -134,7 +175,7 @@ function populate(response) {
         row.addEventListener("click", gpsRowClick, {capture: true, once: true});
         row.classList.add('clickable');
       } else if (key_v === "Software" && response.data['AdditionalSoftware'] && response.data['AdditionalSoftware'].value && response.data['AdditionalSoftware'].value.length) {
-        value.insertAdjacentElement("afterbegin", createRichElement('span', {class: 'software expandable'}, ...arrayToNodeAppendables(response.data['AdditionalSoftware'].value)));
+        value.insertAdjacentElement("afterbegin", createRichElement('span', {class: 'software expandable'}, ...listArrayWithNodeAppendables(response.data['AdditionalSoftware'].value)));
         row.title = "Click for additional software used";
         row.addEventListener("click", softwareRowClick, {capture: true, once: true});
         row.classList.add('clickable');
@@ -144,9 +185,9 @@ function populate(response) {
     }
   }
   let orderedKeys = ["Headline", "Caption", "ObjectName", "Creditline", "Copyright", "UsageTerms", "LicenseURL",
-                    "Creator", "CreatorAddress", "CreatorCity", "CreatorRegion", "CreatorPostalCode", "CreatorCountry", "CreatorPhoneNumbers", "CreatorEmails", "CreatorURLs",
-                    "Date", "Make", "Model", "Lens", "FocalLengthText", "DigitalZoomRatio", "ApertureFNumber", "ExposureTime", "ISOequivalent", "FlashUsed", "WhiteBalance", "Distance",
-                    "GPSLat", "GPSLon", "GPSAlt", "GPSImgDir", "CountryName", "ProvinceState", "City", "Sublocation" ];
+    "Creator", "CreatorAddress", "CreatorCity", "CreatorRegion", "CreatorPostalCode", "CreatorCountry", "CreatorPhoneNumbers", "CreatorEmails", "CreatorURLs",
+    "Date", "Make", "Model", "Lens", "FocalLengthText", "DigitalZoomRatio", "ApertureFNumber", "ExposureTime", "ISOequivalent", "FlashUsed", "WhiteBalance", "Distance",
+    "GPSLat", "GPSLon", "GPSAlt", "GPSImgDir", "CountryName", "ProvinceState", "City", "Sublocation" ];
   let foundKeys = Object.keys(response.data);
   orderedKeys.filter(x => foundKeys.includes(x)).forEach(addDataRow);  // First the orderedKeys (Headline, Description, Creator, Copyright, Credit Line,...)
   foundKeys.filter(x => !orderedKeys.includes(x)).forEach(addDataRow); // Then the rest...
