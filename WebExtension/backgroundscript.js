@@ -151,11 +151,8 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
       createPopup(request);
     }
-
   } else if (request.message === "popupReady") { // 2nd msg, populate popup
-    // Todo: Returning a Promise is the preferred way to send a reply from an onMessage/onMessageExternal listener, as the sendResponse will be removed from the specs
-    // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage#addListener_syntax
-    sendResponse(popupData);
+    return Promise.resolve(popupData); // WAS: sendResponse(popupData);  // but sendResponse() is deprecated
   }
 });
 
