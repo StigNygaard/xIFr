@@ -147,7 +147,7 @@ function populate(response) {
       label.id = key_v + "LabelCell";
       value.textContent = response.data[key_v].value;
       value.id = key_v + "ValueCell";
-      if (["LicenseURL", "CreditLine", "Copyright", "CreatorEmails"].includes(key_v)) {
+      if (["LicenseURL", "CreditLine", "Copyright", "CreatorEmails", "CreatorURLs"].includes(key_v)) {
         let text = value.textContent.trim();
         value.replaceChildren(...linkifyWithNodeAppendables(text));  // Text with links - ParentNode.replaceChildren() requires Firefox 78+ (or Chrome/Edge 86+)
       } else
