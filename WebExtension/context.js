@@ -2,7 +2,7 @@ var context = (function Context() {
 
   // Console:
   const LOG = false; // false
-  const INFO = true; // false
+  const INFO = false; // false
   const DEBUG = false; // false
   const ERROR = true;
   function log(...arg) {

@@ -107,7 +107,7 @@ function loadparseshow(imgrequest) {
     context.debug("Exit loadparseshow. Nothing to show!");
     return;
   }
-  var xhr = new XMLHttpRequest(); // Any issues with cross-domain in Chrome? Apparently not despite https://www.chromium.org/Home/chromium-security/extension-content-script-fetches ? I don't understand...
+  var xhr = new XMLHttpRequest(); // Issues with cross-domain in Chrome: https://www.chromium.org/Home/chromium-security/extension-content-script-fetches
   xhr.open("GET", imgrequest.imageURL, true);
   xhr.responseType = "arraybuffer";
   xhr.addEventListener("load", () => {
@@ -195,7 +195,7 @@ function loadparseshow(imgrequest) {
   });
 
   context.debug("Read image data (xhr.send())...");
-  xhr.send();
+  xhr.send();  // Versions 85+ of Chrome/Chromium often fails here (https://www.chromium.org/Home/chromium-security/extension-content-script-fetches)
 }
 
 
