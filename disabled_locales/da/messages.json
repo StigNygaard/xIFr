@@ -457,6 +457,6 @@
   },
 
   "noEXIFdata": {
-    "message": "No image metadata found"
+    "message": "No metadata found in this image"
   }
 }
