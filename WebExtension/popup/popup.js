@@ -10,37 +10,44 @@ function createRichElement(tagName, attributes, ...content) {
   }
   return element;
 }
+
+const PURL = /(?<=[\[:;,({\s]|^)((http|https):\/\/)?[a-z0-9][-a-z0-9.]{1,249}\.[a-z][a-z0-9]{1,62}\b([-a-z0-9@:%_+.~#?&/=]*)/im; // Lookbehind requires Firefox 78+ (Chrome 62+)
+const PEMAIL = /(?<=[\[:;,({\s]|^)(mailto:)?([a-z0-9._-]+@[a-z0-9][-a-z0-9.]{1,249}\.[a-z][a-z0-9]{1,62})/im; // Lookbehind requires Firefox 78+ (Chrome 62+)
 // "Linkified text" from text With URLs converted to DOMStrings and Nodes to (spread and) insert with ParentNode.append() or ParentNode.replaceChildren()
 function linkifyWithNodeAppendables(str, anchorattributes) { // Needs a better name? :-)
-  let purl = /(?<=[:;,(\[{]|^|\s)((http|https):\/\/)?[a-zA-Z0-9][-a-zA-Z0-9.]{1,249}\.[a-zA-Z][a-zA-Z0-9]{1,62}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)/im; // Lookbehind requires Firefox 78+ (Chrome 62+)
-  function mailtoWithNodeAppendables(str, anchorattributes) {
-    let pemail = /(?<=[:;,(\[{]|^|\s)(mailto:)?([a-zA-Z0-9._-]+@[a-zA-Z0-9][-a-zA-Z0-9.]{1,249}\.[a-zA-Z][a-zA-Z0-9]{1,62})/im; // Lookbehind requires Firefox 78+ (Chrome 62+)
-    let e = str.match(pemail);
-    if (e === null) {
+  function httpLinks(str, anchorattributes) {
+    let a = str.match(PURL); // look for webdomains
+    if (a === null) {
       return [str];
+    } else {
+      if (!anchorattributes) anchorattributes = {};
+      let durl = a[0].replace(/\.+$/, "");  // remove trailing dots
+      anchorattributes.href = durl.search(/^https?:\/\//) === -1 ? "http://" + durl : durl;
+      let begin = str.substring(0, str.indexOf(durl));
+      let end = str.substring(begin.length + durl.length); // Use "code units" count
+      // let end = str.substring([...begin].length + [...durl].length); // Use character count ?
+      return [begin, createRichElement('a', anchorattributes, durl), ...httpLinks(end, anchorattributes)]; // recursive
+    }
+  }
+  function mailtoAndHttpLinks(str, anchorattributes) {
+    let e = str.match(PEMAIL); // look for emails
+    if (e === null) {
+      return [...httpLinks(str)];
     } else {
       if (!anchorattributes) anchorattributes = {};
       let demail = e[0];
       anchorattributes.href = demail.search(/^mailto:/) === -1 ? "mailto:" + demail : demail;
-      let begin = str.substring(0,str.search(demail));
-      let end = str.substring(begin.length + demail.length);
-      return [begin, createRichElement('a', anchorattributes, demail), ...mailtoWithNodeAppendables(end, anchorattributes)]; // recursive
+      let begin = str.substring(0,str.indexOf(demail));
+      let end = str.substring(begin.length + demail.length); // Use "code units" count
+      // let end = str.substring([...begin].length + [...demail].length); // Use character count ?
+      return [...httpLinks(begin), createRichElement('a', anchorattributes, demail), ...mailtoAndHttpLinks(end, anchorattributes)]; // recursive
     }
   }
-  let a = str.match(purl);
-  if (a === null) {
-    return [...mailtoWithNodeAppendables(str)];
-  } else {
-    if (!anchorattributes) anchorattributes = {};
-    let durl = a[0].replace(/\.+$/, "");
-    anchorattributes.href = durl.search(/^https?:\/\//) === -1 ? "http://" + durl : durl;
-    let begin = str.substring(0,str.search(durl));
-    let end = str.substring(begin.length + durl.length);
-    return [...mailtoWithNodeAppendables(begin), createRichElement('a', anchorattributes, durl), ...linkifyWithNodeAppendables(end, anchorattributes)]; // recursive
-  }
+  return mailtoAndHttpLinks(str, anchorattributes);
 }
 // "Formatted text" from text with (real or escaped) linebreaks linkified URLs converted to DOMStrings and Nodes to (spread and) insert with ParentNode.append() or ParentNode.replaceChildren()
 function formatWithNodeAppendables(s) { // Needs a better name? :-)
+  s = s.replace(/\x00/g, ""); // Remove confusing nulls
   if (s.indexOf("\\r") > -1) {
     s = s.split("\\n").join("");
   } else {
