@@ -110,6 +110,10 @@ body.mapmode img#cpClipboard, body.copyUnsupported img#cpClipboard {
 }
 #image, #properties {
   margin: 0 0 1ch 0;
+  overflow: hidden;
+}
+#filename {
+  white-space: nowrap;
 }
 #image /* , #properties */ {
   float: left;
