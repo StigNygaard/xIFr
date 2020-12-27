@@ -53,25 +53,28 @@ var context = (function Context() {
     return dispMode === "darkMode" || (window && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   }
   function isFirefox() {
-    return !!((typeof browser !== 'undefined') && browser.runtime && browser.runtime.getURL("./").includes("moz-extension://"));
+    return !!((typeof browser !== 'undefined') && browser.runtime && browser.runtime.getURL("./").startsWith("moz-extension://"));
   }
-
+  function isChromium() { // Besides Chrome, this also includes Edge & Opera. And likely most/all other Chromium based browsers too(?)
+    return !!((typeof browser !== 'undefined') && browser.runtime && browser.runtime.getURL("./").startsWith("chrome-extension://"));
+  }
 
   // API:
   return {
-    LOG: LOG,
-    INFO: INFO,
-    DEBUG: DEBUG,
-    ERROR: ERROR,
-    log: log,
-    info: info,
-    debug: debug,
-    error: error,
-    setOptions: setOptions,
-    getOptions: getOptions,
-    isFirefox: isFirefox,
-    supportsDeepSearch: supportsDeepSearch,
-    prefersDark: prefersDark
+    LOG,
+    INFO,
+    DEBUG,
+    ERROR,
+    log,
+    info,
+    debug,
+    error,
+    setOptions,
+    getOptions,
+    isFirefox,
+    isChromium,
+    supportsDeepSearch,
+    prefersDark
   };
 
 })();
