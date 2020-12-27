@@ -59,19 +59,19 @@ function createPopup(request) {
       pos = {left: window.screen.availWidth - width, top: 0, height: window.screen.availHeight};
       break;
   }
-    browser.windows.create(Object.assign(
-      {
-        url: browser.extension.getURL("/popup/popup.html"),
-        type: "popup",
-        width: width,
-        height: height
-      }, pos)).then(win => {
-      previous.winId = win.id;
-      previous.imgURL = request.data.URL;
-      if (options["popupPos"] !== "defaultPos" && context.isFirefox()) {  // https://bugzilla.mozilla.org/show_bug.cgi?id=1271047
-        browser.windows.update(win.id, pos);
-      }
-    });
+  browser.windows.create(Object.assign(
+    {
+      url: browser.extension.getURL("/popup/popup.html"),
+      type: "popup",
+      width: width,
+      height: height
+    }, pos)).then(win => {
+    previous.winId = win.id;
+    previous.imgURL = request.data.URL;
+    if (options["popupPos"] !== "defaultPos" && context.isFirefox()) {  // https://bugzilla.mozilla.org/show_bug.cgi?id=1271047
+      browser.windows.update(win.id, pos);
+    }
+  });
 }
 
 browser.contextMenus.create({ // Can I somehow prevent it on about: and AMO pages?
@@ -165,7 +165,7 @@ function handleInstalled({ reason, temporary, previousVersion }) {
       browser.tabs.create({ url: "onboard/onboard.html"});
       break;
     case "update":
-      // browser.tabs.create({ url: "onboard/onboard.html"});
+      browser.tabs.create({url: "onboard/onboard.html"});
       break;
   }
 }
