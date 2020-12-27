@@ -13,7 +13,7 @@ function createRichElement(tagName, attributes, ...content) {
 
 const PURL = /(?<=[\[:;,({\s]|^)((http|https):\/\/)?[a-z0-9][-a-z0-9.]{1,249}\.[a-z][a-z0-9]{1,62}\b([-a-z0-9@:%_+.~#?&/=]*)/im; // Lookbehind requires Firefox 78+ (Chrome 62+)
 const PEMAIL = /(?<=[\[:;,({\s]|^)(mailto:)?([a-z0-9._-]+@[a-z0-9][-a-z0-9.]{1,249}\.[a-z][a-z0-9]{1,62})/im; // Lookbehind requires Firefox 78+ (Chrome 62+)
-// "Linkified text" from text With URLs converted to DOMStrings and Nodes to (spread and) insert with ParentNode.append() or ParentNode.replaceChildren()
+// "Linkified text" from text With URLs converted to DOMStrings and Nodes to (spread and) insert with methods like ParentNode.append(), ParentNode.replaceChildren() and ChildNode.replaceWith()
 function linkifyWithNodeAppendables(str, anchorattributes) { // Needs a better name? :-)
   function httpLinks(str, anchorattributes) {
     let a = str.match(PURL); // look for webdomains
@@ -61,7 +61,28 @@ function formatWithNodeAppendables(s) { // Needs a better name? :-)
   }
   return [...linkifyWithNodeAppendables(lines[0]), ...lines.slice(1)];
 }
+let keyShortcuts = (function KeyShortcuts() {
+  let shortcuts = new Map();
+  window.addEventListener("keydown", function keydownListener(event) {
+    if (event.defaultPrevented) {
+      return; // Do nothing if the event was already processed
+    }
+    if (!event.repeat && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey) {
+      if (shortcuts.has(event.key)) {
+        shortcuts.get(event.key)(event); // Do the shortcut handler
+        event.preventDefault();
+      }
+    }
+  }, true);
+  function register(key, handler) {
+    // Add key/handler
+    shortcuts.set(key, handler);
+  }
+  // API:
+  return {register};
+})();
 function populate(response) {
+  keyShortcuts.register("Escape", function closePopup(){self.close()});
   if (response.properties.URL) {
     let image = document.querySelector("#image img");
     if (response.properties.naturalWidth) {
@@ -184,6 +205,62 @@ function populate(response) {
       }
     }
   }
+  function showDataTab(event) {
+    document.body.classList.replace("mapmode", "mainmode");
+  }
+  function showMapTab(event) {
+    document.body.classList.replace("mainmode", "mapmode");
+    // bbox calculation is a hack. Can do better with:
+    // Destination point given distance and bearing from start point
+    // https://www.movable-type.co.uk/scripts/latlong.html
+    // Bearing
+    // https://rechneronline.de/geo-coordinates/
+    document.getElementById("osmap").src = "https://www.openstreetmap.org/export/embed.html?bbox=" + (response.data.GPSPureDdLon.value - 0.003) + "%2C" + (response.data.GPSPureDdLat.value - 0.007) + "%2C" + (response.data.GPSPureDdLon.value + 0.003) + "%2C" + (response.data.GPSPureDdLat.value + 0.007) + "&layer=mapnik&marker=" + response.data.GPSPureDdLat.value + "%2C" + response.data.GPSPureDdLon.value;
+    document.getElementById("largermap").href = "https://www.openstreetmap.org/?mlat=" + response.data.GPSPureDdLat.value + "&mlon=" + response.data.GPSPureDdLon.value + "#map=15/" + response.data.GPSPureDdLat.value + "/" + response.data.GPSPureDdLon.value;
+  }
+  function openLargeMap(event) {
+    if (document.body.classList.contains("mapmode")) {
+      document.getElementById("largermap").click();
+    }
+  }
+  function maplink(title, className, url, letter) {
+    let link = createRichElement('a', {href: url}, letter);
+    return createRichElement('div', {title: title, class: className}, link);
+  }
+  function openOptions(event) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    browser.runtime.openOptionsPage();
+    self.close();
+  }
+  function copyPasteContent() {
+    let s = 'FILE PROPERTIES\n\n';
+    s += document.getElementById('properties').innerText + '\n\n';
+    let rows = document.querySelectorAll('table#data tr');
+    if (rows && rows.length > 0) {
+      document.body.classList.add("copypastemode");
+      s += 'IMAGE META DATA\n\n';
+      rows.forEach((row) => {
+        let tds = row.getElementsByTagName('td');
+        if (tds && tds.length > 1) {
+          s += tds[0].innerText + ': ' + tds[1].innerText + '\n';
+        }
+      });
+      document.body.classList.remove("copypastemode");
+    }
+    return s;
+  }
+  function copyToClipboard(event) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    // Copy to clipboard
+    navigator.clipboard.writeText(copyPasteContent());
+  }
+
   let orderedKeys = ["Headline", "Caption", "ObjectName", "Creditline", "Copyright", "UsageTerms", "LicenseURL",
     "Creator", "CreatorAddress", "CreatorCity", "CreatorRegion", "CreatorPostalCode", "CreatorCountry", "CreatorPhoneNumbers", "CreatorEmails", "CreatorURLs",
     "Date", "Make", "Model", "Lens", "FocalLengthText", "DigitalZoomRatio", "ApertureFNumber", "ExposureTime", "ISOequivalent", "FlashUsed", "WhiteBalance", "Distance",
@@ -192,24 +269,15 @@ function populate(response) {
   orderedKeys.filter(x => foundKeys.includes(x)).forEach(addDataRow);  // First the orderedKeys (Headline, Description, Creator, Copyright, Credit Line,...)
   foundKeys.filter(x => !orderedKeys.includes(x)).forEach(addDataRow); // Then the rest...
   if (response.data.GPSPureDdLat && response.data.GPSPureDdLon && typeof response.data.GPSPureDdLat.value === 'number' && typeof response.data.GPSPureDdLon.value === 'number') {
-    document.getElementById("maintab").onclick = () => {
-      document.body.classList.replace("mapmode", "mainmode")
-    };
-    document.getElementById("maptab").onclick = () => {
-      document.body.classList.replace("mainmode", "mapmode");
-      // bbox calculation is a hack. Can do better with:
-      // Destination point given distance and bearing from start point
-      // https://www.movable-type.co.uk/scripts/latlong.html
-      // Bearing
-      // https://rechneronline.de/geo-coordinates/
-      document.getElementById("osmap").src = "https://www.openstreetmap.org/export/embed.html?bbox=" + (response.data.GPSPureDdLon.value - 0.003) + "%2C" + (response.data.GPSPureDdLat.value - 0.007) + "%2C" + (response.data.GPSPureDdLon.value + 0.003) + "%2C" + (response.data.GPSPureDdLat.value + 0.007) + "&layer=mapnik&marker=" + response.data.GPSPureDdLat.value + "%2C" + response.data.GPSPureDdLon.value;
-      document.getElementById("largermap").href = "https://www.openstreetmap.org/?mlat=" + response.data.GPSPureDdLat.value + "&mlon=" + response.data.GPSPureDdLon.value + "#map=15/" + response.data.GPSPureDdLat.value + "/" + response.data.GPSPureDdLon.value;
-    };
+    document.getElementById("maintab").onclick = showDataTab;
+    keyShortcuts.register("i", showDataTab);
+    keyShortcuts.register("I", showDataTab);
+    document.getElementById("maptab").onclick = showMapTab;
+    keyShortcuts.register("m", showMapTab);
+    keyShortcuts.register("M", showMapTab);
+    keyShortcuts.register("l", openLargeMap);
+    keyShortcuts.register("L", openLargeMap);
     let maplinks = document.getElementById('maplinks');
-    function maplink(title, className, url, letter) {
-      let link = createRichElement('a', {href: url}, letter);
-      return createRichElement('div', {title: title, class: className}, link);
-    }
     if (maplinks) {
       let lat = response.data.GPSPureDdLat.value;
       let lon = response.data.GPSPureDdLon.value;
@@ -234,39 +302,16 @@ function populate(response) {
       self.close();
     }, true)
   });
-  document.getElementById("settings").addEventListener('click', (event) => {
-    event.stopPropagation();
-    event.preventDefault();
-    browser.runtime.openOptionsPage();
-    self.close();
-  }, true);
+  document.getElementById("settings").addEventListener('click', openOptions, true);
+  keyShortcuts.register("o", openOptions);
+  keyShortcuts.register("O", openOptions);
   if (navigator.clipboard && navigator.clipboard.writeText) { // Firefox 63+
-    document.getElementById("cpClipboard").addEventListener('click', (event) => {
-      event.stopPropagation();
-      event.preventDefault();
-      // Copy to clipboard
-      navigator.clipboard.writeText(copyPasteContent());
-    }, true);
+    document.getElementById("cpClipboard").addEventListener('click', copyToClipboard, true);
+    keyShortcuts.register("c", copyToClipboard);
+    keyShortcuts.register("C", copyToClipboard);
   } else {
     document.body.classList.add('copyUnsupported'); // Hide copy button
   }
-}
-function copyPasteContent() {
-  let s = 'FILE PROPERTIES\n\n';
-  s += document.getElementById('properties').innerText + '\n\n';
-  let rows = document.querySelectorAll('table#data tr');
-  if (rows && rows.length > 0) {
-    document.body.classList.add("copypastemode");
-    s += 'IMAGE META DATA\n\n';
-    rows.forEach((row) => {
-      let tds = row.getElementsByTagName('td');
-      if (tds && tds.length > 1) {
-        s += tds[0].innerText + ': ' + tds[1].innerText + '\n';
-      }
-    });
-    document.body.classList.remove("copypastemode");
-  }
-  return s;
 }
 function setup(options) {
   if (context.prefersDark(options["dispMode"])) {
@@ -283,7 +328,6 @@ function setup(options) {
     }
   });
 }
-
 function init() {
   context.getOptions().then(setup);
   browser.runtime.sendMessage({
