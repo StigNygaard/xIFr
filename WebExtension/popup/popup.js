@@ -13,7 +13,7 @@ function createRichElement(tagName, attributes, ...content) {
 
 const PURL = /(?<=[\[:;,({\s]|^)((http|https):\/\/)?[a-z0-9][-a-z0-9.]{1,249}\.[a-z][a-z0-9]{1,62}\b([-a-z0-9@:%_+.~#?&/=]*)/im; // Lookbehind requires Firefox 78+ (Chrome 62+)
 const PEMAIL = /(?<=[\[:;,({\s]|^)(mailto:)?([a-z0-9._-]+@[a-z0-9][-a-z0-9.]{1,249}\.[a-z][a-z0-9]{1,62})/im; // Lookbehind requires Firefox 78+ (Chrome 62+)
-// "Linkified text" from text With URLs converted to DOMStrings and Nodes to (spread and) insert with methods like ParentNode.append(), ParentNode.replaceChildren() and ChildNode.replaceWith()
+// Return "Linkified content" as a list of DOMStrings and Nodes, to (spread and) insert with methods like ParentNode.append(), ParentNode.replaceChildren() and ChildNode.replaceWith()
 function linkifyWithNodeAppendables(str, anchorattributes) { // Needs a better name? :-)
   function httpLinks(str, anchorattributes) {
     let a = str.match(PURL); // look for webdomains
@@ -45,7 +45,8 @@ function linkifyWithNodeAppendables(str, anchorattributes) { // Needs a better n
   }
   return mailtoAndHttpLinks(str, anchorattributes);
 }
-// "Formatted text" from text with (real or escaped) linebreaks linkified URLs converted to DOMStrings and Nodes to (spread and) insert with ParentNode.append() or ParentNode.replaceChildren()
+// Return "linebreaked and linkified content" as list of DOMStrings and Nodes, to (spread and) insert with ParentNode.append(), ParentNode.replaceChildren() and ChildNode.replaceWith()
+// (Will convert both "symbolic" and real linefeeds to actual <br /> DOM elements)
 function formatWithNodeAppendables(s) { // Needs a better name? :-)
   s = s.replace(/\x00/g, ""); // Remove confusing nulls
   if (s.indexOf("\\r") > -1) {
