@@ -21,7 +21,7 @@ function linkifyWithNodeAppendables(str, anchorattributes) { // Needs a better n
       return [str];
     } else {
       if (!anchorattributes) anchorattributes = {};
-      let durl = a[0].replace(/\.+$/, "");  // remove trailing dots
+      let durl = a[0].replace(/[:\.]+$/, "");  // remove trailing dots and colons
       anchorattributes.href = durl.search(/^https?:\/\//) === -1 ? "http://" + durl : durl;
       let begin = str.substring(0, str.indexOf(durl));
       let end = str.substring(begin.length + durl.length); // Use "code units" count
