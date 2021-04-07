@@ -165,7 +165,7 @@ function handleInstalled({ reason, temporary, previousVersion }) {
       browser.tabs.create({ url: "onboard/onboard.html"});
       break;
     case "update":
-      browser.tabs.create({url: "onboard/onboard.html"});
+      // browser.tabs.create({ url: "onboard/onboard.html"});
       break;
   }
 }
