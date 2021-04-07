@@ -61,7 +61,7 @@ function createPopup(request) {
   }
   browser.windows.create(Object.assign(
     {
-      url: browser.extension.getURL("/popup/popup.html"),
+      url: browser.runtime.getURL("/popup/popup.html"),
       type: "popup",
       width: width,
       height: height
