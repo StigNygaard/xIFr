@@ -51,7 +51,7 @@ However, I could just make two menu-items in context-menus instead. So not as vi
 
 ### A lot of credit to...
 Vital parts of xIFr, is inherited work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/WebExtension/AUTHORS)
-involved with development of [wxIF](https://github.com/gcp/wxif) (xIFr is a fork of wxIF),
+involved with development of [wxIF](https://github.com/gcp/wxif) (xIFr is a fork of wxIF) and
 [FxIF](https://code.google.com/archive/p/fxif/). Without their work, xIFr wouldn't be.
 
 Also thanks to [crimx](https://github.com/crimx), and his ["Get All Images in DOM" coding-post](https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/) which was great help implementing the Deep Search feature.
