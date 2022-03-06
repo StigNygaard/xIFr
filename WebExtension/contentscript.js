@@ -107,7 +107,27 @@ function loadparseshow(imgrequest) {
     context.debug("Exit loadparseshow. Nothing to show!");
     return;
   }
+
+  let propertiesObj = {};
+  propertiesObj.URL = imgrequest.imageURL;
+  if (imgrequest.naturalWidth) {
+    propertiesObj.naturalWidth = imgrequest.naturalWidth;
+    propertiesObj.naturalHeight = imgrequest.naturalHeight;
+  }
+  if (imgrequest.source) { // ?
+    propertiesObj.source = imgrequest.source;
+  }
+  if (imgrequest.context) { // ?
+    propertiesObj.context = imgrequest.context;
+  }
+  let errorsArr = []; // Messages to show as errors
+  let warningsArr = []; // Messages to show as warnings
+  let infosArr = []; // Messages to show as info
+
   var xhr = new XMLHttpRequest(); // Issues with cross-domain in Chrome: https://www.chromium.org/Home/chromium-security/extension-content-script-fetches
+  // Future Firefox?: https://bugzilla.mozilla.org/show_bug.cgi?id=1578405
+  // Chrome Manifest V2-V3 timeline: https://www.bleepingcomputer.com/news/google/google-manifest-v2-chrome-extensions-to-stop-working-in-2023/
+
   xhr.open("GET", imgrequest.imageURL, true);
   xhr.responseType = "arraybuffer";
   xhr.addEventListener("load", () => {
@@ -137,38 +157,23 @@ function loadparseshow(imgrequest) {
       context.debug("Gather data from image header (fxifObj.gatherData(byteArray) = fxifClass.gatherData() in parseJpeg.js)...");
       var dataObj = fxifObj.gatherData(byteArray); // Gather data from header (via "markers" found in file)
 
-      let errorsArr = []; // move errors from dataObj to this
       if (dataObj.error && dataObj.error.length > 0) {
         errorsArr.push(...dataObj.error);
         delete dataObj.error;
       }
-      let warningsArr = []; // move warnings from dataObj to this
       if (dataObj.warning && dataObj.warning.length > 0) {
         warningsArr.push(...dataObj.warning);
         delete dataObj.warning;
       }
-      let infosArr = [];
 
       context.debug("request: " + JSON.stringify(imgrequest));
       if (imgrequest.naturalWidth && imgrequest.supportsDeepSearch && !imgrequest.deepSearchBigger && (imgrequest.naturalWidth * imgrequest.naturalHeight <= imgrequest.deepSearchBiggerLimit)) {
         infosArr.push('Not the expected image? You can force xIFr to look for a larger image than this, by holding down Shift key when selecting xIFr in the context menu!');
       }
 
-      let propertiesObj = {};
-      propertiesObj.URL = imgrequest.imageURL;
       propertiesObj.byteLength = arrayBuffer.byteLength || xhr.getResponseHeader('Content-Length');
       propertiesObj.contentType = xhr.getResponseHeader('Content-Type'); // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
       propertiesObj.lastModified = xhr.getResponseHeader('Last-Modified');
-      if (imgrequest.naturalWidth) {
-        propertiesObj.naturalWidth = imgrequest.naturalWidth;
-        propertiesObj.naturalHeight = imgrequest.naturalHeight;
-      }
-      if (imgrequest.source) { // ?
-        propertiesObj.source = imgrequest.source;
-      }
-      if (imgrequest.context) { // ?
-        propertiesObj.context = imgrequest.context;
-      }
 
       // Todo: Actually used colorprofile/colorspace would be nice too? How to find?
 
@@ -190,23 +195,58 @@ function loadparseshow(imgrequest) {
     }
   });
 
-  xhr.addEventListener("error", () => {
-    context.debug("xIFr xhr error:" + xhr.statusText);
+  xhr.addEventListener("error", (pEvent) => {
+    context.error("xIFr: xhr-ERROR trying to read image-data from url: " + imgrequest.imageURL);
+    context.debug("xIFr: xhr-ERROR status:" + xhr.status);
+    context.debug("xIFr: xhr-ERROR statusText:" + xhr.statusText);
+    context.debug("xIFr: xhr-ERROR Event.lengthComputable:" + pEvent.lengthComputable);
+
+    errorsArr.push("Error trying to load image-file for parsing of the metadata!");
+    infosArr.push("Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image");
+    propertiesObj.byteLength = xhr.getResponseHeader('Content-Length');
+    propertiesObj.contentType = xhr.getResponseHeader('Content-Type'); // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
+    propertiesObj.lastModified = xhr.getResponseHeader('Last-Modified');
+    browser.runtime.sendMessage({
+      message: "EXIFready",
+      data: {},
+      properties: propertiesObj,
+      errors: errorsArr,
+      warnings: warningsArr,
+      infos: infosArr
+    });
   });
 
   context.debug("Read image data (xhr.send())...");
-  xhr.send(); // todo: Versions 85+ of Chrome/Chromium often fail here (https://www.chromium.org/Home/chromium-security/extension-content-script-fetches)
+  // xhr.withCredentials = true; // todo ????
+  xhr.send(); // todo: Versions 85+ of Chrome/Chromium often fail here doing xhr.send()  (https://www.chromium.org/Home/chromium-security/extension-content-script-fetches)
+  // Is this related to the Chrome issue?:
+  // https://www.gmass.co/blog/send-cookie-cross-origin-xmlhttprequest-chrome-extension/ ,
+  // https://blog.danawoodman.com/articles/send-session-cookies-using-a-chrome-extension ?
 }
 
 
 var deepSearchGenericLimit = 10 * 10; // Just not relevant if that small
 function blacklistedImage(src) { // todo: Make blacklist configurable!
-  return [{url: "https://combo.staticflickr.com/ap/build/images/sprites/icons-cc4be245.png", regexp: false}, {url: "https://combo.staticflickr.com/ap/build/images/fave-test/white@1x.png", regexp: false}, {url: "https://static.kuula.io/prod/assets/sprites-main.png", regexp: false}].some(function(item){return src === item.url});
+  return [{
+    url: "https://combo.staticflickr.com/ap/build/images/sprites/icons-cc4be245.png",
+    regexp: false
+  }, {
+    url: "https://combo.staticflickr.com/ap/build/images/fave-test/white@1x.png",
+    regexp: false
+  }, {
+    url: "https://static.kuula.io/prod/assets/sprites-main.png",
+    regexp: false
+  }, {
+    url: "https://www.instagram.com/static/bundles/es6/sprite_core_32f0a4f27407.png/32f0a4f27407.png",
+    regexp: false
+  }].some(function (item) {
+    return src === item.url
+  });
 }
 function imageSearch(request, elem) {
   context.debug("imageSearch(): Looking for img elements on/below " + elem.nodeName.toLowerCase());
   let candidate;
-  for (var img of document.images) {
+  for (let img of document.images) {
     if (elem.contains(img)) { // img is itself/elem or img is a "sub-node"
       context.debug("Found image within target element! img.src=" + img.src + " and naturalWidth=" + img.naturalWidth + ", naturalHeight=" + img.naturalHeight);
       // We could look for best match, or just continue with the first we find?
@@ -308,6 +348,7 @@ if (typeof contentListenerAdded === 'undefined') {
         /*  ***  Advanced mode with "deep-search" (Firefox 63+)  ***  */
         /**************************************************************/
 
+        context.debug(" *** ADVANCED MODE WITH DEEP SEARCH *** ");
         let elem = browser.menus.getTargetElement(request.targetId);
         if (elem) {
           request.nodeName = elem.nodeName.toLowerCase(); // node name of context (right-click) target
@@ -326,6 +367,7 @@ if (typeof contentListenerAdded === 'undefined') {
         /*  ***  Simple "legacy mode" (Chrome and older Firefox versions)  ***  */
         /************************************************************************/
 
+        context.debug(" *** SIMPLE 'LEGACY' MODE *** ");
         request.nodeName = 'img'; // node name of context (right-click) target
         context.debug("parseImage message received with URL = " + request.imageURL);
         let image = {};
