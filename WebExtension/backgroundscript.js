@@ -10,7 +10,7 @@ let options = {};
 let win = {};
 let previous = {};
 let popupData = {};
-if (browser.menus && browser.menus.getTargetElement) { // An easy way to use Firefox extended API while preserving Chrome (and older Firefox) compatibility.
+if (browser.menus?.getTargetElement) { // An easy way to use Firefox extended API while preserving Chrome (and older Firefox) compatibility.
   browser.contextMenus = browser.menus;
 }
 
@@ -78,7 +78,7 @@ browser.contextMenus.create({ // Can I somehow prevent it on about: and AMO page
   id: "viewexif",
   title: browser.i18n.getMessage("contextMenuText"),
   // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/ContextType
-  contexts: browser.menus && browser.menus.getTargetElement ? ["editable", "frame", "image", "link", "page", "video", "audio"] : ["image"] // Firefox 63+ supports getTargetElement()/targetElementId
+  contexts: browser.contextMenus.getTargetElement ? ["image", "link", "page", "frame", "editable", "video", "audio"] : ["image"] // Firefox 63+ supports getTargetElement()/targetElementId
 });
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
