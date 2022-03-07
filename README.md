@@ -1,11 +1,11 @@
 # xIFr
 
-xIFr is a browser extension for viewing EXIF, IPTC and XMP metadata in jpg image files. Launch it from the desktop browser's right-click context menu.
+xIFr is a Firefox browser extension for viewing EXIF, IPTC and XMP metadata in jpg image files. Launch it from the desktop browser's right-click context menu.
 
 * [Install xIFr from Mozilla Firefox Add-ons](https://addons.mozilla.org/firefox/addon/xifr/?utm_source=github.com)
 
 In principle xIFr a "cross-browser compatible" webextension. While it currently _ain't_ available via Chrome Web Store, it still works with Chrome/Chromium based browsers if you install [the webextension](https://github.com/StigNygaard/xIFr/releases) directly from your local filesystem. 
-However the _"deep search" functionality_ (described below) requires Firefox 63 (compatible) or newer. 
+There are however differences in functionality supported, and mostly limitations when using xIFr in Chrome/Chromium based browsers. So for now only "officially" available for Firefox.
 
 To create a browser extension from this repository, simply create a zip-file with content of the _WebExtension_ folder.
 
@@ -20,34 +20,22 @@ but you should really check the _"deep search" feature_. It works sooo well - in
 
 ### "Deep Search" feature?
 Most other Exif viewers only works if you can right-click directly on an html _img_ element. But with "Deep Search" xIFr finds the image you want to see details about,
-no matter if it is below a layer, or is defined as a background-image of another element. In 99% of the times, it just works as you expect.
+no matter if it is below a layer or is defined as a background-image of another element. In 95% of the times, it just works as you expect.
 You wont even know if you were right-clicking directly on an img element or not. This is in my opinion the most important feature distinguishing
 xIFr from other Exif-viewers.
 
 Also with Deep Search, you can avoid overlayered logos and icons. By shift-clicking when selecting xIFr in browser's context-menu, you will force
 xIFr to look for images larger than a specified size (The size is configurable).
 
-Deep Search is supported in **Firefox 63 or newer** (It requires an API feature currently only available in Firefox 63+). In other browser versions you can only launch xIFr if you are able to right-click _directly on_ an html _img_ element. You can get a little introduction to xIFr's features including what Deep Search does at [www.rockland.dk/xIFr/start](https://www.rockland.dk/xIFr/start/).  
+Deep Search is supported in Firefox 63 or newer. You can get a little introduction to xIFr's features, including what Deep Search does, at [www.rockland.dk/xIFr/start](https://www.rockland.dk/xIFr/start/).  
 
 ### Dark Theme support
-
 
 ![Screenshot](https://www.rockland.dk/img/xIFr100-3-1400x1050.jpg)
 
 ### A handy Firefox tip!
 Some websites overrides the browser's default right-click context menu. But you can usually hold down the _shift_ key while
 right-clicking, to get the browser's native context menu back - and thus launch xIFr...
-
-### Would you like a full-featured version for Chrome/Chromium?
-
-If you would like to see xIFr with "Deep Search" support in Chromium based desktop web-browsers, it might help to
-[give issue 39507 a vote (star)](https://bugs.chromium.org/p/chromium/issues/detail?id=39507) in Chromium Bug tracker.
-The issue is a feature request for same or similar API functionality that made "Deep Search" possible in Firefox. 
-
-Chromium-based browsers are currently also lacking the feature that makes it possible to use Shift-modifier in
-context-menu to initiate the special "bigger image search" mode of xIFr. It
-[looks like issue 646862 could be the fix for that](https://bugs.chromium.org/p/chromium/issues/detail?id=646862#c6). 
-However, I could just make two menu-items in context-menus instead. So not as vital as issue 39507. 
 
 ### A lot of credit to...
 Vital parts of xIFr, is inherited work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/WebExtension/AUTHORS)
