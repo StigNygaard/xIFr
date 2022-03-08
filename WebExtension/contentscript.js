@@ -73,6 +73,19 @@ function getBgImgs (elem) {
       }, new Set())
   );
 }
+
+// Finding and loading image(s) in inline SVG....
+function getSVGImages(elem) {
+  let list = document.querySelectorAll('svg image');
+  let hrefs = new Set();
+  for (i of list) {
+    if (i.href?.baseVal) {
+      hrefs.add(i.href.baseVal);
+    }
+  }
+  return Array.from(hrefs);
+}
+
 function loadImg (src, timeout = 500) {
   var imgPromise = new Promise((resolve, reject) => {
     let img = new Image();
@@ -289,15 +302,15 @@ function imageSearch(request, elem) {
   // nothing found by simple search
 }
 
-function bgSearch(request, elem, bgSizes) {
-  context.debug("bgSearch(): Looking for backgrounds on/below " + elem.nodeName.toLowerCase());
-  let bgImgs = getBgImgs(elem);
-  context.debug("bgSearch(): Following bgImgs are found on/below: " + JSON.stringify(bgImgs));
-  if (bgImgs && bgImgs.length > 0) {
-    context.debug("Found BACKGROUND-IMAGE: " + bgImgs[0]);
-    context.debug("Looking for dimensions of BACKGROUND-IMAGE via " + JSON.stringify(bgSizes));
-    for (let bgSrc of bgImgs) {
-      let imgData = bgSizes.find(bg => bg.src === bgSrc);
+function extraSearch(request, elem, xtrSizes) {
+  context.debug("extraSearch(): Looking for backgrounds/svg on/below " + elem.nodeName.toLowerCase());
+  let xtrImgs = Array.from(new Set([...getBgImgs(elem), ...getSVGImages(elem)]))
+  context.debug("extraSearch(): Following xtrImgs are found on/below: " + JSON.stringify(xtrImgs));
+  if (xtrImgs && xtrImgs.length > 0) {
+    context.debug("Found extra svg or background image: " + xtrImgs[0]);
+    context.debug("Looking for dimensions of extra-images via " + JSON.stringify(xtrSizes));
+    for (let bgSrc of xtrImgs) {
+      let imgData = xtrSizes.find(bg => bg.src === bgSrc);
       if (imgData.width && !blacklistedImage(imgData.src) && ((request.deepSearchBigger && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearchBigger && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
         let image = {};
         image.imageURL = bgSrc;
@@ -307,20 +320,20 @@ function bgSearch(request, elem, bgSizes) {
         image.supportsDeepSearch = request.supportsDeepSearch;
         image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
         image.deepSearchBigger = request.deepSearchBigger;
-        image.source = 'background-image of an element'; // probably elem.nodeName, but not for sure
+        image.source = 'extra-search image'; // probably elem.nodeName, but not for sure
         image.context = request.nodeName + " element"; // (not really anything to de with found image)
-        context.debug("bgSearch(): Returning found image (background) " + JSON.stringify(image));
+        context.debug("extraSearch(): Returning found image (background or svg) " + JSON.stringify(image));
         return image;
       }
     }
   }
 }
 
-function deeperSearch(request, elem, bgSizes) {
+function deeperSearch(request, elem, xtrSizes) {
   context.debug("Entering deeperSearch() with elem=" + elem.nodeName + " and elem.parentNode=" + elem.parentNode.nodeName);
-  let image = bgSearch(request, elem, bgSizes);
+  let image = extraSearch(request, elem, xtrSizes);
   if (!image) {
-    context.debug("deeperSearch(): No image from bgSearch()");
+    context.debug("deeperSearch(): No image from extraSearch()");
     if (elem.nodeName.toLowerCase() === 'html' || elem.nodeName.toLowerCase() === '#document' || elem instanceof HTMLDocument || !elem.parentNode) {
       context.debug("deeperSearch(): Cannot go higher from " + elem.nodeName.toLowerCase() + ", return without image!  typeof elem.parentNode = " + typeof elem.parentNode);
       return; // no image found
@@ -333,7 +346,7 @@ function deeperSearch(request, elem, bgSizes) {
     context.debug("deeperSearch(): Return with image");
     return image;
   } else {
-    return deeperSearch(request, elem, bgSizes);
+    return deeperSearch(request, elem, xtrSizes);
   }
 }
 
@@ -352,12 +365,15 @@ if (typeof contentListenerAdded === 'undefined') {
         let elem = browser.menus.getTargetElement(request.targetId);
         if (elem) {
           request.nodeName = elem.nodeName.toLowerCase(); // node name of context (right-click) target
-          let bgImages = loadImgAll(getBgImgs(document)); // start finding and downloading background images to find the dimensions
+          let extraImages = loadImgAll(Array.from(new Set([...getBgImgs(document), ...getSVGImages(document)]))); // start finding and downloading images in svg and backgrounds to find the dimensions
           let image = imageSearch(request, elem);
           if (image) {
             loadparseshow(image);
           } else {
-            bgImages.then(bgSizes => {context.debug("Going deep search with preloaded backgrounds: " + JSON.stringify(bgSizes)); loadparseshow(deeperSearch(request, elem, bgSizes))});
+            extraImages.then(xtrSizes => {
+              context.debug("Going deep search with preloaded backgrounds and images in svg: " + JSON.stringify(xtrSizes));
+              loadparseshow(deeperSearch(request, elem, xtrSizes))
+            });
           }
         }
 
