@@ -74,16 +74,22 @@ function getBgImgs (elem) {
   );
 }
 
-// Finding and loading image(s) in inline SVG....
-function getSVGImages(elem) {
-  let list = document.querySelectorAll('svg image');
-  let hrefs = new Set();
-  for (i of list) {
-    if (i.href?.baseVal) {
-      hrefs.add(i.href.baseVal);
-    }
-  }
-  return Array.from(hrefs);
+// Finding and loading image(s) embedded in inline SVG....
+function getSVGEmbeddedImages(elem) {
+  return Array.from(
+    (elem.nodeName==='image' ? [elem] : []).concat(Array.from(elem.querySelectorAll('svg image'))) // Includes elem (itself) unless elem is document
+      .reduce((collection, node) => {
+        let cstyle = window.getComputedStyle(node, null);
+        let display = cstyle.getPropertyValue('display');
+        let visibility = cstyle.getPropertyValue('visibility');
+        if (display !== 'none' && visibility !== 'hidden') {
+            if (node.href?.baseVal) {
+              collection.add(node.href.baseVal);
+          }
+        }
+        return collection;
+      }, new Set())
+  );
 }
 
 function loadImg (src, timeout = 500) {
@@ -187,9 +193,6 @@ function loadparseshow(imgrequest) {
       propertiesObj.byteLength = arrayBuffer.byteLength || xhr.getResponseHeader('Content-Length');
       propertiesObj.contentType = xhr.getResponseHeader('Content-Type'); // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
       propertiesObj.lastModified = xhr.getResponseHeader('Last-Modified');
-
-      // Todo: Actually used colorprofile/colorspace would be nice too? How to find?
-
       context.debug("Gathered data: \n" + JSON.stringify(dataObj));
       let xlatData = translateFields(dataObj);
       context.debug("Gathered data after translation: \n" + JSON.stringify(xlatData));
@@ -296,6 +299,14 @@ function imageSearch(request, elem) {
     image.deepSearchBigger = request.deepSearchBigger;
     image.source = candidate.nodeName.toLowerCase() + " element";  // 'img element';
     image.context = request.nodeName + " element"; // (not really anything to de with found image)
+
+    image.srcset = candidate.srcset;
+    image.crossOrigin = candidate.crossOrigin;
+    image.referrerPolicy = candidate.referrerPolicy; // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement
+    image.baseURI = candidate.baseURI;
+    image.x = candidate.x;
+    image.y = candidate.y;
+
     context.debug("imageSearch(): Returning found image (img) " + JSON.stringify(image));
     return image;
   }
@@ -304,16 +315,16 @@ function imageSearch(request, elem) {
 
 function extraSearch(request, elem, xtrSizes) {
   context.debug("extraSearch(): Looking for backgrounds/svg on/below " + elem.nodeName.toLowerCase());
-  let xtrImgs = Array.from(new Set([...getBgImgs(elem), ...getSVGImages(elem)]))
+  let xtrImgs = Array.from(new Set([...getBgImgs(elem), ...getSVGEmbeddedImages(elem)]))
   context.debug("extraSearch(): Following xtrImgs are found on/below: " + JSON.stringify(xtrImgs));
   if (xtrImgs && xtrImgs.length > 0) {
     context.debug("Found extra svg or background image: " + xtrImgs[0]);
     context.debug("Looking for dimensions of extra-images via " + JSON.stringify(xtrSizes));
-    for (let bgSrc of xtrImgs) {
-      let imgData = xtrSizes.find(bg => bg.src === bgSrc);
+    for (let xSrc of xtrImgs) {
+      let imgData = xtrSizes.find(xs => xs.src === xSrc);
       if (imgData.width && !blacklistedImage(imgData.src) && ((request.deepSearchBigger && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearchBigger && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
         let image = {};
-        image.imageURL = bgSrc;
+        image.imageURL = xSrc;
         image.mediaType = 'image';
         image.naturalWidth = imgData.width;
         image.naturalHeight = imgData.height;
@@ -322,6 +333,15 @@ function extraSearch(request, elem, xtrSizes) {
         image.deepSearchBigger = request.deepSearchBigger;
         image.source = 'extra-search image'; // probably elem.nodeName, but not for sure
         image.context = request.nodeName + " element"; // (not really anything to de with found image)
+
+        image.baseURI = elem.baseURI;
+        //     image.srcset = candidate.srcset;
+        //     image.crossOrigin = candidate.crossOrigin;
+        //     image.referrerPolicy = candidate.referrerPolicy; // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement
+        //     image.baseURI = candidate.baseURI;
+        //     image.x = candidate.x;
+        //     image.y = candidate.y;
+
         context.debug("extraSearch(): Returning found image (background or svg) " + JSON.stringify(image));
         return image;
       }
@@ -365,7 +385,7 @@ if (typeof contentListenerAdded === 'undefined') {
         let elem = browser.menus.getTargetElement(request.targetId);
         if (elem) {
           request.nodeName = elem.nodeName.toLowerCase(); // node name of context (right-click) target
-          let extraImages = loadImgAll(Array.from(new Set([...getBgImgs(document), ...getSVGImages(document)]))); // start finding and downloading images in svg and backgrounds to find the dimensions
+          let extraImages = loadImgAll(Array.from(new Set([...getBgImgs(document), ...getSVGEmbeddedImages(document)]))); // start finding and downloading images in svg and backgrounds to find the dimensions
           let image = imageSearch(request, elem);
           if (image) {
             loadparseshow(image);
@@ -398,6 +418,13 @@ if (typeof contentListenerAdded === 'undefined') {
         if (img) {
           image.naturalWidth = img.naturalWidth;
           image.naturalHeight = img.naturalHeight;
+
+          image.srcset = img.srcset;
+          image.crossOrigin = img.crossOrigin;
+          image.referrerPolicy = img.referrerPolicy; // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement
+          image.baseURI = img.baseURI;
+          image.x = img.x;
+          image.y = img.y;
         } else {
           // Is it possible to arrive here? I don't think so, but...
           // If so, maybe: New Image(request.imageURL); load promise -> dimensions
