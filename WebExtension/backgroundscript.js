@@ -147,7 +147,9 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
       browser.windows.update(previous.winId, {focused: true}).then(() => {context.debug("Existing popup was attempted REfocused.")}).catch(() => {context.debug("REfocusing didn't succeed. Creating a new popup..."); createPopup(request)});
     } else {
       if (previous.winId) {
-        browser.windows.remove(previous.winId);
+        browser.windows.remove(previous.winId)
+          .then(() => {context.debug("Popup with id=" + previous.winId + " was closed.")})
+          .catch((err) => {context.debug("Closing xIFr popup with id=" + previous.winId + " failed: " + err)});
       }
       createPopup(request);
     }
