@@ -250,10 +250,16 @@ function blacklistedImage(src) { // todo: Make blacklist configurable!
     url: "https://combo.staticflickr.com/ap/build/images/fave-test/white@1x.png",
     regexp: false
   }, {
+    url: "https://combo.staticflickr.com/ap/build/images/sprites/icons-87310c47.png",
+    regexp: false
+  }, {
     url: "https://static.kuula.io/prod/assets/sprites-main.png",
     regexp: false
   }, {
     url: "https://www.instagram.com/static/bundles/es6/sprite_core_32f0a4f27407.png/32f0a4f27407.png",
+    regexp: false
+  }, {
+    url: "https://static.xx.fbcdn.net/rsrc.php/v3/yt/r/pQ6WpMqXLJA.png",
     regexp: false
   }].some(function (item) {
     return src === item.url
