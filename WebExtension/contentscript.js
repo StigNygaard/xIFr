@@ -120,13 +120,12 @@ function loadImgAll (imgList, timeout = 500) { // Could we use https://developer
   })
 }
 
-
 function loadparseshow(imgrequest) {
+  // console.log('Properties for ' + imgrequest.imageURL + '... \n srcset=' + imgrequest.srcset + ' \n crossOrigin=' + imgrequest.crossOrigin + ' \n referrerPolicy=' + imgrequest.referrerPolicy + ' (' + (typeof imgrequest.referrerPolicy) + ')' + ' \n baseURI=' + imgrequest.baseURI);
   if (!imgrequest) {
     context.debug("Exit loadparseshow. Nothing to show!");
     return;
   }
-
   let propertiesObj = {};
   propertiesObj.URL = imgrequest.imageURL;
   if (imgrequest.naturalWidth) {
@@ -143,103 +142,101 @@ function loadparseshow(imgrequest) {
   let warningsArr = []; // Messages to show as warnings
   let infosArr = []; // Messages to show as info
 
-  var xhr = new XMLHttpRequest(); // Issues with cross-domain in Chrome: https://www.chromium.org/Home/chromium-security/extension-content-script-fetches
-  // Future Firefox?: https://bugzilla.mozilla.org/show_bug.cgi?id=1578405
-  // Chrome Manifest V2-V3 timeline: https://www.bleepingcomputer.com/news/google/google-manifest-v2-chrome-extensions-to-stop-working-in-2023/
-
-  xhr.open("GET", imgrequest.imageURL, true);
-  xhr.responseType = "arraybuffer";
-  xhr.addEventListener("load", () => {
-    var arrayBuffer = xhr.response;
-
-    if (arrayBuffer) {
-      context.debug("Looking at the xhr response (arrayBuffer)...");
-
-      // This is the raw input from image file
-
-      // DEBUG
-      //let utf8decoder = new TextDecoder('utf-8');
-      //var raw1 = utf8decoder.decode(arrayBuffer);
-      //context.debug("raw1: \n:" + raw1.substr(0,25000));
-
-      var byteArray = new Uint8Array(arrayBuffer);
-
-      // DEBUG
-      // let utf8decoder = new TextDecoder('utf-8');
-      //var raw2 = utf8decoder.decode(byteArray);
-      //context.debug("raw2: \n:" + raw2.substr(0,25000));
-      //var dom = parser.parseFromString(raw, 'application/xml');
-      //context.debug();
-
-      context.debug("Call addByteStreamIF(byteArray)...");
-      addByteStreamIF(byteArray);
-      context.debug("Gather data from image header (fxifObj.gatherData(byteArray) = fxifClass.gatherData() in parseJpeg.js)...");
-      var dataObj = fxifObj.gatherData(byteArray); // Gather data from header (via "markers" found in file)
-
-      if (dataObj.error && dataObj.error.length > 0) {
-        errorsArr.push(...dataObj.error);
-        delete dataObj.error;
-      }
-      if (dataObj.warning && dataObj.warning.length > 0) {
-        warningsArr.push(...dataObj.warning);
-        delete dataObj.warning;
-      }
-
-      context.debug("request: " + JSON.stringify(imgrequest));
-      if (imgrequest.naturalWidth && imgrequest.supportsDeepSearch && !imgrequest.deepSearchBigger && (imgrequest.naturalWidth * imgrequest.naturalHeight <= imgrequest.deepSearchBiggerLimit)) {
-        infosArr.push('Not the expected image? You can force xIFr to look for a larger image than this, by holding down Shift key when selecting xIFr in the context menu!');
-      }
-
-      propertiesObj.byteLength = arrayBuffer.byteLength || xhr.getResponseHeader('Content-Length');
-      propertiesObj.contentType = xhr.getResponseHeader('Content-Type'); // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
-      propertiesObj.lastModified = xhr.getResponseHeader('Last-Modified');
-      context.debug("Gathered data: \n" + JSON.stringify(dataObj));
-      let xlatData = translateFields(dataObj);
-      context.debug("Gathered data after translation: \n" + JSON.stringify(xlatData));
-
-      context.debug("EXIF parsing done. Send EXIFready message...");
-      browser.runtime.sendMessage({
-        message: "EXIFready",
-        data: xlatData,
-        properties: propertiesObj,
-        errors: errorsArr,
-        warnings: warningsArr,
-        infos: infosArr
-      });
-    } else {
-      context.debug("xhr response (arrayBuffer) is empty!...");
+  function handleErrors(response) {
+    if (!response.ok) {
+      throw Error("" + response.status + " (" + response.statusText + ")");
     }
-  });
+    return response;
+  }
 
-  xhr.addEventListener("error", (pEvent) => {
-    context.error("xIFr: xhr-ERROR trying to read image-data from url: " + imgrequest.imageURL);
-    context.debug("xIFr: xhr-ERROR status:" + xhr.status);
-    context.debug("xIFr: xhr-ERROR statusText:" + xhr.statusText);
-    context.debug("xIFr: xhr-ERROR Event.lengthComputable:" + pEvent.lengthComputable);
+  // https://javascript.info/fetch
+  // https://javascript.info/fetch-api
+  // https://javascript.info/fetch-crossorigin
+  // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts // In Firefox, make sure you are using absolute URLs !!!
 
-    errorsArr.push("Error trying to load image-file for parsing of the metadata!");
-    infosArr.push("Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image");
-    propertiesObj.byteLength = xhr.getResponseHeader('Content-Length');
-    propertiesObj.contentType = xhr.getResponseHeader('Content-Type'); // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
-    propertiesObj.lastModified = xhr.getResponseHeader('Last-Modified');
-    browser.runtime.sendMessage({
-      message: "EXIFready",
-      data: {},
-      properties: propertiesObj,
-      errors: errorsArr,
-      warnings: warningsArr,
-      infos: infosArr
-    });
-  });
-
-  context.debug("Read image data (xhr.send())...");
-  // xhr.withCredentials = true; // todo ????
-  xhr.send(); // todo: Versions 85+ of Chrome/Chromium often fail here doing xhr.send()  (https://www.chromium.org/Home/chromium-security/extension-content-script-fetches)
-  // Is this related to the Chrome issue?:
+  // Issues with cross-domain in Chrome: https://www.chromium.org/Home/chromium-security/extension-content-script-fetches
   // https://www.gmass.co/blog/send-cookie-cross-origin-xmlhttprequest-chrome-extension/ ,
   // https://blog.danawoodman.com/articles/send-session-cookies-using-a-chrome-extension ?
-}
+  // Access to fetch at 'https://cdn.fstoppers.com/styles/medium/s3/photos/286085/03/13/5398dd4c9fe90a471be6a9099d71eceb.jpg' from origin 'https://fstoppers.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
+  // Future Firefox?: https://bugzilla.mozilla.org/show_bug.cgi?id=1578405
+  // Chrome Manifest V2-V3 timeline: https://www.bleepingcomputer.com/news/google/google-manifest-v2-chrome-extensions-to-stop-working-in-2023/
+  // https://developers.google.com/web/updates/2020/07/referrer-policy-new-chrome-default
+  // https://web.dev/referrer-best-practices/
+  // Facebook img referrerPolicy = origin-when-cross-origin
+  // A discussion if moving to backend: https://stackoverflow.com/questions/8593896/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
 
+  // console.log("Will now do fetch(" + imgrequest.imageURL + ") ...");
+  context.debug("Will now do fetch(" + imgrequest.imageURL + ") ...");
+  fetch(imgrequest.imageURL)
+    .then(handleErrors)
+    .then(function (response) {
+      propertiesObj.byteLength = response.headers.get('Content-Length') || '';
+      propertiesObj.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
+      propertiesObj.lastModified = response.headers.get('Last-Modified') || '';
+      return response.arrayBuffer();
+    })
+    .then(function (arrayBuffer) {
+      if (arrayBuffer) {
+        context.debug("Looking at the fetch response (arrayBuffer)...");
+        var byteArray = new Uint8Array(arrayBuffer);
+        context.debug("Call addByteStreamIF(byteArray)...");
+        addByteStreamIF(byteArray);
+        context.debug("Gather data from image header (fxifObj.gatherData(byteArray) = fxifClass.gatherData() in parseJpeg.js)...");
+        var dataObj = fxifObj.gatherData(byteArray); // Gather data from header (via "markers" found in file)
+        if (dataObj.error && dataObj.error.length > 0) {
+          errorsArr.push(...dataObj.error);
+          delete dataObj.error;
+        }
+        if (dataObj.warning && dataObj.warning.length > 0) {
+          warningsArr.push(...dataObj.warning);
+          delete dataObj.warning;
+        }
+
+        context.debug("request: " + JSON.stringify(imgrequest));
+        if (imgrequest.naturalWidth && imgrequest.supportsDeepSearch && !imgrequest.deepSearchBigger && (imgrequest.naturalWidth * imgrequest.naturalHeight <= imgrequest.deepSearchBiggerLimit)) {
+          infosArr.push('Not the expected image? You can force xIFr to look for a larger image than this, by holding down Shift key when selecting xIFr in the context menu!');
+        }
+
+        propertiesObj.byteLength = arrayBuffer.byteLength || propertiesObj.byteLength;
+
+        context.debug("Gathered data: \n" + JSON.stringify(dataObj));
+        let xlatData = translateFields(dataObj);
+        context.debug("Gathered data after translation: \n" + JSON.stringify(xlatData));
+
+        context.debug("EXIF parsing done. Send EXIFready message...");
+        browser.runtime.sendMessage({
+          message: "EXIFready",
+          data: xlatData,
+          properties: propertiesObj,
+          errors: errorsArr,
+          warnings: warningsArr,
+          infos: infosArr
+        });
+      } else {
+        context.debug("fetch response (arrayBuffer) is empty!...");
+      }
+    })
+    .catch(function handleError(error) {
+        // console.log(' !!! fetch ERROR: ' + error);
+        context.error("xIFr: fetch-ERROR trying to read image-data from " + imgrequest.imageURL + " : " + error);
+        context.debug("xIFr: fetch-ERROR Event.lengthComputable:" + error.lengthComputable);
+
+        errorsArr.push("Error trying to load image-file for parsing of the metadata!");
+        infosArr.push("Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image");
+        propertiesObj.byteLength = '';
+        propertiesObj.contentType = '';
+        propertiesObj.lastModified = '';
+        browser.runtime.sendMessage({
+          message: "EXIFready",
+          data: {},
+          properties: propertiesObj,
+          errors: errorsArr,
+          warnings: warningsArr,
+          infos: infosArr
+        });
+      }
+    );
+}
 
 var deepSearchGenericLimit = 10 * 10; // Just not relevant if that small
 function blacklistedImage(src) { // todo: Make blacklist configurable!
