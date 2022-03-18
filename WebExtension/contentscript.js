@@ -142,12 +142,14 @@ function loadparseshow(imgrequest) {
   let warningsArr = []; // Messages to show as warnings
   let infosArr = []; // Messages to show as info
 
-  function handleErrors(response) {
-    if (!response.ok) {
-      throw Error("" + response.status + " (" + response.statusText + ")");
+  const controller = new AbortController();
+  const signal = controller.signal;
+  let fetchOptions = {signal: signal};
+  if (imgrequest.referrerPolicy) {
+    fetchOptions.referrerPolicy = imgrequest.referrerPolicy;
     }
-    return response;
-  }
+  const fetchTimeout = 8000; // 8 seconds
+  const tid = setTimeout(() => controller.abort('AbortErrorTimeout'), fetchTimeout);
 
   // https://javascript.info/fetch
   // https://javascript.info/fetch-api
@@ -158,18 +160,21 @@ function loadparseshow(imgrequest) {
   // https://www.gmass.co/blog/send-cookie-cross-origin-xmlhttprequest-chrome-extension/ ,
   // https://blog.danawoodman.com/articles/send-session-cookies-using-a-chrome-extension ?
   // Access to fetch at 'https://cdn.fstoppers.com/styles/medium/s3/photos/286085/03/13/5398dd4c9fe90a471be6a9099d71eceb.jpg' from origin 'https://fstoppers.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
-  // Future Firefox?: https://bugzilla.mozilla.org/show_bug.cgi?id=1578405
+  // Future Firefox?: https://bugzilla.mozilla.org/show_bug.cgi?id=1578405 (Deprecate Cross-Origin requests from content scripts ahead of Manifest v3)
   // Chrome Manifest V2-V3 timeline: https://www.bleepingcomputer.com/news/google/google-manifest-v2-chrome-extensions-to-stop-working-in-2023/
   // https://developers.google.com/web/updates/2020/07/referrer-policy-new-chrome-default
   // https://web.dev/referrer-best-practices/
   // Facebook img referrerPolicy = origin-when-cross-origin
   // A discussion if moving to backend: https://stackoverflow.com/questions/8593896/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
 
-  // console.log("Will now do fetch(" + imgrequest.imageURL + ") ...");
   context.debug("Will now do fetch(" + imgrequest.imageURL + ") ...");
-  fetch(imgrequest.imageURL)
-    .then(handleErrors)
+  fetch(imgrequest.imageURL, fetchOptions)
     .then(function (response) {
+      clearTimeout(tid);
+      if (!response.ok) {
+        throw Error("(" + response.status + ") " + response.statusText);
+      }
+
       propertiesObj.byteLength = response.headers.get('Content-Length') || '';
       propertiesObj.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
       propertiesObj.lastModified = response.headers.get('Last-Modified') || '';
@@ -213,16 +218,18 @@ function loadparseshow(imgrequest) {
           infos: infosArr
         });
       } else {
-        context.debug("fetch response (arrayBuffer) is empty!...");
+        context.error("fetch response (arrayBuffer) is empty!...");
       }
     })
-    .catch(function handleError(error) {
-        // console.log(' !!! fetch ERROR: ' + error);
-        context.error("xIFr: fetch-ERROR trying to read image-data from " + imgrequest.imageURL + " : " + error);
-        context.debug("xIFr: fetch-ERROR Event.lengthComputable:" + error.lengthComputable);
-
-        errorsArr.push("Error trying to load image-file for parsing of the metadata!");
-        infosArr.push("Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image");
+    .catch(function (error) {
+        if (error.name === 'AbortError') {
+          context.error("xIFr: Timeout trying to read image-data from " + imgrequest.imageURL);
+          errorsArr.push("Timeout trying to load image-file for parsing.");
+        } else {
+          context.error("xIFr: fetch-ERROR trying to read image-data from " + imgrequest.imageURL + " : " + error);
+          errorsArr.push("Error trying to load image-file for parsing of the metadata!");
+          infosArr.push("Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image");
+        }
         propertiesObj.byteLength = '';
         propertiesObj.contentType = '';
         propertiesObj.lastModified = '';
