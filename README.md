@@ -4,7 +4,7 @@ xIFr is a Firefox browser extension for viewing EXIF, IPTC and XMP metadata in j
 
 * [Install xIFr from Mozilla Firefox Add-ons](https://addons.mozilla.org/firefox/addon/xifr/?utm_source=github.com)
 
-In principle xIFr a "cross-browser compatible" webextension. While it currently _ain't_ available via Chrome Web Store, it still works with Chrome/Chromium based browsers if you install [the webextension](https://github.com/StigNygaard/xIFr/releases) directly from your local filesystem. 
+In principle xIFr is a "cross-browser compatible" webextension. While it currently _ain't_ available via Chrome Web Store, it still works with Chrome/Chromium based browsers if you install [the webextension](https://github.com/StigNygaard/xIFr/releases) directly from your local filesystem. 
 There are however differences in functionality supported, and mostly limitations when using xIFr in Chrome/Chromium based browsers. So for now only "officially" available for Firefox.
 
 To create a browser extension from this repository, simply create a zip-file with content of the _WebExtension_ folder.
