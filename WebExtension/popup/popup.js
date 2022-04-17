@@ -124,7 +124,6 @@ function populate(response) {
     if (typeof response.properties.naturalWidth === 'number') {
       document.getElementById("dimensions").textContent = response.properties.naturalWidth + "x" + response.properties.naturalHeight + " pixels";
     }
-    document.getElementById("dimensions").textContent = response.properties.naturalWidth + "x" + response.properties.naturalHeight + " pixels";
   }
   function addMessages(list, icon, alt) {
     list.forEach(function (item) {

@@ -68,6 +68,10 @@ function getBgImgs (elem) {
           while((match = srcChecker.exec(bgimage)) !== null ) { // There might actually be multiple. Like:  background-image: url("img_tree.gif"), url("paper.gif");
             collection.add(match[1]);
           }
+          // bgimage = cstyle.getPropertyValue('--background-image'); // '--background-image' seen used on music.apple.com. Is it legal css at all? But apparently it works - also here!?
+          // while((match = srcChecker.exec(bgimage)) !== null ) {
+          //   collection.add(match[1]);
+          // }
         }
         return collection;
       }, new Set())
@@ -96,14 +100,17 @@ function getSVGEmbeddedImages(elem) {
 function loadImg (src, timeout = 500) {
   var imgPromise = new Promise((resolve, reject) => {
     let img = new Image();
-    img.onload = () => { // Could we use https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode ?
+    img.addEventListener("load", () => {
       resolve({
         src: src,
         width: img.naturalWidth,
         height: img.naturalHeight
       })
-    };
-    img.onerror = reject;
+    });
+    img.addEventListener("error", function () {
+      context.error("Deep Search load image error for " + src);
+      reject()
+    });
     img.src = src;
   });
   var timer = new Promise((resolve, reject) => {
@@ -273,6 +280,9 @@ function blacklistedImage(src) { // todo: Make blacklist configurable!
 function imageSearch(request, elem) {
   context.debug("imageSearch(): Looking for img elements on/below " + elem.nodeName.toLowerCase());
   let candidate;
+  // https://time2hack.com/checking-overlap-between-elements/
+  // https://www.youtube.com/watch?v=cUZ2r6C2skA
+  // https://css-tricks.com/how-to-stack-elements-in-css/
   for (let img of document.images) {
     if (elem.contains(img)) { // img is itself/elem or img is a "sub-node"
       context.debug("Found image within target element! img.src=" + img.src + " and naturalWidth=" + img.naturalWidth + ", naturalHeight=" + img.naturalHeight);
@@ -280,7 +290,7 @@ function imageSearch(request, elem) {
       context.debug("Candidate!?");
       let propDisplay = window.getComputedStyle(img, null).getPropertyValue('display'); // none?
       let propVisibility = window.getComputedStyle(img, null).getPropertyValue('visibility'); // hidden?
-      // Maybe also look at computed opacity ??!
+      // TODO: Maybe also look at computed opacity ??!
       context.debug("PROPs! display=" + propDisplay + ", visibility=" + propVisibility);
       if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && propDisplay !== 'none' && propVisibility !== 'hidden' ) {
         if (!blacklistedImage(img.src) && ((request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > deepSearchGenericLimit))) {
@@ -394,6 +404,8 @@ if (typeof contentListenerAdded === 'undefined') {
 
         context.debug(" *** ADVANCED MODE WITH DEEP SEARCH *** ");
         let elem = browser.menus.getTargetElement(request.targetId);
+        // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/getTargetElement
+        // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/OnClickData
         if (elem) {
           request.nodeName = elem.nodeName.toLowerCase(); // node name of context (right-click) target
           let extraImages = loadImgAll(Array.from(new Set([...getBgImgs(document), ...getSVGEmbeddedImages(document)]))); // start finding and downloading images in svg and backgrounds to find the dimensions
