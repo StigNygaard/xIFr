@@ -84,13 +84,14 @@ function getSVGEmbeddedImages(elem) {
         let visibility = cstyle.getPropertyValue('visibility');
         if (display !== 'none' && visibility !== 'hidden') {
             if (node.href?.baseVal) {
-              collection.add(node.href.baseVal);
+            collection.add(new URL(node.href.baseVal, node.baseURI).href);
           }
         }
         return collection;
       }, new Set())
   );
 }
+// But also: https://www.petercollingridge.co.uk/tutorials/svg/interactive/javascript/ ?
 
 function loadImg (src, timeout = 500) {
   var imgPromise = new Promise((resolve, reject) => {
