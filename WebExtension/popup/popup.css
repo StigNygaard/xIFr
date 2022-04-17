@@ -115,6 +115,11 @@ body.mapmode img#cpClipboard, body.copyUnsupported img#cpClipboard {
 #filename {
   white-space: nowrap;
 }
+#orig_shown {
+  display: none;
+  font-style: italic;
+  white-space: nowrap;
+}
 #image /* , #properties */ {
   float: left;
   margin-right: 1rem;

@@ -149,13 +149,12 @@ function loadparseshow(imgrequest) {
   let errorsArr = []; // Messages to show as errors
   let warningsArr = []; // Messages to show as warnings
   let infosArr = []; // Messages to show as info
-
   const controller = new AbortController();
   const signal = controller.signal;
   let fetchOptions = {signal: signal};
   if (imgrequest.referrerPolicy) {
     fetchOptions.referrerPolicy = imgrequest.referrerPolicy;
-    }
+  }
   const fetchTimeout = 8000; // 8 seconds
   const tid = setTimeout(() => controller.abort('AbortErrorTimeout'), fetchTimeout);
 
@@ -173,10 +172,18 @@ function loadparseshow(imgrequest) {
   // https://developers.google.com/web/updates/2020/07/referrer-policy-new-chrome-default
   // https://web.dev/referrer-best-practices/
   // Facebook img referrerPolicy = origin-when-cross-origin
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img
+  // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement
   // A discussion if moving to backend: https://stackoverflow.com/questions/8593896/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
 
-  context.debug("Will now do fetch(" + imgrequest.imageURL + ") ...");
-  fetch(imgrequest.imageURL, fetchOptions)
+  if (imgrequest.proxyURL) {
+    infosArr.push('Image shown on webpage is in ' + imgrequest.imageType.replace('image/','') + ' format. Found alternative (assumed similar) ' + (imgrequest.proxyType ? imgrequest.proxyType.replace('image/','') : '') + ' image to look for meta-data in...');
+    propertiesObj.pageShownURL = imgrequest.imageURL;
+    propertiesObj.pageShownType = imgrequest.imageType;
+    propertiesObj.URL = imgrequest.proxyURL;
+  }
+  context.debug("Will now do fetch(" + propertiesObj.URL + ") ...");
+  fetch(propertiesObj.URL, fetchOptions)
     .then(function (response) {
       clearTimeout(tid);
       if (!response.ok) {
@@ -231,13 +238,14 @@ function loadparseshow(imgrequest) {
     })
     .catch(function (error) {
         if (error.name === 'AbortError') {
-          context.error("xIFr: Timeout trying to read image-data from " + imgrequest.imageURL);
+          context.error("xIFr: Timeout trying to read image-data from " + propertiesObj.URL);
           errorsArr.push("Timeout trying to load image-file for parsing.");
         } else {
-          context.error("xIFr: fetch-ERROR trying to read image-data from " + imgrequest.imageURL + " : " + error);
+          context.error("xIFr: fetch-ERROR trying to read image-data from " + propertiesObj.URL + " : " + error);
           errorsArr.push("Error trying to load image-file for parsing of the metadata!");
           infosArr.push("Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image");
         }
+        // context.debug("xIFr: fetch-ERROR Event.lengthComputable:" + error.lengthComputable);
         propertiesObj.byteLength = '';
         propertiesObj.contentType = '';
         propertiesObj.lastModified = '';
@@ -312,6 +320,7 @@ function imageSearch(request, elem) {
     context.debug("Found! Let's use best candidate: " + candidate.src);
     let image = {}; // result
     image.imageURL = candidate.currentSrc || candidate.src;
+    image.imageType = ''; // so far unknown mimetype
     image.mediaType = 'image';
     image.naturalWidth = candidate.naturalWidth;
     image.naturalHeight = candidate.naturalHeight;
@@ -328,6 +337,65 @@ function imageSearch(request, elem) {
     image.x = candidate.x;
     image.y = candidate.y;
 
+    // srcset attribute holds various sizes/resolutions
+    // source tag can define alternative formats (but might also hold sizes :-/ )
+    if (candidate.parentNode?.nodeName.toUpperCase() === 'PICTURE') {
+      let picture = candidate.parentNode;
+      let potentials = [];
+      let foundShownInPotential = false;
+      let foundShownInAvoid = false;
+      let descriptorToMatch = '';
+      for (const child of picture.children) {
+        if (child.nodeName.toUpperCase() === 'SOURCE' && child.srcset && child.type) { // type is or starts with mimetype;
+
+          if (child.type.startsWith('image/jpeg')) { // We like this
+            // populate potential images
+            let findings = child.srcset.split(',');
+            for (const found of findings) {
+              let parts = found.trim().split(/\s+/);
+              let foundUrl = new URL(parts[0].trim(), child.baseURI).href;
+              let foundDescriptor = parts.slice(1).join(' ');
+              if (foundUrl === image.imageURL) {
+                foundShownInPotential = true;
+                image.imageType = 'image/jpeg';
+              }
+              potentials.push({url: foundUrl, descriptor: foundDescriptor, 'type': 'image/jpeg'})
+            }
+          } else { // Let's avoid this
+            // (populate or) verify use of avoid images
+            let findings = child.srcset.split(',');
+            let foundType = child.type.split(';')[0].trim();
+            for (const found of findings) {
+              let parts = found.trim().split(/\s+/);
+              let foundUrl = new URL(parts[0].trim(), child.baseURI).href;
+              let foundDescriptor = parts.slice(1).join(' ');
+              if (foundUrl === image.imageURL) {
+                foundShownInAvoid = true;
+                descriptorToMatch = foundDescriptor;
+                image.imageType = foundType;
+                break;
+              }
+            }
+          }
+
+        }
+      }
+
+      if (foundShownInAvoid) {
+        // try replace with something from potential-images
+        for (const potential of potentials) {
+          if (potential.descriptor === descriptorToMatch) {
+            // Image on webpage seems to be non-parseable format. xIFr found (assumed) similar JPEG to parse metadata from.
+            image.proxyURL = potential.url;
+            image.proxyType = potential.type;
+            return image;
+          }
+        }
+        // if no potential-images, use fallback (img.src)
+        image.proxyURL = candidate.src; // TODO: or srcset??
+      }
+      // If we arrive here, we are probably already using img fallback. And that's fine...
+    }
     context.debug("imageSearch(): Returning found image (img) " + JSON.stringify(image));
     return image;
   }

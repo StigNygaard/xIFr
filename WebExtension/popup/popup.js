@@ -84,34 +84,75 @@ let keyShortcuts = (function KeyShortcuts() {
 })();
 function populate(response) {
   keyShortcuts.register("Escape", function closePopup(){self.close()});
+  function thumbsize(fullwidth, fullheight) {
+    let w;
+    let h;
+    if (fullwidth > fullheight) {
+      w = Math.min(200, fullwidth);
+      h = Math.round((w / fullwidth) * fullheight);
+    } else {
+      h = Math.min(200, fullheight);
+      w = Math.round((h / fullheight) * fullwidth);
+    }
+    return {width: w + 'px', height: h + 'px'};
+  }
   if (response.properties.URL) {
     let image = document.querySelector("#image img");
     if (response.properties.naturalWidth) {
-      let w;
-      let h;
-      if (response.properties.naturalWidth > response.properties.naturalHeight) {
-        w = Math.min(200, response.properties.naturalWidth);
-        h = Math.round((w / response.properties.naturalWidth) * response.properties.naturalHeight);
-      } else {
-        h = Math.min(200, response.properties.naturalHeight);
-        w = Math.round((h / response.properties.naturalHeight) * response.properties.naturalWidth);
+      let ts = thumbsize(response.properties.naturalWidth, response.properties.naturalHeight);
+      image.style.width = ts.width;
+      image.style.height = ts.height;
+    }
+    image.addEventListener("error", function() {
+      console.error("Load image error for " + response.properties.URL)
+    });
+    image.addEventListener("load", function() {
+      response.properties.naturalWidth = image.naturalWidth;
+      response.properties.naturalHeight = image.naturalHeight;
+      // Redo calculation if successfully loaded (Loading might fail if from file:):
+      let ts = thumbsize(response.properties.naturalWidth, response.properties.naturalHeight);
+      image.style.width = ts.width;
+      image.style.height = ts.height;
+      if (typeof response.properties.naturalWidth === 'number') {
+        document.getElementById("dimensions").textContent = response.properties.naturalWidth + "x" + response.properties.naturalHeight + " pixels";
       }
-      image.style.width = w + 'px';
-      image.style.height = h + 'px';
-    }
+    });
     image.src = response.properties.URL;
-    let url = createRichElement('a', {href: response.properties.URL});
-    if (response.properties.URL.startsWith("data:")) {
-      document.getElementById("filename").textContent = "[ inline imagedata ]";
-      document.getElementById("filename").title = "";
-    } else if (response.properties.URL.startsWith("blob:")) {
-      document.getElementById("filename").textContent = "[ blob imagedata ]";
-      document.getElementById("filename").title = response.properties.URL;
-    } else {
-      document.getElementById("filename").textContent = (url.pathname.length > 1 ? url.pathname.substring(url.pathname.lastIndexOf("/") + 1) : url.hostname || url.host) || "[ ./ ]";
-      document.getElementById("filename").title = response.properties.URL;
+
+    function linkProperties(imageUrl) {
+      let linkElem = createRichElement("a", {href: imageUrl});  // TODO: Can we use URL object here instead?
+      let textContent;
+      let title = "";
+      if (imageUrl.startsWith("data:")) {
+        textContent = "[ inline imagedata ]";
+      } else if (imageUrl.startsWith("blob:")) {
+        textContent = "[ blob imagedata ]";
+        title = imageUrl;
+      } else {
+        textContent = (linkElem.pathname.length > 1 ? linkElem.pathname.substring(linkElem.pathname.lastIndexOf("/") + 1) : linkElem.hostname || linkElem.host) || "[ ./ ]";
+        title = imageUrl;
+      }
+      return {
+        url: imageUrl,
+        name: textContent,
+        title: title
+      }
     }
-    document.getElementById("filename").href = response.properties.URL;
+
+    let linkProps = linkProperties(image.src);
+    document.getElementById("filename").textContent = linkProps.name;
+    document.getElementById("filename").title = linkProps.title;
+    document.getElementById("filename").href = linkProps.url;
+    if (response.properties.pageShownURL) {
+      let origLinkProps = linkProperties(response.properties.pageShownURL);
+      document.getElementById("orig_filename").textContent = origLinkProps.name;
+      document.getElementById("orig_filename").title = origLinkProps.title;
+      document.getElementById("orig_filename").href = origLinkProps.url;
+      if (response.properties.pageShownType) {
+        document.getElementById("orig_type").textContent = "(" + response.properties.pageShownType + ")";
+      }
+      document.getElementById("orig_shown").style.display = 'inline';
+    }
     document.getElementById("imgsize").textContent = response.properties.byteLength;
     document.getElementById("imgsize2").textContent = response.properties.byteLength >= 1048576 ? ((response.properties.byteLength / 1048576).toFixed(2)).toString() + " MB" : ((response.properties.byteLength / 1024).toFixed(2)).toString() + " KB";
     if (response.properties.URL.startsWith("file:")) {
