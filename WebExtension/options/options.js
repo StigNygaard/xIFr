@@ -12,7 +12,7 @@ function updateDeepSearchSize() {
   var inp = document.getElementById("deepSearchBiggerLimit");
   var out = document.getElementById("deepSearchBiggerLimitEx");
   out.textContent = "";
-  var d = parseInt(inp.value);
+  var d = parseInt(inp.value, 10);
   if (!Number.isNaN(d)) {
     d = Math.sqrt(d);
     if (!Number.isNaN(d)) {

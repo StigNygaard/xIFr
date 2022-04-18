@@ -356,7 +356,7 @@ function imageSearch(request, elem) {
               if (foundUrl === image.imageURL) {
                 image.imageType = 'image/jpeg';
               }
-              potentials.push({'url': foundUrl, 'descriptor': foundDescriptor, 'type': 'image/jpeg', 'sortWeight': parseInt(foundDescriptor)});
+              potentials.push({'url': foundUrl, 'descriptor': foundDescriptor, 'type': 'image/jpeg', 'sortWeight': parseInt(foundDescriptor, 10)});
             }
           } else { // Let's avoid this
             // Detect if use of image to avoid...
@@ -389,7 +389,7 @@ function imageSearch(request, elem) {
               'url': foundUrl,
               'descriptor': foundDescriptor,
               'type': '',
-              'sortWeight': parseInt(foundDescriptor)
+              'sortWeight': parseInt(foundDescriptor, 10)
             });
           }
         }
