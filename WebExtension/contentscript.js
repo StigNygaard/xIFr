@@ -338,31 +338,28 @@ function imageSearch(request, elem) {
     image.y = candidate.y;
 
     // srcset attribute holds various sizes/resolutions
-    // source tag can define alternative formats (but might also hold sizes :-/ )
+    // source tag can define alternative formats (but might also hold sizes)
     if (candidate.parentNode?.nodeName.toUpperCase() === 'PICTURE') {
       let picture = candidate.parentNode;
       let potentials = [];
-      let foundShownInPotential = false;
       let foundShownInAvoid = false;
       let descriptorToMatch = '';
       for (const child of picture.children) {
         if (child.nodeName.toUpperCase() === 'SOURCE' && child.srcset && child.type) { // type is or starts with mimetype;
-
           if (child.type.startsWith('image/jpeg')) { // We like this
-            // populate potential images
+            // populate potentials with jpeg images...
             let findings = child.srcset.split(',');
             for (const found of findings) {
               let parts = found.trim().split(/\s+/);
               let foundUrl = new URL(parts[0].trim(), child.baseURI).href;
               let foundDescriptor = parts.slice(1).join(' ');
               if (foundUrl === image.imageURL) {
-                foundShownInPotential = true;
                 image.imageType = 'image/jpeg';
               }
-              potentials.push({url: foundUrl, descriptor: foundDescriptor, 'type': 'image/jpeg'})
+              potentials.push({'url': foundUrl, 'descriptor': foundDescriptor, 'type': 'image/jpeg', 'sortWeight': parseInt(foundDescriptor)});
             }
           } else { // Let's avoid this
-            // (populate or) verify use of avoid images
+            // Detect if use of image to avoid...
             let findings = child.srcset.split(',');
             let foundType = child.type.split(';')[0].trim();
             for (const found of findings) {
@@ -377,24 +374,44 @@ function imageSearch(request, elem) {
               }
             }
           }
-
         }
       }
 
-      if (foundShownInAvoid) {
-        // try replace with something from potential-images
-        for (const potential of potentials) {
-          if (potential.descriptor === descriptorToMatch) {
-            // Image on webpage seems to be non-parseable format. xIFr found (assumed) similar JPEG to parse metadata from.
-            image.proxyURL = potential.url;
-            image.proxyType = potential.type;
-            return image;
+      if (foundShownInAvoid) { // We like to find an alternative (hopefully jpeg) to parse meta-data from...
+        if (potentials.length === 0 && candidate.srcset) {
+          // If potentials is empty and img.srcset is defined, add img.srcset to potentials...
+          let findings = candidate.srcset.split(',');
+          for (const found of findings) {
+            let parts = found.trim().split(/\s+/);
+            let foundUrl = new URL(parts[0].trim(), candidate.baseURI).href;
+            let foundDescriptor = parts.slice(1).join(' ');
+            potentials.push({
+              'url': foundUrl,
+              'descriptor': foundDescriptor,
+              'type': '',
+              'sortWeight': parseInt(foundDescriptor)
+            });
           }
         }
-        // if no potential-images, use fallback (img.src)
-        image.proxyURL = candidate.src; // TODO: or srcset??
+        if (potentials.length > 0) {
+          // Replace unwanted image with something from potentials list...
+          for (const potential of potentials) {
+            if (potential.descriptor === descriptorToMatch) {
+              image.proxyURL = potential.url;
+              image.proxyType = potential.type;
+              return image;
+            }
+          }
+          // If no exact descripter-match in potentials, then use the one with "highest descripter" (probably largest image)...
+          let potential = potentials.reduce((max, other) => max.sortWeight > other.sortWeight ? max : other); // Find item with highest sortWeight (descripter-value)
+          image.proxyURL = potential.url;
+          image.proxyType = potential.type;
+          return image;
+        }
+        // If no potentials at all, use fallback img.src...
+        image.proxyURL = candidate.src;
       }
-      // If we arrive here, we are probably already using img fallback. And that's fine...
+      // If we arrive here, we are probably already using img fallback. Cannot do any better.
     }
     context.debug("imageSearch(): Returning found image (img) " + JSON.stringify(image));
     return image;
@@ -422,15 +439,7 @@ function extraSearch(request, elem, xtrSizes) {
         image.deepSearchBigger = request.deepSearchBigger;
         image.source = 'extra-search image'; // probably elem.nodeName, but not for sure
         image.context = request.nodeName + " element"; // (not really anything to de with found image)
-
         image.baseURI = elem.baseURI;
-        //     image.srcset = candidate.srcset;
-        //     image.crossOrigin = candidate.crossOrigin;
-        //     image.referrerPolicy = candidate.referrerPolicy; // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement
-        //     image.baseURI = candidate.baseURI;
-        //     image.x = candidate.x;
-        //     image.y = candidate.y;
-
         context.debug("extraSearch(): Returning found image (background or svg) " + JSON.stringify(image));
         return image;
       }
