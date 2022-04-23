@@ -343,20 +343,23 @@ function imageSearch(request, elem) {
       let picture = candidate.parentNode;
       let potentials = [];
       let foundShownInAvoid = false;
-      let descriptorToMatch = '';
+      let descriptorToMatch = '1x';
       for (const child of picture.children) {
         if (child.nodeName.toUpperCase() === 'SOURCE' && child.srcset && child.type) { // type is or starts with mimetype;
-          if (child.type.startsWith('image/jpeg')) { // We like this
-            // populate potentials with jpeg images...
+          if (child.type.startsWith('image/jpeg')) { // We like this being jpeg
+            // Populate potentials with jpeg images...
             let findings = child.srcset.split(',');
             for (const found of findings) {
               let parts = found.trim().split(/\s+/);
               let foundUrl = new URL(parts[0].trim(), child.baseURI).href;
               let foundDescriptor = parts.slice(1).join(' ');
+              if (foundDescriptor === '') foundDescriptor = '1x';
+              let foundWeight = parseInt(foundDescriptor, 10);
+              if (isNaN(foundWeight)) foundWeight = 0;
               if (foundUrl === image.imageURL) {
                 image.imageType = 'image/jpeg';
               }
-              potentials.push({'url': foundUrl, 'descriptor': foundDescriptor, 'type': 'image/jpeg', 'sortWeight': parseInt(foundDescriptor, 10)});
+              potentials.push({'url': foundUrl, 'descriptor': foundDescriptor, 'type': 'image/jpeg', 'sortWeight': foundWeight});
             }
           } else { // Let's avoid this
             // Detect if use of image to avoid...
@@ -366,6 +369,7 @@ function imageSearch(request, elem) {
               let parts = found.trim().split(/\s+/);
               let foundUrl = new URL(parts[0].trim(), child.baseURI).href;
               let foundDescriptor = parts.slice(1).join(' ');
+              if (foundDescriptor === '') foundDescriptor = '1x';
               if (foundUrl === image.imageURL) {
                 foundShownInAvoid = true;
                 descriptorToMatch = foundDescriptor;
@@ -385,11 +389,14 @@ function imageSearch(request, elem) {
             let parts = found.trim().split(/\s+/);
             let foundUrl = new URL(parts[0].trim(), candidate.baseURI).href;
             let foundDescriptor = parts.slice(1).join(' ');
+            if (foundDescriptor === '') foundDescriptor = '1x';
+            let foundWeight = parseInt(foundDescriptor, 10);
+            if (isNaN(foundWeight)) foundWeight = 0;
             potentials.push({
               'url': foundUrl,
               'descriptor': foundDescriptor,
               'type': '',
-              'sortWeight': parseInt(foundDescriptor, 10)
+              'sortWeight': foundWeight
             });
           }
         }
@@ -402,8 +409,8 @@ function imageSearch(request, elem) {
               return image;
             }
           }
-          // If no exact descripter-match in potentials, then use the one with "highest descripter" (probably largest image)...
-          let potential = potentials.reduce((max, other) => max.sortWeight > other.sortWeight ? max : other); // Find item with highest sortWeight (descripter-value)
+          // If no exact descriptor-match in potentials, then use the one with "highest descriptor" (probably largest image)...
+          let potential = potentials.reduce((max, other) => max.sortWeight > other.sortWeight ? max : other); // Find item with highest sortWeight (descriptor-value)
           image.proxyURL = potential.url;
           image.proxyType = potential.type;
           return image;
