@@ -163,11 +163,11 @@ function handleInstalled({ reason, temporary, previousVersion }) {
   // context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
   // if (details.temporary) return; // Skip during development
   switch (reason) {
-    case "install":
+    case "install": // "onboarding"
       browser.tabs.create({ url: "onboard/onboard.html"});
       break;
-    case "update":
-      // browser.tabs.create({ url: "onboard/onboard.html"});
+    case "update": // "upboarding"
+      browser.tabs.create({ url: "onboard/onboard.html"});
       break;
   }
 }
