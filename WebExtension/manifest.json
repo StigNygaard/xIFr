@@ -37,8 +37,7 @@
   "content_security_policy": "script-src 'self'; object-src 'none'",
 
   "background": {
-    "scripts": ["lib/mozilla/browser-polyfill.js", "context.js", "backgroundscript.js"],
-    "persistent": false
+    "scripts": ["lib/mozilla/browser-polyfill.js", "context.js", "backgroundscript.js"]
   },
 
   "options_ui": {
