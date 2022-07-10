@@ -153,7 +153,7 @@ function loadparseshow(imgrequest) {
   const signal = controller.signal;
   let fetchOptions = {signal: signal};
   if (imgrequest.referrerPolicy) {
-    fetchOptions.referrerPolicy = imgrequest.referrerPolicy;
+    fetchOptions.referrerPolicy = imgrequest.referrerPolicy; // But how are referrerPolicy handled if fetch is moved to background-script?
   }
   const fetchTimeout = 8000; // 8 seconds
   const tid = setTimeout(() => controller.abort('AbortErrorTimeout'), fetchTimeout);

@@ -128,7 +128,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
-browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((request) => {
   if (request.message === "EXIFready") { // 1st msg, create popup
     popupData.infos = request.infos;
     popupData.warnings = request.warnings;
@@ -167,7 +167,7 @@ function handleInstalled({ reason, temporary, previousVersion }) {
       browser.tabs.create({ url: "onboard/onboard.html"});
       break;
     case "update": // "upboarding"
-      browser.tabs.create({ url: "onboard/onboard.html"});
+      // browser.tabs.create({ url: "onboard/onboard.html"});
       break;
   }
 }
