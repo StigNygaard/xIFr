@@ -28,7 +28,8 @@ var context = (function Context() {
     mlinkBing: true,
     mlinkMapQuest: true,
     mlinkHere: true,
-    mlinkFlickr: true
+    mlinkFlickr: true,
+    scaling: ''
   };
   function setOptions(o) {
     return browser.storage.local.set(o);

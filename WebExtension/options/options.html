@@ -44,78 +44,86 @@
                  name="popupPos"
                  id="center"
                  value="center" />
-          <label for="center">Center of screen<b class="note ffo up">*</b></label>
+          <label for="center">Center of screen<b class="ffo up">*</b><b class="ffo up">†</b></label>
         </p>
         <p>
           <input type="radio"
                  name="popupPos"
                  id="centerBrowser"
                  value="centerBrowser" />
-          <label for="centerBrowser">Center of browser window<b class="note ffo up">*</b></label>
+          <label for="centerBrowser">Center of browser window<b class="ffo up">*</b></label>
         </p>
         <p>
           <input type="radio"
                  name="popupPos"
                  id="topLeft"
                  value="topLeft" />
-          <label for="topLeft">Top left of screen<b class="note ffo up">*</b></label>
+          <label for="topLeft">Top left of screen<b class="ffo up">*</b></label>
         </p>
         <p>
           <input type="radio"
                  name="popupPos"
                  id="topRight"
                  value="topRight" />
-          <label for="topRight">Top right of screen<b class="note ffo up">*</b></label>
+          <label for="topRight">Top right of screen<b class="ffo up">*</b><b class="ffo up">†</b></label>
         </p>
         <p>
           <input type="radio"
                  name="popupPos"
                  id="topLeftBrowser"
                  value="topLeftBrowser" />
-          <label for="topLeftBrowser">Top left of browser window<b class="note ffo up">*</b></label>
+          <label for="topLeftBrowser">Top left of browser window<b class="ffo up">*</b></label>
         </p>
         <p>
           <input type="radio"
                  name="popupPos"
                  id="topRightBrowser"
                  value="topRightBrowser" />
-          <label for="topRightBrowser">Top right of browser window<b class="note ffo up">*</b></label>
+          <label for="topRightBrowser">Top right of browser window<b class="ffo up">*</b></label>
         </p>
         <p>
           <input type="radio"
                  name="popupPos"
                  id="leftish"
                  value="leftish" />
-          <label for="leftish">Left<em>ish</em><b class="note ffo up">*</b></label>
+          <label for="leftish">Left<em>ish</em><b class="ffo up">*</b></label>
         </p>
         <p>
           <input type="radio"
                  name="popupPos"
                  id="rightish"
                  value="rightish" />
-          <label for="rightish">Right<em>ish</em><b class="note ffo up">*</b></label>
+          <label for="rightish">Right<em>ish</em><b class="ffo up">*</b><b class="ffo up">†</b></label>
         </p>
         <p>
           <input type="radio"
                  name="popupPos"
                  id="snapLeft"
                  value="snapLeft" />
-          <label for="snapLeft">Snap left<b class="note ffo up">*</b></label>
+          <label for="snapLeft">Snap left<b class="ffo up">*</b><b class="ffo up">†</b></label>
         </p>
         <p>
           <input type="radio"
                  name="popupPos"
                  id="snapRight"
                  value="snapRight" />
-          <label for="snapRight">Snap right<b class="note ffo up">*</b></label>
+          <label for="snapRight">Snap right<b class="ffo up">*</b><b class="ffo up">†</b></label>
+        </p>
+        <p class="ffo" title="Leave blank if not needed! Otherwise range 100-400 accepted">
+          <label for="scaling">Compensate for bug 1798213 by specifying the used display-scaling </label>
+          <input type="text" id="scaling" minlength="3" maxlength="3" size="4" pattern="[1-4]\d{2}" inputmode="numeric" />%<b class="up">†</b>
         </p>
       </div>
-      <p class="note ffo"><b class="up">*</b>Because of a <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1271047" title="Bugzilla - Bug 1271047: Panel window type is not opening on given position">bug in Firefox</a>, you might see a quick glimpse of popup window centered or in the default position, before it moves to the requested position.</p>
+      <p class="note ffo"><b class="up">*</b>Because of <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1271047" title="Bugzilla - Bug 1271047: Panel window type is not opening on given position">a bug in Firefox</a>,
+        you might see a quick glimpse of popup window centered or in the default position, before it moves to the requested position.<br />
+      <b class="up">†</b>Because of <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1798213" title="Bugzilla - Bug 1798213: window.screen returns physical pixel dimensions instead of virtual when read from backgroundscript">a[nother] bug in Firefox</a>,
+        you might not see popup window positioned or sized as intended on high-density displays (display-settings that has a scaling factor).
+        You might be able to compensate for bug by explicitly specifying display-scaling percentage used on your setup (Find it in your system's display settings).</p>
     </fieldset>
     <fieldset id="deepSearchSettings">
       <legend>&nbsp;Deep Search&nbsp;</legend>
       <p><em>Deep Search</em> is the name given to the method xIFr uses to find/guess which image you where thinking of when right-clicking on a webpage (No, it's not always as obvious as it may seem).</p>
-      <p>A special <em>"force big" mode</em><b class="note up">*</b> of <em>Deep Search</em> makes it possible to ignore smaller images:</p>
+      <p>A special <em>"force big" mode</em><b class="up">*</b> of <em>Deep Search</em> makes it possible to ignore smaller images:</p>
       <p>
         <label for="deepSearchBiggerLimit">Make "force big" image search ignore images up to </label>
         <input type="text" id="deepSearchBiggerLimit" required="required" minlength="2" maxlength="6" size="8" pattern="[1-9]\d+" inputmode="numeric" />

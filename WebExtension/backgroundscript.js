@@ -16,7 +16,13 @@ if (browser.menus?.getTargetElement) { // An easy way to use Firefox extended AP
 
 function createPopup(request) {
 
-  context.info("window.screen.width: " + window.screen.width);
+  let compensateBugFactor = 1; // To compensate for Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1798213 ...
+  let cbf = function(v) {return Math.floor(v / compensateBugFactor)};
+  if (Number(options["scaling"]) && Number(options["scaling"]) >= 100 && Number(options["scaling"]) <= 400) {
+    compensateBugFactor = Number(options["scaling"]) / 100;
+  }
+
+  context.info("window.screen.width: " + window.screen.width + " (" + cbf(window.screen.width) + ")");
   context.info("window.screen.availWidth: " + window.screen.availWidth);
   context.info("window.screen.height: " + window.screen.height);
   context.info("window.screen.availHeight: " + window.screen.availHeight);
@@ -24,12 +30,18 @@ function createPopup(request) {
   context.info("browser.windows.Window.height: " + win.height);
   context.info("browser.windows.Window.top: " + win.top);
   context.info("browser.windows.Window.left: " + win.left);
+  if (win.screen) {
+    context.info(" *** This browser has a screen object on browser.windows.getCurrent() ! :-) ***")
+  } else if (window.screen) {
+    context.info(" *** This browser only have window.screen object :-( ***")
+  }
+
   let pos = {};
   let width = 650;
   let height = 500;
   switch (options["popupPos"]) {
     case "center":
-      pos = {left: Math.floor(window.screen.availWidth/2) - 325, top: Math.floor(window.screen.availHeight/2) - 250};
+      pos = {left: Math.floor(cbf(window.screen.availWidth)/2) - 325, top: Math.floor(cbf(window.screen.availHeight)/2) - 250};
       break;
     case "centerBrowser":
       pos = {left: win.left + Math.floor(win.width/2) - 325, top: win.top + Math.floor(win.height/2) - 250};
@@ -38,7 +50,7 @@ function createPopup(request) {
       pos = {left: 10, top: 10};
       break;
     case "topRight":
-      pos = {left: window.screen.availWidth - 650 - 10, top: 10};
+      pos = {left: cbf(window.screen.availWidth) - 650 - 10, top: 10};
       break;
     case "topLeftBrowser":
       pos = {left: win.left + 10, top: win.top + 10};
@@ -50,13 +62,13 @@ function createPopup(request) {
       pos = {left: Math.max(win.left - 200, 10), top: Math.max(win.top + Math.floor(win.height/2) - 350, 10)};
       break;
     case "rightish":
-      pos = {left: Math.min(win.left + win.width - 450, window.screen.availWidth - 650 - 10), top: Math.max(win.top + Math.floor(win.height/2) - 350, 10)};
+      pos = {left: Math.min(win.left + win.width - 450, cbf(window.screen.availWidth) - 650 - 10), top: Math.max(win.top + Math.floor(win.height/2) - 350, 10)};
       break;
     case "snapLeft":
-      pos = {left: 0, top: 0, height: window.screen.availHeight};
+      pos = {left: 0, top: 0, height: cbf(window.screen.availHeight)};
       break;
     case "snapRight":
-      pos = {left: window.screen.availWidth - width, top: 0, height: window.screen.availHeight};
+      pos = {left: cbf(window.screen.availWidth) - width, top: 0, height: cbf(window.screen.availHeight)};
       break;
   }
   browser.windows.create(Object.assign(
@@ -84,8 +96,6 @@ browser.contextMenus.create({ // Can I somehow prevent it on about: and AMO page
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "viewexif") {
     context.debug("Context menu clicked. mediaType=" + info.mediaType);
-
-    // todo: Sidebar option!? But it would require some refactoring to be an alternative to popups...
 
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/OnClickData
     if ((info.mediaType && info.mediaType === "image" && info.srcUrl) || info.targetElementId) {

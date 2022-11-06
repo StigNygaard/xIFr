@@ -24,8 +24,20 @@ body.dark input {
   color: white;
   border: 1px solid white;
 }
+body.light b.up {
+  color: #900;
+}
+body.dark b.up {
+  color: #F55;
+}
+body.light #deepSearchSettings b.up {
+  color: #090;
+}
+body.dark #deepSearchSettings b.up {
+  color: #5F5;
+}
 
-/* General ayout and visibility: */
+/* General layout and visibility: */
 body {
   margin-bottom: 3em;
   line-height: 1.5;
@@ -50,6 +62,7 @@ body {
   font-style: italic;
 }
 .up {
+  font-style: normal;
   position: relative;
   top: -0.2em;
   margin: 0 .1em;
