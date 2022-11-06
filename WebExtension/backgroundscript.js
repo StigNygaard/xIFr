@@ -164,7 +164,7 @@ browser.runtime.onMessage.addListener((request) => {
       createPopup(request);
     }
   } else if (request.message === "popupReady") { // 2nd msg, populate popup
-    return Promise.resolve(popupData); // WAS: sendResponse(popupData);  // but sendResponse() is deprecated
+    return Promise.resolve(popupData);
   }
 });
 

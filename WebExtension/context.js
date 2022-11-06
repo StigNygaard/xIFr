@@ -41,7 +41,7 @@ var context = (function Context() {
     }
     function setCurrentChoice(result) {
       // Merge default with loaded values:
-      return Object.assign(defaults, result);
+      return Object.assign(defaults, result);  // updates defaults and returns it
     }
     return browser.storage.local.get().then(setCurrentChoice, onError);
   }

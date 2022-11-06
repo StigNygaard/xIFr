@@ -187,7 +187,7 @@ function populate(response) {
       function(elm) {
         let row = elm.parentNode.parentNode;
         row.removeAttribute('title');
-        row.classList.remove('clickable');
+        row.classList.remove('clickable', 'notice');
         row.removeEventListener("click", gpsRowClick, {capture: true, once: true});
       });
   }
@@ -198,7 +198,7 @@ function populate(response) {
     if (elm) {
       let row = elm.parentNode.parentNode;
       row.removeAttribute('title');
-      row.classList.remove('clickable');
+      row.classList.remove('clickable', 'notice');
     }
   }
   function listArrayWithNodeAppendables(arr) { // Inserting linebreaks to get one item pr. line
@@ -229,20 +229,21 @@ function populate(response) {
         value.insertBefore(createRichElement('div', {id: 'maplinks'}), value.firstChild);
         value.insertAdjacentElement("beforeend", createRichElement('span', {class: 'gps expandable'}, document.createElement('br'), response.data['GPSPureDdLat'].value + " (decimal)"));
         row.title = "Click for decimal latitude and longitude values";
-        row.classList.add('clickable');
+        row.classList.add('clickable', 'notice');
         row.addEventListener("click", gpsRowClick, {capture: true, once: true});
       } else if (key_v === 'GPSLon') {
         value.insertAdjacentElement("beforeend", createRichElement('span', {class: 'gps expandable'}, document.createElement('br'), response.data['GPSPureDdLon'].value + " (decimal)"));
         row.title = "Click for decimal latitude and longitude values";
         row.addEventListener("click", gpsRowClick, {capture: true, once: true});
-        row.classList.add('clickable');
+        row.classList.add('clickable', 'notice');
       } else if (key_v === "Software" && response.data['AdditionalSoftware'] && response.data['AdditionalSoftware'].value && response.data['AdditionalSoftware'].value.length) {
         value.insertAdjacentElement("afterbegin", createRichElement('span', {class: 'software expandable'}, ...listArrayWithNodeAppendables(response.data['AdditionalSoftware'].value)));
         row.title = "Click for additional software used";
         row.addEventListener("click", softwareRowClick, {capture: true, once: true});
-        row.classList.add('clickable');
+        row.classList.add('clickable', 'notice');
       } else if (key_v === 'ColorSpace') {
         row.title = "Notice: Color space given in Exif and XMP meta-data, might not be the same as actual image color space used!";
+        row.classList.add('notice');
       }
     }
   }

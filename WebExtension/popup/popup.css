@@ -163,6 +163,9 @@ body.mapmode img#cpClipboard, body.copyUnsupported img#cpClipboard {
   /*overflow: hidden;*/
   /*white-space: nowrap;*/
 }
+#data tr.notice td:first-child::after {
+  content: " †";
+}
 #data td {
   vertical-align: top;
   padding: 2px 1px;
