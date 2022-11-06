@@ -173,11 +173,9 @@ function handleInstalled({ reason, temporary, previousVersion }) {
   // context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
   // if (details.temporary) return; // Skip during development
   switch (reason) {
+    case "update": // "upboarding"
     case "install": // "onboarding"
       browser.tabs.create({ url: "onboard/onboard.html"});
-      break;
-    case "update": // "upboarding"
-      // browser.tabs.create({ url: "onboard/onboard.html"});
       break;
   }
 }

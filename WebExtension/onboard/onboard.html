@@ -23,7 +23,7 @@
       margin: 0 0 1em 1em;
       padding: 0;
     }
-    img#settings {
+    img.settings {
       display: inline-block;
       width: 24px;
       height: 24px;
@@ -56,7 +56,7 @@
       a, a:hover, a:active, a:visited {
         color: rgb(69, 161, 255);
       }
-      img#settings {
+      img.settings {
         filter: invert(100%);
       }
     }
@@ -77,13 +77,20 @@
   <p>With this tool you can see a lot of the metadata that can be embedded in JPEG files. Various data of types EXIF, IPTC and XMP are supported.</p>
 
   <p>To see (if there are) any recognized metadata in an image, you can usually just right-click the image and choose "View EXIF data" in your browser's contextmenu.
-    But to learn xIFr better to know, and especially to see what the "Deep Search" feature is all about, I have also created a little introduction or demonstration page:</p>
+    But learn more about xIFr on the introduction page:</p>
 
   <p id="introlink"><a href="https://www.rockland.dk/xIFr/start/" title="xIFr - Getting started" target="_blank" rel="noopener">www.rockland.dk/xIFr/start</a></p>
 
-  <p>Also, make sure to make a visit to xIFr's <em>Options Page</em> where you can adjust some aspects of how xIFr looks and behaves. Look for the wheel <img src="../icons/wheel-48.png" id="settings" alt="" /> in the metadata popup to access the options. My personal favorites are to use "Dark Theme" and "Snap right" popup position.</p>
+  <p>Also, make sure to make a visit to xIFr's <a href="#" class="settings"><em>Options Page</em></a> where you can adjust some aspects of how xIFr looks and behaves.
+    Look for the wheel <img src="../icons/wheel-48.png" class="settings" alt="" /> in the metadata popup to access the options.
+    My personal favorite settings are "Dark Theme" and the "Snap right" popup positioning.</p>
 
-  <p><b class="new">New in xIFr version 2.3:</b> When an image is available in multiple image-formats, xIFr will look for jpeg-version where it can parse meta-data from, even if another format has been chosen by browser to show on webpage. See <a href="https://www.rockland.dk/xIFr/start/" title="xIFr - Getting started" target="_blank" rel="noopener">www.rockland.dk/xIFr/start</a> for an example.</p>
+  <p><b class="new">New in xIFr version 2.4:</b> <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1798213" target="_blank">A Firefox bug</a> probably introduced in Firefox 103,
+    affects <em>some</em> popup positioning options if your system has a "high density display" (display setup with a scaling factor).
+    If your popups showing Exif-information doesn't open where (or sized as) expected, it might help entering the scaling
+    factor of your display (as a percentage) in <a href="#" class="settings">xIFr's Options</a>.
+    <em>Note</em>, there might be another unrelated issue on multi-display systems, which I currently have no fix or work-around for.
+    But if everything else fails, you can always fall back to "Browser default" as Popup position.</p>
 
   <p>I hope you'll find xIFr useful and enjoy using it...</p>
 
