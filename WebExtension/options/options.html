@@ -109,16 +109,10 @@
                  value="snapRight" />
           <label for="snapRight">Snap right<b class="ffo up">*</b><b class="ffo up">†</b></label>
         </p>
-        <p class="ffo" title="Leave blank if not needed! Otherwise range 100-400 accepted">
-          <label for="scaling">Compensate for bug 1798213 by specifying the used display-scaling </label>
-          <input type="text" id="scaling" minlength="3" maxlength="3" size="4" pattern="[1-4]\d{2}" inputmode="numeric" />%<b class="up">†</b>
-        </p>
       </div>
       <p class="note ffo"><b class="up">*</b>Because of <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1271047" title="Bugzilla - Bug 1271047: Panel window type is not opening on given position">a bug in Firefox</a>,
         you might see a quick glimpse of popup window centered or in the default position, before it moves to the requested position.<br />
-      <b class="up">†</b>Because of <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1798213" title="Bugzilla - Bug 1798213: window.screen returns physical pixel dimensions instead of virtual when read from backgroundscript">a[nother] bug in Firefox</a>,
-        you might not see popup window positioned or sized as intended on high-density displays (display-settings that has a scaling factor).
-        You might be able to compensate for bug by explicitly specifying display-scaling percentage used on your setup (Find it in your system's display settings).</p>
+      <b class="up">†</b>In a multi-display setup, these options might not work as intended on all the connected displays.</p>
     </fieldset>
     <fieldset id="deepSearchSettings">
       <legend>&nbsp;Deep Search&nbsp;</legend>

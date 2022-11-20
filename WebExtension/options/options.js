@@ -33,8 +33,7 @@ function saveOptions(e) {
     mlinkBing: document.querySelector("form#xIFroptions #mlinkBing").checked,
     mlinkMapQuest: document.querySelector("form#xIFroptions #mlinkMapQuest").checked,
     mlinkHere: document.querySelector("form#xIFroptions #mlinkHere").checked,
-    mlinkFlickr: document.querySelector("form#xIFroptions #mlinkFlickr").checked,
-    scaling: Number(document.querySelector("form#xIFroptions #scaling").value) || ""
+    mlinkFlickr: document.querySelector("form#xIFroptions #mlinkFlickr").checked
   }).then(
     () => {setDisplayMode(document.forms[0].dispMode.value); updateDeepSearchSize()}, (error) => {context.error('Failed saving xIFr options: ' + error)}
   );
