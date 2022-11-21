@@ -288,6 +288,18 @@ function blacklistedImage(src) { // todo: Make blacklist configurable!
 function imageSearch(request, elem) {
   context.debug("imageSearch(): Looking for img elements on/below " + elem.nodeName.toLowerCase());
   let candidate;
+
+  // If target-elem is a candidate, just set it now. If we are in shadowDOM we will not find it later (TODO: Better handling of shadowDOMs !)
+  if (elem.nodeName && elem.nodeName.toLowerCase() === 'img' && elem.naturalWidth && !blacklistedImage(elem.currentSrc)) {
+    if (((request.deepSearchBigger && (elem.naturalWidth * elem.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearchBigger && (elem.naturalWidth * elem.naturalHeight) > deepSearchGenericLimit))) {
+      let propDisplay = window.getComputedStyle(elem, null).getPropertyValue('display');
+      let propVisibility = window.getComputedStyle(elem, null).getPropertyValue('visibility');
+      if (propDisplay !== 'none' && propVisibility !== 'hidden') {
+        candidate = elem;
+      }
+    }
+  }
+
   // https://time2hack.com/checking-overlap-between-elements/
   // https://www.youtube.com/watch?v=cUZ2r6C2skA
   // https://css-tricks.com/how-to-stack-elements-in-css/
@@ -301,7 +313,7 @@ function imageSearch(request, elem) {
       // TODO: Maybe also look at computed opacity ??!
       context.debug("PROPs! display=" + propDisplay + ", visibility=" + propVisibility);
       if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && propDisplay !== 'none' && propVisibility !== 'hidden' ) {
-        if (!blacklistedImage(img.src) && ((request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > deepSearchGenericLimit))) {
+        if (!blacklistedImage(img.currentSrc) && ((request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > deepSearchGenericLimit))) {
           if (typeof candidate !== "undefined") {
             context.debug("Compare img with candidate: " + img.naturalWidth * img.naturalHeight + " > " + candidate.naturalWidth * candidate.naturalHeight + "? -  document.images.length = " + document.images.length);
             if ((img.naturalWidth * img.naturalHeight) > (candidate.naturalWidth * candidate.naturalHeight)) {
