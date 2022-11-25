@@ -1,11 +1,14 @@
 # xIFr
 
-xIFr is a Firefox browser extension for viewing EXIF, IPTC and XMP metadata in jpg image files. Launch it from the desktop browser's right-click context menu.
+xIFr is a Firefox browser extension for viewing EXIF, IPTC and XMP metadata in jpg image files.
+Launch it from the desktop browser's right-click context menu.
 
 * [Install xIFr from Mozilla Firefox Add-ons](https://addons.mozilla.org/firefox/addon/xifr/?utm_source=github.com)
 
-In principle xIFr is a "cross-browser compatible" webextension. While it currently _ain't_ available via Chrome Web Store, it still works with Chrome/Chromium based browsers if you install [the webextension](https://github.com/StigNygaard/xIFr/releases) directly from your local filesystem. 
-There are however differences in functionality supported, and mostly limitations when using xIFr in Chrome/Chromium based browsers. So for now only "officially" available for Firefox.
+In principle xIFr is a "cross-browser compatible" webextension. While it currently _ain't_ available via Chrome Web Store,
+it still works with Chrome/Chromium based browsers if you install [the webextension](https://github.com/StigNygaard/xIFr/releases)
+directly from your local filesystem. There are however differences in functionality supported, and mostly limitations
+when using xIFr in Chrome/Chromium based browsers. So for now only "officially" available for Firefox.
 
 To create a browser extension from this repository, simply create a zip-file with content of the _WebExtension_ folder.
 
@@ -13,29 +16,31 @@ To create a browser extension from this repository, simply create a zip-file wit
 
 ### Why another Exif viewer?
 
-Because I felt other Exif readers annoyed me or I felt they were missing something. It is probably a matter of personal preferences,
+Because I felt other Exif readers annoyed me, or I felt they were missing something. It is probably a matter of personal preferences,
 but you should really check the _"deep search" feature_. It works sooo well - in my own very humble opinion :-)
 
 ![Screenshot](https://www.rockland.dk/img/xIFr100-2-1400x1050.jpg)
 
 ### "Deep Search" feature?
-Most other Exif viewers only works if you can right-click directly on an html _img_ element. But with "Deep Search" xIFr finds the image you want to see details about,
-no matter if it is below a layer or is defined as a background-image of another element. In 95% of the times, it just works as you expect.
-You wont even know if you were right-clicking directly on an img element or not. This is in my opinion the most important feature distinguishing
-xIFr from other Exif-viewers.
+Most other Exif viewers for Firefox only works if you can right-click directly on an html _img_ element.
+But with "Deep Search" xIFr finds the image you want to see details about,
+no matter if it is below a layer or is defined as a background-image of another element.
+In 95% of the times, it just works as you expect. You won't even know if you were right-clicking directly on an
+img element or not. This is in my opinion the most important feature distinguishing xIFr from other Exif-viewers.
 
-Also with Deep Search, you can avoid overlayered logos and icons. By shift-clicking when selecting xIFr in browser's context-menu, you will force
-xIFr to look for images larger than a specified size (The size is configurable).
+Also, with Deep Search you can avoid overlayered logos and icons. By shift-clicking when selecting xIFr in browser's
+context-menu, you will force xIFr to look for images larger than a specified size (The size is configurable).
 
-Deep Search is supported in Firefox 63 or newer. You can get a little introduction to xIFr's features, including what Deep Search does, at [www.rockland.dk/xIFr/start](https://www.rockland.dk/xIFr/start/).  
+Deep Search is supported in Firefox 63 or newer. You can get a little introduction to xIFr's features,
+including what Deep Search does, at [www.rockland.dk/xIFr/start](https://www.rockland.dk/xIFr/start/).  
 
 ### Dark Theme support
 
 ![Screenshot](https://www.rockland.dk/img/xIFr100-3-1400x1050.jpg)
 
 ### A handy Firefox tip!
-Some websites overrides the browser's default right-click context menu. But you can usually hold down the _shift_ key while
-right-clicking, to get the browser's native context menu back - and thus launch xIFr...
+Some websites override the browser's default right-click context menu. But you can usually hold down the
+_shift_ key while right-clicking, to get the browser's native context menu back - and thus launch xIFr...
 
 ### A lot of credit to...
 Vital parts of xIFr, is inherited work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/WebExtension/AUTHORS)
