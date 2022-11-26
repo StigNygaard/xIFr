@@ -79,6 +79,9 @@ body {
 .supportsDeepSearch #deepSearchSettings {
   display: initial;
 }
+.supportsDeepSearch #noDeepSearchSettings {
+  display: none;
+}
 #xIFroptions {
   padding: .4em;
   border-radius: .4em;
