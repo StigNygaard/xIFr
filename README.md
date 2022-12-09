@@ -39,7 +39,7 @@ including what Deep Search does, at [www.rockland.dk/xIFr/start](https://www.roc
 ![Screenshot](https://www.rockland.dk/img/xIFr100-3-1400x1050.jpg)
 
 ### A handy Firefox tip!
-Some websites override the browser's default right-click context menu. But you can usually hold down the
+Some websites override the browser's default right-click context menu. But often you can just hold down the
 _shift_ key while right-clicking, to get the browser's native context menu back - and thus launch xIFr...
 
 ### A lot of credit to...
