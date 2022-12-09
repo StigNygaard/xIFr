@@ -467,7 +467,7 @@ function extraSearch(request, elem, xtrSizes) {
 }
 
 function deeperSearch(request, elem, xtrSizes) {
-  context.debug("Entering deeperSearch() with elem=" + elem.nodeName + " and elem.parentNode=" + elem.parentNode.nodeName);
+  context.debug("Entering deeperSearch() with elem=" + elem.nodeName + " and elem.parentNode=" + elem.parentNode?.nodeName);
   let image = extraSearch(request, elem, xtrSizes);
   if (!image) {
     context.debug("deeperSearch(): No image from extraSearch()");
@@ -475,7 +475,7 @@ function deeperSearch(request, elem, xtrSizes) {
       context.debug("deeperSearch(): Cannot go higher from " + elem.nodeName.toLowerCase() + ", return without image!  typeof elem.parentNode = " + typeof elem.parentNode);
       return; // no image found
     }
-    context.debug("deeperSearch(): Going from " + elem.nodeName + " element, up to " + elem.parentNode.nodeName + " element...");
+    context.debug("deeperSearch(): Going from " + elem.nodeName + " element, up to " + elem.parentNode?.nodeName + " element...");
     elem = elem.parentNode;
     image = imageSearch(request, elem);
   }

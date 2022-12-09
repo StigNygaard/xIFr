@@ -16,14 +16,14 @@ if (browser.menus?.getTargetElement) { // An easy way to use Firefox extended AP
 
 function createPopup(request) {
 
-  context.info("window.screen.width: " + window.screen.width + " (" + window.screen.width + ")");
-  context.info("window.screen.availWidth: " + window.screen.availWidth);
-  context.info("window.screen.height: " + window.screen.height);
-  context.info("window.screen.availHeight: " + window.screen.availHeight);
-  context.info("browser.windows.Window.width: " + win.width);
-  context.info("browser.windows.Window.height: " + win.height);
-  context.info("browser.windows.Window.top: " + win.top);
-  context.info("browser.windows.Window.left: " + win.left);
+  // context.info("window.screen.width: " + window.screen.width + " (" + window.screen.width + ")");
+  // context.info("window.screen.availWidth: " + window.screen.availWidth);
+  // context.info("window.screen.height: " + window.screen.height);
+  // context.info("window.screen.availHeight: " + window.screen.availHeight);
+  // context.info("browser.windows.Window.width: " + win.width);
+  // context.info("browser.windows.Window.height: " + win.height);
+  // context.info("browser.windows.Window.top: " + win.top);
+  // context.info("browser.windows.Window.left: " + win.left);
 
   let pos = {};
   let width = 650;
@@ -69,7 +69,7 @@ function createPopup(request) {
     }, pos)).then(win => {
     previous.winId = win.id;
     previous.imgURL = request.data.URL;
-    if (options["popupPos"] !== "defaultPos" && context.isFirefox()) {  // https://bugzilla.mozilla.org/show_bug.cgi?id=1271047
+    if (options["popupPos"] !== "defaultPos" && context.isFirefox()) {  // https://bugzilla.mozilla.org/show_bug.cgi?id=1271047 (TODO: Fixed in Firefox 109!)
       browser.windows.update(win.id, pos);
     }
   });
