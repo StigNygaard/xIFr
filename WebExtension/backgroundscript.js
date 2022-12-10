@@ -69,9 +69,6 @@ function createPopup(request) {
     }, pos)).then(win => {
     previous.winId = win.id;
     previous.imgURL = request.data.URL;
-    if (options["popupPos"] !== "defaultPos" && context.isFirefox()) {  // https://bugzilla.mozilla.org/show_bug.cgi?id=1271047 (TODO: Fixed in Firefox 109!)
-      browser.windows.update(win.id, pos);
-    }
   });
 }
 
