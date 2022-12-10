@@ -38,20 +38,10 @@ function xmpClass() {
     let dom = parser.parseFromString(xmlString, 'application/xml'); // alternatively "text/xml" ?
 
     if (dom.documentElement.nodeName === 'parsererror') {
-      // parsererror might have been caused by incorrect encoding of characters.
-      // XMP documents in JPEG files have been reported with characters as ISO-8859-1
-      // (while containing an UTF-8 BOM) or even illegal not UTF-8 encoded "BOM" like
-      // xpacket begin="i»?" which.
-      // So just go on and try to save the situation converting from a single byte encoding to Unicode.
-      // I used iso-8859-1 here which will give wrong characters if the source is encoded differently,
-      // but getting correct characters isn’t the objective here, just to be able reading the document
-      // somehow. The document is corrupt anyway.
-      if (dom.documentElement.nodeName === 'parsererror') {
-        context.error("Error parsing XML - xmp xmlString: \n" + xmlString);
-        throw ("Error parsing XMP in parseXML()");
-        // pushError(dataObj, "[xmp]", ex);
-        return;
-      }
+      context.error("Error parsing XML - xmp xmlString: \n" + xmlString);
+      throw ("Error parsing XMP in parseXML()");
+      // pushError(dataObj, "[xmp]", ex);
+      // return;
     }
 
     var val;
