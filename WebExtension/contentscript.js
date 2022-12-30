@@ -53,10 +53,10 @@ function translateFields(data) {
 
 
 // Finding and loading backgrounds is slightly modified code from https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/ (by CRIMX) ...
-function getBgImgs (elem) {
+function getBgImgs(elem) {
   const srcChecker = /url\(\s*?['"]?\s*?(\S+?)\s*?["']?\s*?\)/giu;
   return Array.from(
-    (elem === document ? [] : [elem]).concat(Array.from(elem.querySelectorAll('*'))) // Includes elem (itself) unless elem is document
+    (elem instanceof Element ? [elem] : []).concat(Array.from(elem.querySelectorAll('*'))) // Includes elem (itself) unless elem is (f.ex.) document
       .reduce((collection, node) => {
         let cstyle = window.getComputedStyle(node, null);
         let display = cstyle.getPropertyValue('display');
@@ -65,7 +65,7 @@ function getBgImgs (elem) {
           let bgimage = cstyle.getPropertyValue('background-image');
           // match 'url(...)'
           let match;
-          while((match = srcChecker.exec(bgimage)) !== null ) { // There might actually be multiple. Like:  background-image: url("img_tree.gif"), url("paper.gif");
+          while ((match = srcChecker.exec(bgimage)) !== null) { // There might actually be multiple. Like:  background-image: url("img_tree.gif"), url("paper.gif");
             collection.add(match[1]);
           }
           // bgimage = cstyle.getPropertyValue('--background-image'); // '--background-image' seen used on music.apple.com. Is it legal css at all? But apparently it works - also here!?
@@ -81,13 +81,13 @@ function getBgImgs (elem) {
 // Finding and loading image(s) embedded in inline SVG....
 function getSVGEmbeddedImages(elem) {
   return Array.from(
-    (elem.nodeName==='image' ? [elem] : []).concat(Array.from(elem.querySelectorAll('svg image'))) // Includes elem (itself) unless elem is document
+    (elem.nodeName === 'image' ? [elem] : []).concat(Array.from(elem.querySelectorAll('svg image'))) // Includes elem (itself) unless elem is document
       .reduce((collection, node) => {
         let cstyle = window.getComputedStyle(node, null);
         let display = cstyle.getPropertyValue('display');
         let visibility = cstyle.getPropertyValue('visibility');
         if (display !== 'none' && visibility !== 'hidden') {
-            if (node.href?.baseVal) {
+          if (node.href?.baseVal) {
             collection.add(new URL(node.href.baseVal, node.baseURI).href);
           }
         }
@@ -97,7 +97,7 @@ function getSVGEmbeddedImages(elem) {
 }
 // But also: https://www.petercollingridge.co.uk/tutorials/svg/interactive/javascript/ ?
 
-function loadImg (src, timeout = 500) {
+function loadImg(src, timeout = 500) {
   var imgPromise = new Promise((resolve, reject) => {
     let img = new Image();
     img.addEventListener("load", () => {
@@ -118,7 +118,8 @@ function loadImg (src, timeout = 500) {
   });
   return Promise.race([imgPromise, timer]);
 }
-function loadImgAll (imgList, timeout = 500) { // Could we use https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode ?
+
+function loadImgAll(imgList, timeout = 500) { // Could we use https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode ?
   return new Promise((resolve, reject) => {
     Promise.all(
       imgList
@@ -177,7 +178,7 @@ function loadparseshow(imgrequest) {
   // A discussion if moving to backend: https://stackoverflow.com/questions/8593896/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
 
   if (imgrequest.proxyURL) {
-    infosArr.push('Image shown on webpage is in ' + imgrequest.imageType.replace('image/','') + ' format. Found alternative (assumed similar) ' + (imgrequest.proxyType ? imgrequest.proxyType.replace('image/','') : '') + ' image to look for meta-data in...');
+    infosArr.push('Image shown on webpage is in ' + imgrequest.imageType.replace('image/', '') + ' format. Found alternative (assumed similar) ' + (imgrequest.proxyType ? imgrequest.proxyType.replace('image/', '') : '') + ' image to look for meta-data in...');
     propertiesObj.pageShownURL = imgrequest.imageURL;
     propertiesObj.pageShownType = imgrequest.imageType;
     propertiesObj.URL = imgrequest.proxyURL;
@@ -285,6 +286,7 @@ function blacklistedImage(src) { // todo: Make blacklist configurable!
     return src === item.url
   });
 }
+
 function imageSearch(request, elem) {
   context.debug("imageSearch(): Looking for img elements on/below " + elem.nodeName.toLowerCase());
   let candidate;
@@ -312,7 +314,7 @@ function imageSearch(request, elem) {
       let propVisibility = window.getComputedStyle(img, null).getPropertyValue('visibility'); // hidden?
       // TODO: Maybe also look at computed opacity ??!
       context.debug("PROPs! display=" + propDisplay + ", visibility=" + propVisibility);
-      if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && propDisplay !== 'none' && propVisibility !== 'hidden' ) {
+      if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && propDisplay !== 'none' && propVisibility !== 'hidden') {
         if (!blacklistedImage(img.currentSrc) && ((request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > deepSearchGenericLimit))) {
           if (typeof candidate !== "undefined") {
             context.debug("Compare img with candidate: " + img.naturalWidth * img.naturalHeight + " > " + candidate.naturalWidth * candidate.naturalHeight + "? -  document.images.length = " + document.images.length);
@@ -365,13 +367,22 @@ function imageSearch(request, elem) {
               let parts = found.trim().split(/\s+/);
               let foundUrl = new URL(parts[0].trim(), child.baseURI).href;
               let foundDescriptor = parts.slice(1).join(' ');
-              if (foundDescriptor === '') foundDescriptor = '1x';
+              if (foundDescriptor === '') {
+                foundDescriptor = '1x';
+              }
               let foundWeight = parseInt(foundDescriptor, 10);
-              if (isNaN(foundWeight)) foundWeight = 0;
+              if (isNaN(foundWeight)) {
+                foundWeight = 0;
+              }
               if (foundUrl === image.imageURL) {
                 image.imageType = 'image/jpeg';
               }
-              potentials.push({'url': foundUrl, 'descriptor': foundDescriptor, 'type': 'image/jpeg', 'sortWeight': foundWeight});
+              potentials.push({
+                'url': foundUrl,
+                'descriptor': foundDescriptor,
+                'type': 'image/jpeg',
+                'sortWeight': foundWeight
+              });
             }
           } else { // Let's avoid this
             // Detect if use of image to avoid...
@@ -381,7 +392,9 @@ function imageSearch(request, elem) {
               let parts = found.trim().split(/\s+/);
               let foundUrl = new URL(parts[0].trim(), child.baseURI).href;
               let foundDescriptor = parts.slice(1).join(' ');
-              if (foundDescriptor === '') foundDescriptor = '1x';
+              if (foundDescriptor === '') {
+                foundDescriptor = '1x';
+              }
               if (foundUrl === image.imageURL) {
                 foundShownInAvoid = true;
                 descriptorToMatch = foundDescriptor;
@@ -401,9 +414,13 @@ function imageSearch(request, elem) {
             let parts = found.trim().split(/\s+/);
             let foundUrl = new URL(parts[0].trim(), candidate.baseURI).href;
             let foundDescriptor = parts.slice(1).join(' ');
-            if (foundDescriptor === '') foundDescriptor = '1x';
+            if (foundDescriptor === '') {
+              foundDescriptor = '1x';
+            }
             let foundWeight = parseInt(foundDescriptor, 10);
-            if (isNaN(foundWeight)) foundWeight = 0;
+            if (isNaN(foundWeight)) {
+              foundWeight = 0;
+            }
             potentials.push({
               'url': foundUrl,
               'descriptor': foundDescriptor,
