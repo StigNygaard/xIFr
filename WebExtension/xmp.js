@@ -30,7 +30,7 @@ function xmpClass() {
     }
     // There is at least one program which includes a null byte at the end of the document.
     // The parser doesn't like this, so shorten the length by one byte of the last one is null.
-    if (xmlString && xmlString.length > 0 && xmlString.charCodeAt(xmlString.length - 1) === 0) {
+    if (xmlString?.length && xmlString.charCodeAt(xmlString.length - 1) === 0) {
       xmlString = xmlString.substring(0, xmlString.length - 1);
     }
 
@@ -53,7 +53,7 @@ function xmpClass() {
 
     // Creators come in an ordered list. Get them all.
     val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "creator", "").filter( item => item && item.trim()); // filter skips empty values
-    if (val && val.length) {
+    if (val?.length) {
       dataObj.Creator = val.join("; "); // todo: Make a Set and handle later like Software or Keywords?
     }
 
@@ -103,7 +103,7 @@ function xmpClass() {
     }
 
     val = getXMPOrderedArray(dom, "http://iptc.org/std/Iptc4xmpExt/2008-02-29/", "PersonInImage", "").filter( item => item && item.trim()); // filter skips empty values
-    if (val && val.length) {
+    if (val?.length) {
       dataObj.Depicted = new Set(val);
     }
     // There's also an "PersonInImageWDetails": https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#person-shown-in-the-image
@@ -147,7 +147,7 @@ function xmpClass() {
     }
 
     val = getXMPOrderedArray(dom, "http://ns.adobe.com/xap/1.0/mm/", "History", "http://ns.adobe.com/xap/1.0/sType/ResourceEvent#", "softwareAgent").filter( item => item && item.trim()); // filter skips empty values
-    if (val.length) {
+    if (val?.length) {
       if (!dataObj.Software) {
         dataObj.Software = val[val.length - 1]; // [length-1] = Last is the last used ?
       }
@@ -198,7 +198,7 @@ function xmpClass() {
 
     // Subjects (keywords) comes in a list/set. Get them all.
     val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "subject", "").filter( item => item && item.trim()); // filter skips empty values
-    if (val && val.length) {
+    if (val?.length) {
       dataObj.Keywords = new Set(val); // todo: If already set by iptc, make sure we have same or more keywords!
     }
 

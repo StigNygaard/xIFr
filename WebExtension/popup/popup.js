@@ -5,7 +5,7 @@ function createRichElement(tagName, attributes, ...content) {
       element.setAttribute(attr, value);
     }
   }
-  if (content && content.length) {
+  if (content?.length) {
     element.append(...content);
   }
   return element;

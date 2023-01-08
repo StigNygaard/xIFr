@@ -204,11 +204,11 @@ function loadparseshow(imgrequest) {
         addByteStreamIF(byteArray);
         context.debug("Gather data from image header (fxifObj.gatherData(byteArray) = fxifClass.gatherData() in parseJpeg.js)...");
         var dataObj = fxifObj.gatherData(byteArray); // Gather data from header (via "markers" found in file)
-        if (dataObj.error && dataObj.error.length > 0) {
+        if (dataObj.error?.length) {
           errorsArr.push(...dataObj.error);
           delete dataObj.error;
         }
-        if (dataObj.warning && dataObj.warning.length > 0) {
+        if (dataObj.warning?.length) {
           warningsArr.push(...dataObj.warning);
           delete dataObj.warning;
         }

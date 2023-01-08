@@ -50,7 +50,7 @@ var context = (function Context() {
     return !!(typeof browser !== 'undefined' && browser.menus && browser.menus.getTargetElement); // Well, might not be enough. But for the time being this check should tell. In practice Firefox 63+ supports, Chrome does not...
   }
   function prefersDark(dispMode) {
-    return dispMode === "darkMode" || (window && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    return dispMode === "darkMode" || (window?.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   }
   function isFirefox() {
     return !!((typeof browser !== 'undefined') && browser.runtime && browser.runtime.getURL("./").startsWith("moz-extension://"));
@@ -81,7 +81,7 @@ var context = (function Context() {
 
 var versionnumber = (function Versionnumber() {  // major.minor.revision
   function current() {
-    if (browser && browser.runtime) { // webextension versionnumber
+    if (browser?.runtime) { // webextension versionnumber
       return browser.runtime.getManifest().version;
     }
     // undefined
