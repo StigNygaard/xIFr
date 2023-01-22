@@ -150,14 +150,6 @@ function loadparseshow(imgrequest) {
   let errorsArr = []; // Messages to show as errors
   let warningsArr = []; // Messages to show as warnings
   let infosArr = []; // Messages to show as info
-  const controller = new AbortController();
-  const signal = controller.signal;
-  let fetchOptions = {signal: signal};
-  if (imgrequest.referrerPolicy) {
-    fetchOptions.referrerPolicy = imgrequest.referrerPolicy; // But how are referrerPolicy handled if fetch is moved to background-script?
-  }
-  const fetchTimeout = 8000; // 8 seconds
-  const tid = setTimeout(() => controller.abort('AbortErrorTimeout'), fetchTimeout);
 
   // https://javascript.info/fetch
   // https://javascript.info/fetch-api
@@ -183,10 +175,14 @@ function loadparseshow(imgrequest) {
     propertiesObj.pageShownType = imgrequest.imageType;
     propertiesObj.URL = imgrequest.proxyURL;
   }
+  const fetchTimeout = 8000; // 8 seconds
+  let fetchOptions = {signal: AbortSignal.timeout(fetchTimeout)};
+  if (imgrequest.referrerPolicy) {
+    fetchOptions.referrerPolicy = imgrequest.referrerPolicy; // But how are referrerPolicy handled if fetch is moved to background-script?
+  }
   context.debug("Will now do fetch(" + propertiesObj.URL + ") ...");
   fetch(propertiesObj.URL, fetchOptions)
     .then(function (response) {
-      clearTimeout(tid);
       if (!response.ok) {
         throw Error("(" + response.status + ") " + response.statusText);
       }
@@ -238,9 +234,9 @@ function loadparseshow(imgrequest) {
       }
     })
     .catch(function (error) {
-        if (error.name === 'AbortError') {
-          context.error("xIFr: Timeout trying to read image-data from " + propertiesObj.URL);
-          errorsArr.push("Timeout trying to load image-file for parsing.");
+        if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+          context.error("xIFr: Abort - likely timeout - when reading image-data from " + propertiesObj.URL);
+          errorsArr.push("Abort - likely timeout - when load image-file for parsing.");
         } else {
           context.error("xIFr: fetch-ERROR trying to read image-data from " + propertiesObj.URL + " : " + error);
           errorsArr.push("Error trying to load image-file for parsing of the metadata!");
