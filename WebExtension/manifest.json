@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "xIFr",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "default_locale": "en",
 
   "description": "__MSG_extensionDescription__",
@@ -24,9 +24,9 @@
       "strict_min_version": "109.0"
     }
   },
-  "minimum_chrome_version": "105.0",
-  "minimum_opera_version": "91.0",
-  "minimum_edge_version": "105.0",
+  "minimum_chrome_version": "109.0",
+  "minimum_opera_version": "95.0",
+  "minimum_edge_version": "109.0",
 
   "permissions": [
     "<all_urls>",
