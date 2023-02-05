@@ -6,15 +6,12 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-let options = {};
-let winvp = {};
-const previous = {};
-const popupData = {};
 if (browser.menus?.getTargetElement) { // An easy way to use Firefox extended API while preserving Chrome (and older Firefox) compatibility.
   browser.contextMenus = browser.menus;
 }
+context.log(" *** xIFr backgroundscript has (re)started! *** ");
 
-function createPopup(request) {
+function createPopup(request, {popupPos, winvp}) { // Called when 'EXIFready'
 
   // context.info("window.screen.width: " + window.screen.width + " (" + window.screen.width + ")");
   // context.info("window.screen.availWidth: " + window.screen.availWidth);
@@ -28,12 +25,15 @@ function createPopup(request) {
   let pos = {};
   const width = 650;
   const height = 500;
-  switch (options["popupPos"]) {
+  switch (popupPos) {
     case "center":
-      pos = {left: Math.floor(window.screen.availWidth/2) - 325, top: Math.floor(window.screen.availHeight/2) - 250};
+      pos = {
+        left: Math.floor(window.screen.availWidth / 2) - 325,
+        top: Math.floor(window.screen.availHeight / 2) - 250
+      };
       break;
     case "centerBrowser":
-      pos = {left: winvp.left + Math.floor(winvp.width/2) - 325, top: winvp.top + Math.floor(winvp.height/2) - 250};
+      pos = {left: winvp.left + Math.floor(winvp.width / 2) - 325, top: winvp.top + Math.floor(winvp.height / 2) - 250};
       break;
     case "topLeft":
       pos = {left: 10, top: 10};
@@ -45,13 +45,16 @@ function createPopup(request) {
       pos = {left: winvp.left + 10, top: winvp.top + 10};
       break;
     case "topRightBrowser":
-      pos = {left: winvp.left + winvp.width - 650 - 10 , top: winvp.top + 10};
+      pos = {left: winvp.left + winvp.width - 650 - 10, top: winvp.top + 10};
       break;
     case "leftish":
-      pos = {left: Math.max(winvp.left - 200, 10), top: Math.max(winvp.top + Math.floor(winvp.height/2) - 350, 10)};
+      pos = {left: Math.max(winvp.left - 200, 10), top: Math.max(winvp.top + Math.floor(winvp.height / 2) - 350, 10)};
       break;
     case "rightish":
-      pos = {left: Math.min(winvp.left + winvp.width - 450, window.screen.availWidth - 650 - 10), top: Math.max(winvp.top + Math.floor(winvp.height/2) - 350, 10)};
+      pos = {
+        left: Math.min(winvp.left + winvp.width - 450, window.screen.availWidth - 650 - 10),
+        top: Math.max(winvp.top + Math.floor(winvp.height / 2) - 350, 10)
+      };
       break;
     case "snapLeft":
       pos = {left: 0, top: 0, height: window.screen.availHeight};
@@ -66,19 +69,18 @@ function createPopup(request) {
       type: "popup",
       width: width,
       height: height
-    }, pos)).then(popwin => {
-    previous.winId = popwin.id;
-    previous.imgURL = request.data.URL;
-  });
+    }, pos))
+    .then((popwin) => {
+        sessionStorage.set("previous", {"winId": popwin.id, "imgURL": request.properties.URL});
+      }
+    );
 }
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "viewexif") {
     context.debug("Context menu clicked. mediaType=" + info.mediaType);
-
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/OnClickData
     if ((info.mediaType && info.mediaType === "image" && info.srcUrl) || info.targetElementId) {
-
       const scripts = [
         "lib/mozilla/browser-polyfill.js",
         "context.js",
@@ -92,33 +94,37 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       ];
       const scriptLoadPromises = scripts.map(script => {
         return browser.tabs.executeScript(null, {
-          frameId : info.frameId,
+          frameId: info.frameId,
           file: script
         });
       });
       Promise.all([context.getOptions(), browser.windows.getCurrent(), ...scriptLoadPromises]).then((values) => {
         context.debug("All scripts started from background is ready...");
-        options = values[0];
-        winvp = values[1];
-        browser.tabs.sendMessage(tab.id, {
-          message: "parseImage",
-          imageURL: info.srcUrl,
-          mediaType: info.mediaType,
-          targetId: info.targetElementId,
-          supportsDeepSearch: !!(info.targetElementId && info.modifiers),  // "deep-search" supported in Firefox 63+
-          deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
-          deepSearchBiggerLimit: options["deepSearchBiggerLimit"],
-          frameId : info.frameId, // related to globalThis/window/frames ?
-          frameUrl : info.frameUrl
-        });
+        const options = values[0];
+        const winpop = {"winvp": values[1], "popupPos": options.popupPos};
+        sessionStorage.set("winpop", winpop)
+          .then(() => {
+              browser.tabs.sendMessage(tab.id, {
+                message: "parseImage",
+                imageURL: info.srcUrl,
+                mediaType: info.mediaType,
+                targetId: info.targetElementId,
+                supportsDeepSearch: !!(info.targetElementId && info.modifiers),  // "deep-search" supported in Firefox 63+
+                deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
+                deepSearchBiggerLimit: options.deepSearchBiggerLimit,
+                frameId: info.frameId, // related to globalThis/window/frames ?
+                frameUrl: info.frameUrl
+              });
+            }
+          );
       });
-
     }
   }
 });
 
 browser.runtime.onMessage.addListener((request) => {
   if (request.message === "EXIFready") { // 1st msg, create popup
+    const popupData = {};
     popupData.infos = request.infos;
     popupData.warnings = request.warnings;
     popupData.errors = request.errors;
@@ -130,20 +136,37 @@ browser.runtime.onMessage.addListener((request) => {
       popupData.warnings.push("Images from file system might not be shown in this popup, but meta data should still be correctly read.");
     }
     popupData.data = request.data;
-
-    if (previous.imgURL && previous.imgURL === request.properties.URL) {
-      context.debug("Previous popup was same - Focus to previous if still open...");
-      browser.windows.update(previous.winId, {focused: true}).then(() => {context.debug("Existing popup was attempted REfocused.")}).catch(() => {context.debug("REfocusing didn't succeed. Creating a new popup..."); createPopup(request)});
-    } else {
-      if (previous.winId) { // TODO: It would be smarter to just re-use an existing popup than to close previous and open a new
-        browser.windows.remove(previous.winId)
-          .then(() => {context.debug("Popup with id=" + previous.winId + " was closed.")})
-          .catch((err) => {context.debug("Closing xIFr popup with id=" + previous.winId + " failed: " + err)});
-      }
-      createPopup(request);
-    }
+    sessionStorage.set("popupData", popupData).then(() => {
+      sessionStorage.get()
+        .then(({previous, winpop}) => {
+          if (previous?.imgURL && previous.imgURL === request.properties.URL) {
+            context.debug("Previous popup was same - Focus to previous if still open...");
+            browser.windows.update(previous.winId, {focused: true})
+              .then(() => {
+                  context.debug("Existing popup was attempted REfocused.")
+                }
+              )
+              .catch(() => {
+                  context.debug("REfocusing didn't succeed. Creating a new popup...");
+                  createPopup(request, winpop)
+                }
+              );
+          } else {
+            if (previous?.winId) { // But it would be smarter to just re-use an existing popup than to close previous and open a new?
+              browser.windows.remove(previous.winId)
+                .then(() => {
+                  context.debug("Popup with id=" + previous.winId + " was closed.")
+                })
+                .catch((err) => {
+                  context.debug("Closing xIFr popup with id=" + previous.winId + " failed: " + err)
+                });
+            }
+            createPopup(request, winpop);
+          }
+        });
+    });
   } else if (request.message === "popupReady") { // 2nd msg, populate popup
-    return Promise.resolve(popupData);
+    return sessionStorage.get("popupData");
   }
 });
 
@@ -151,7 +174,7 @@ browser.runtime.onMessage.addListener((request) => {
 browser.runtime.onInstalled.addListener(function handleInstalled({reason, temporary, previousVersion}) {
     // context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
 
-    browser.contextMenus.create({ // Can I somehow prevent it on about: and AMO pages?
+  browser.contextMenus.create({ // Can I somehow prevent it on about: and AMO pages?
       id: "viewexif",
       title: browser.i18n.getMessage("contextMenuText"),
       // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/ContextType
@@ -166,5 +189,48 @@ browser.runtime.onInstalled.addListener(function handleInstalled({reason, tempor
         browser.tabs.create({url: "onboard/onboard.html"});
         break;
     }
+
   }
 );
+
+
+/* Using "sessionStorage" to persist the state even when background-script is terminated and restarted... */
+let sessionStorage = (function () {
+  let sessionData;
+  function clear() {
+    sessionData = {};
+    context.getOptions().then(
+      function (options) {
+        options.sessionstorage = sessionData;
+        context.setOptions(options);
+      }
+    );
+  }
+  function set(property, value) {
+    return context.getOptions().then(
+      function (options) {
+        sessionData = options.sessionstorage || {};
+        sessionData[property] = value;
+        options.sessionstorage = sessionData;
+        return context.setOptions(options)
+      }
+    );
+  }
+  function get(property) {
+    if (sessionData) {
+      return property ? Promise.resolve(sessionData[property]) : Promise.resolve(sessionData);
+    }
+    return context.getOptions().then(
+      function (options) {
+        sessionData = options.sessionstorage || {};
+        return property ? sessionData[property] : sessionData;
+      }
+    );
+  }
+  return {
+    clear: clear,
+    set: set,
+    get: get
+  }
+})();
+browser.runtime.onStartup.addListener(() => sessionStorage.clear()); // Clear any old "sessionStorage" when browser starts...
