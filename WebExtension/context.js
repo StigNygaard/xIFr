@@ -61,20 +61,20 @@ globalThis.context = globalThis.context || (function Context() {
 
   // API:
   return {
-    LOG,
-    INFO,
-    DEBUG,
-    ERROR,
-    log,
-    info,
-    debug,
-    error,
-    setOptions,
-    getOptions,
-    isFirefox,
-    isChromium,
-    supportsDeepSearch,
-    prefersDark
+    LOG: LOG,
+    INFO: INFO,
+    DEBUG: DEBUG,
+    ERROR: ERROR,
+    log: log,
+    info: info,
+    debug: debug,
+    error: error,
+    setOptions: setOptions,
+    getOptions: getOptions,
+    isFirefox: isFirefox,
+    isChromium: isChromium,
+    supportsDeepSearch: supportsDeepSearch,
+    prefersDark: prefersDark
   };
 
 })();
