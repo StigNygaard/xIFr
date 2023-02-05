@@ -7,9 +7,9 @@
  */
 
 let options = {};
-let win = {};
-let previous = {};
-let popupData = {};
+let winvp = {};
+const previous = {};
+const popupData = {};
 if (browser.menus?.getTargetElement) { // An easy way to use Firefox extended API while preserving Chrome (and older Firefox) compatibility.
   browser.contextMenus = browser.menus;
 }
@@ -20,20 +20,20 @@ function createPopup(request) {
   // context.info("window.screen.availWidth: " + window.screen.availWidth);
   // context.info("window.screen.height: " + window.screen.height);
   // context.info("window.screen.availHeight: " + window.screen.availHeight);
-  // context.info("browser.windows.Window.width: " + win.width);
-  // context.info("browser.windows.Window.height: " + win.height);
-  // context.info("browser.windows.Window.top: " + win.top);
-  // context.info("browser.windows.Window.left: " + win.left);
+  // context.info("browser.windows.Window.width: " + winvp.width);
+  // context.info("browser.windows.Window.height: " + winvp.height);
+  // context.info("browser.windows.Window.top: " + winvp.top);
+  // context.info("browser.windows.Window.left: " + winvp.left);
 
   let pos = {};
-  let width = 650;
-  let height = 500;
+  const width = 650;
+  const height = 500;
   switch (options["popupPos"]) {
     case "center":
       pos = {left: Math.floor(window.screen.availWidth/2) - 325, top: Math.floor(window.screen.availHeight/2) - 250};
       break;
     case "centerBrowser":
-      pos = {left: win.left + Math.floor(win.width/2) - 325, top: win.top + Math.floor(win.height/2) - 250};
+      pos = {left: winvp.left + Math.floor(winvp.width/2) - 325, top: winvp.top + Math.floor(winvp.height/2) - 250};
       break;
     case "topLeft":
       pos = {left: 10, top: 10};
@@ -42,16 +42,16 @@ function createPopup(request) {
       pos = {left: window.screen.availWidth - 650 - 10, top: 10};
       break;
     case "topLeftBrowser":
-      pos = {left: win.left + 10, top: win.top + 10};
+      pos = {left: winvp.left + 10, top: winvp.top + 10};
       break;
     case "topRightBrowser":
-      pos = {left: win.left + win.width - 650 - 10 , top: win.top + 10};
+      pos = {left: winvp.left + winvp.width - 650 - 10 , top: winvp.top + 10};
       break;
     case "leftish":
-      pos = {left: Math.max(win.left - 200, 10), top: Math.max(win.top + Math.floor(win.height/2) - 350, 10)};
+      pos = {left: Math.max(winvp.left - 200, 10), top: Math.max(winvp.top + Math.floor(winvp.height/2) - 350, 10)};
       break;
     case "rightish":
-      pos = {left: Math.min(win.left + win.width - 450, window.screen.availWidth - 650 - 10), top: Math.max(win.top + Math.floor(win.height/2) - 350, 10)};
+      pos = {left: Math.min(winvp.left + winvp.width - 450, window.screen.availWidth - 650 - 10), top: Math.max(winvp.top + Math.floor(winvp.height/2) - 350, 10)};
       break;
     case "snapLeft":
       pos = {left: 0, top: 0, height: window.screen.availHeight};
@@ -66,18 +66,11 @@ function createPopup(request) {
       type: "popup",
       width: width,
       height: height
-    }, pos)).then(win => {
-    previous.winId = win.id;
+    }, pos)).then(popwin => {
+    previous.winId = popwin.id;
     previous.imgURL = request.data.URL;
   });
 }
-
-browser.contextMenus.create({ // Can I somehow prevent it on about: and AMO pages?
-  id: "viewexif",
-  title: browser.i18n.getMessage("contextMenuText"),
-  // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/ContextType
-  contexts: browser.contextMenus.getTargetElement ? ["image", "link", "page", "frame", "editable", "video", "audio"] : ["image"] // Firefox 63+ supports getTargetElement()/targetElementId
-});
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "viewexif") {
@@ -86,18 +79,18 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/OnClickData
     if ((info.mediaType && info.mediaType === "image" && info.srcUrl) || info.targetElementId) {
 
-      var scripts = [
-        "/lib/mozilla/browser-polyfill.js",
-        "/context.js",
-        "/stringBundle.js",
-        "/contentscript.js",
-        "/fxifUtils.js",
-        "/parseJpeg.js",
-        "/binExif.js",
-        "/binIptc.js",
-        "/xmp.js"
+      const scripts = [
+        "lib/mozilla/browser-polyfill.js",
+        "context.js",
+        "stringBundle.js",
+        "fxifUtils.js",
+        "binExif.js",
+        "binIptc.js",
+        "xmp.js",
+        "parseJpeg.js",
+        "contentscript.js"
       ];
-      var scriptLoadPromises = scripts.map(script => {
+      const scriptLoadPromises = scripts.map(script => {
         return browser.tabs.executeScript(null, {
           frameId : info.frameId,
           file: script
@@ -106,7 +99,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       Promise.all([context.getOptions(), browser.windows.getCurrent(), ...scriptLoadPromises]).then((values) => {
         context.debug("All scripts started from background is ready...");
         options = values[0];
-        win = values[1];
+        winvp = values[1];
         browser.tabs.sendMessage(tab.id, {
           message: "parseImage",
           imageURL: info.srcUrl,
@@ -142,7 +135,7 @@ browser.runtime.onMessage.addListener((request) => {
       context.debug("Previous popup was same - Focus to previous if still open...");
       browser.windows.update(previous.winId, {focused: true}).then(() => {context.debug("Existing popup was attempted REfocused.")}).catch(() => {context.debug("REfocusing didn't succeed. Creating a new popup..."); createPopup(request)});
     } else {
-      if (previous.winId) {
+      if (previous.winId) { // TODO: It would be smarter to just re-use an existing popup than to close previous and open a new
         browser.windows.remove(previous.winId)
           .then(() => {context.debug("Popup with id=" + previous.winId + " was closed.")})
           .catch((err) => {context.debug("Closing xIFr popup with id=" + previous.winId + " failed: " + err)});
@@ -155,15 +148,23 @@ browser.runtime.onMessage.addListener((request) => {
 });
 
 // https://extensionworkshop.com/documentation/develop/onboard-upboard-offboard-users/
-function handleInstalled({ reason, temporary, previousVersion }) {
-  // context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
-  // if (details.temporary) return; // Skip during development
-  switch (reason) {
-    case "update": // "upboarding"
-      break; // silent update
-    case "install": // "onboarding"
-      browser.tabs.create({ url: "onboard/onboard.html"});
-      break;
+browser.runtime.onInstalled.addListener(function handleInstalled({reason, temporary, previousVersion}) {
+    // context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
+
+    browser.contextMenus.create({ // Can I somehow prevent it on about: and AMO pages?
+      id: "viewexif",
+      title: browser.i18n.getMessage("contextMenuText"),
+      // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/ContextType
+      contexts: browser.contextMenus.getTargetElement ? ["image", "link", "page", "frame", "editable", "video", "audio"] : ["image"] // Firefox 63+ supports getTargetElement()/targetElementId
+    });
+
+    // if (details.temporary) return; // Skip during development
+    switch (reason) {
+      case "update": // "upboarding"
+        break; // silent update
+      case "install": // "onboarding"
+        browser.tabs.create({url: "onboard/onboard.html"});
+        break;
+    }
   }
-}
-browser.runtime.onInstalled.addListener(handleInstalled);
+);

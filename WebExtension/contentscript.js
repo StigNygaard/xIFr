@@ -9,7 +9,7 @@
 function addByteStreamIF(arr) {
   arr.bisOffset = 0;
   arr.read16 = () => {
-    var val = arr[arr.bisOffset] << 8 | arr[arr.bisOffset + 1];
+    const val = arr[arr.bisOffset] << 8 | arr[arr.bisOffset + 1];
     arr.bisOffset += 2;
     return val;
   };
@@ -20,26 +20,26 @@ function addByteStreamIF(arr) {
       // pushError(dataObj, "[xmp]", ex);
       return;
     }
-    var retval = "";
-    for (var i = 0; i < byteCount; i++) {
+    let retval = "";
+    for (let i = 0; i < byteCount; i++) {
       retval += String.fromCharCode(arr[arr.bisOffset]);
       arr.bisOffset++;
     }
     return retval;
   };
   arr.readByteArray = len => {
-    var retval = arr.subarray(arr.bisOffset, arr.bisOffset + len);
+    let retval = arr.subarray(arr.bisOffset, arr.bisOffset + len);
     arr.bisOffset += len;
     return retval;
   }
 }
 
 function translateFields(data) {
-  var newdata = {};
+  const newdata = {};
   Object.keys(data).forEach(key_v => {
-    var key = key_v;
-    var label = key;
-    var val = data[key_v];
+    let key = key_v;
+    let label = key;
+    let val = data[key_v];
     if (typeof key === "string") {
       label = stringBundle.getString(key.replace('.', '_'));
     }
@@ -58,11 +58,11 @@ function getBgImgs(elem) {
   return Array.from(
     (elem instanceof Element ? [elem] : []).concat(Array.from(elem.querySelectorAll('*'))) // Includes elem (itself) unless elem is (f.ex.) document
       .reduce((collection, node) => {
-        let cstyle = window.getComputedStyle(node, null);
-        let display = cstyle.getPropertyValue('display');
-        let visibility = cstyle.getPropertyValue('visibility');
+        const cstyle = window.getComputedStyle(node, null);
+        const display = cstyle.getPropertyValue('display');
+        const visibility = cstyle.getPropertyValue('visibility');
         if (display !== 'none' && visibility !== 'hidden') {
-          let bgimage = cstyle.getPropertyValue('background-image');
+          const bgimage = cstyle.getPropertyValue('background-image');
           // match 'url(...)'
           let match;
           while ((match = srcChecker.exec(bgimage)) !== null) { // There might actually be multiple. Like:  background-image: url("img_tree.gif"), url("paper.gif");
@@ -83,9 +83,9 @@ function getSVGEmbeddedImages(elem) {
   return Array.from(
     (elem.nodeName === 'image' ? [elem] : []).concat(Array.from(elem.querySelectorAll('svg image'))) // Includes elem (itself) unless elem is document
       .reduce((collection, node) => {
-        let cstyle = window.getComputedStyle(node, null);
-        let display = cstyle.getPropertyValue('display');
-        let visibility = cstyle.getPropertyValue('visibility');
+        const cstyle = window.getComputedStyle(node, null);
+        const display = cstyle.getPropertyValue('display');
+        const visibility = cstyle.getPropertyValue('visibility');
         if (display !== 'none' && visibility !== 'hidden') {
           if (node.href?.baseVal) {
             collection.add(new URL(node.href.baseVal, node.baseURI).href);
@@ -98,8 +98,8 @@ function getSVGEmbeddedImages(elem) {
 // But also: https://www.petercollingridge.co.uk/tutorials/svg/interactive/javascript/ ?
 
 function loadImg(src, timeout = 500) {
-  var imgPromise = new Promise((resolve, reject) => {
-    let img = new Image();
+  let imgPromise = new Promise((resolve, reject) => {
+    const img = new Image();
     img.addEventListener("load", () => {
       resolve({
         src: src,
@@ -113,7 +113,7 @@ function loadImg(src, timeout = 500) {
     });
     img.src = src;
   });
-  var timer = new Promise((resolve, reject) => {
+  const timer = new Promise((resolve, reject) => {
     setTimeout(reject, timeout);
   });
   return Promise.race([imgPromise, timer]);
@@ -135,7 +135,7 @@ function loadparseshow(imgrequest) {
     context.debug("Exit loadparseshow. Nothing to show!");
     return;
   }
-  let propertiesObj = {};
+  const propertiesObj = {};
   propertiesObj.URL = imgrequest.imageURL;
   if (imgrequest.naturalWidth) {
     propertiesObj.naturalWidth = imgrequest.naturalWidth;
@@ -147,9 +147,9 @@ function loadparseshow(imgrequest) {
   if (imgrequest.context) { // ?
     propertiesObj.context = imgrequest.context;
   }
-  let errorsArr = []; // Messages to show as errors
-  let warningsArr = []; // Messages to show as warnings
-  let infosArr = []; // Messages to show as info
+  const errorsArr = []; // Messages to show as errors
+  const warningsArr = []; // Messages to show as warnings
+  const infosArr = []; // Messages to show as info
 
   // https://javascript.info/fetch
   // https://javascript.info/fetch-api
@@ -176,7 +176,10 @@ function loadparseshow(imgrequest) {
     propertiesObj.URL = imgrequest.proxyURL;
   }
   const fetchTimeout = 8000; // 8 seconds
-  let fetchOptions = {signal: AbortSignal.timeout(fetchTimeout)};
+  const fetchOptions = {};
+  if (AbortSignal?.timeout) {
+    fetchOptions.signal = AbortSignal.timeout(fetchTimeout);
+  }
   if (imgrequest.referrerPolicy) {
     fetchOptions.referrerPolicy = imgrequest.referrerPolicy; // But how are referrerPolicy handled if fetch is moved to background-script?
   }
@@ -195,11 +198,11 @@ function loadparseshow(imgrequest) {
     .then(function (arrayBuffer) {
       if (arrayBuffer) {
         context.debug("Looking at the fetch response (arrayBuffer)...");
-        var byteArray = new Uint8Array(arrayBuffer);
+        const byteArray = new Uint8Array(arrayBuffer);
         context.debug("Call addByteStreamIF(byteArray)...");
         addByteStreamIF(byteArray);
         context.debug("Gather data from image header (fxifObj.gatherData(byteArray) = fxifClass.gatherData() in parseJpeg.js)...");
-        var dataObj = fxifObj.gatherData(byteArray); // Gather data from header (via "markers" found in file)
+        const dataObj = fxifObj.gatherData(byteArray); // Gather data from header (via "markers" found in file)
         if (dataObj.error?.length) {
           errorsArr.push(...dataObj.error);
           delete dataObj.error;
@@ -217,7 +220,7 @@ function loadparseshow(imgrequest) {
         propertiesObj.byteLength = arrayBuffer.byteLength || propertiesObj.byteLength;
 
         context.debug("Gathered data: \n" + JSON.stringify(dataObj));
-        let xlatData = translateFields(dataObj);
+        const xlatData = translateFields(dataObj);
         context.debug("Gathered data after translation: \n" + JSON.stringify(xlatData));
 
         context.debug("EXIF parsing done. Send EXIFready message...");
@@ -230,6 +233,7 @@ function loadparseshow(imgrequest) {
           infos: infosArr
         });
       } else {
+        console.warn("fetch response (arrayBuffer) is empty!...");
         context.error("fetch response (arrayBuffer) is empty!...");
       }
     })
@@ -258,7 +262,7 @@ function loadparseshow(imgrequest) {
     );
 }
 
-var deepSearchGenericLimit = 10 * 10; // Just not relevant if that small
+globalThis.deepSearchGenericLimit = 10 * 10; // Just not relevant if that small
 function blacklistedImage(src) { // todo: Make blacklist configurable!
   return [{
     url: "https://combo.staticflickr.com/ap/build/images/sprites/icons-cc4be245.png",
@@ -290,8 +294,8 @@ function imageSearch(request, elem) {
   // If target-elem is a candidate, just set it now. If we are in shadowDOM we will not find it later (TODO: Better handling of shadowDOMs !)
   if (elem.nodeName && elem.nodeName.toLowerCase() === 'img' && elem.naturalWidth && !blacklistedImage(elem.currentSrc)) {
     if (((request.deepSearchBigger && (elem.naturalWidth * elem.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearchBigger && (elem.naturalWidth * elem.naturalHeight) > deepSearchGenericLimit))) {
-      let propDisplay = window.getComputedStyle(elem, null).getPropertyValue('display');
-      let propVisibility = window.getComputedStyle(elem, null).getPropertyValue('visibility');
+      const propDisplay = window.getComputedStyle(elem, null).getPropertyValue('display');
+      const propVisibility = window.getComputedStyle(elem, null).getPropertyValue('visibility');
       if (propDisplay !== 'none' && propVisibility !== 'hidden') {
         candidate = elem;
       }
@@ -301,13 +305,13 @@ function imageSearch(request, elem) {
   // https://time2hack.com/checking-overlap-between-elements/
   // https://www.youtube.com/watch?v=cUZ2r6C2skA
   // https://css-tricks.com/how-to-stack-elements-in-css/
-  for (let img of document.images) {
+  for (const img of document.images) {
     if (elem.contains(img)) { // img is itself/elem or img is a "sub-node"
       context.debug("Found image within target element! img.src=" + img.src + " and naturalWidth=" + img.naturalWidth + ", naturalHeight=" + img.naturalHeight);
       // We could look for best match, or just continue with the first we find?
       context.debug("Candidate!?");
-      let propDisplay = window.getComputedStyle(img, null).getPropertyValue('display'); // none?
-      let propVisibility = window.getComputedStyle(img, null).getPropertyValue('visibility'); // hidden?
+      const propDisplay = window.getComputedStyle(img, null).getPropertyValue('display'); // none?
+      const propVisibility = window.getComputedStyle(img, null).getPropertyValue('visibility'); // hidden?
       // TODO: Maybe also look at computed opacity ??!
       context.debug("PROPs! display=" + propDisplay + ", visibility=" + propVisibility);
       if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && propDisplay !== 'none' && propVisibility !== 'hidden') {
@@ -328,7 +332,7 @@ function imageSearch(request, elem) {
   }
   if (typeof candidate !== "undefined") {
     context.debug("Found! Let's use best candidate: " + candidate.src);
-    let image = {}; // result
+    const image = {}; // result
     image.imageURL = candidate.currentSrc || candidate.src;
     image.imageType = ''; // so far unknown mimetype
     image.mediaType = 'image';
@@ -349,19 +353,19 @@ function imageSearch(request, elem) {
 
     // srcset attribute holds various sizes/resolutions
     // source tag can define alternative formats (but might also hold sizes)
-    if (candidate.parentNode?.nodeName.toUpperCase() === 'PICTURE') {
-      let picture = candidate.parentNode;
-      let potentials = [];
+    if (candidate.parentNode?.nodeName && candidate.parentNode.nodeName.toUpperCase() === 'PICTURE') {
+      const picture = candidate.parentNode;
+      const potentials = [];
       let foundShownInAvoid = false;
       let descriptorToMatch = '1x';
       for (const child of picture.children) {
         if (child.nodeName.toUpperCase() === 'SOURCE' && child.srcset && child.type) { // type is or starts with mimetype;
           if (child.type.startsWith('image/jpeg')) { // We like this being jpeg
             // Populate potentials with jpeg images...
-            let findings = child.srcset.split(',');
+            const findings = child.srcset.split(',');
             for (const found of findings) {
-              let parts = found.trim().split(/\s+/);
-              let foundUrl = new URL(parts[0].trim(), child.baseURI).href;
+              const parts = found.trim().split(/\s+/);
+              const foundUrl = new URL(parts[0].trim(), child.baseURI).href;
               let foundDescriptor = parts.slice(1).join(' ');
               if (foundDescriptor === '') {
                 foundDescriptor = '1x';
@@ -382,11 +386,11 @@ function imageSearch(request, elem) {
             }
           } else { // Let's avoid this
             // Detect if use of image to avoid...
-            let findings = child.srcset.split(',');
-            let foundType = child.type.split(';')[0].trim();
+            const findings = child.srcset.split(',');
+            const foundType = child.type.split(';')[0].trim();
             for (const found of findings) {
-              let parts = found.trim().split(/\s+/);
-              let foundUrl = new URL(parts[0].trim(), child.baseURI).href;
+              const parts = found.trim().split(/\s+/);
+              const foundUrl = new URL(parts[0].trim(), child.baseURI).href;
               let foundDescriptor = parts.slice(1).join(' ');
               if (foundDescriptor === '') {
                 foundDescriptor = '1x';
@@ -405,10 +409,10 @@ function imageSearch(request, elem) {
       if (foundShownInAvoid) { // We like to find an alternative (hopefully jpeg) to parse meta-data from...
         if (potentials.length === 0 && candidate.srcset) {
           // If potentials is empty and img.srcset is defined, add img.srcset to potentials...
-          let findings = candidate.srcset.split(',');
+          const findings = candidate.srcset.split(',');
           for (const found of findings) {
-            let parts = found.trim().split(/\s+/);
-            let foundUrl = new URL(parts[0].trim(), candidate.baseURI).href;
+            const parts = found.trim().split(/\s+/);
+            const foundUrl = new URL(parts[0].trim(), candidate.baseURI).href;
             let foundDescriptor = parts.slice(1).join(' ');
             if (foundDescriptor === '') {
               foundDescriptor = '1x';
@@ -435,7 +439,7 @@ function imageSearch(request, elem) {
             }
           }
           // If no exact descriptor-match in potentials, then use the one with "highest descriptor" (probably largest image)...
-          let potential = potentials.reduce((max, other) => max.sortWeight > other.sortWeight ? max : other); // Find item with highest sortWeight (descriptor-value)
+          const potential = potentials.reduce((max, other) => max.sortWeight > other.sortWeight ? max : other); // Find item with highest sortWeight (descriptor-value)
           image.proxyURL = potential.url;
           image.proxyType = potential.type;
           return image;
@@ -453,15 +457,15 @@ function imageSearch(request, elem) {
 
 function extraSearch(request, elem, xtrSizes) {
   context.debug("extraSearch(): Looking for backgrounds/svg on/below " + elem.nodeName.toLowerCase());
-  let xtrImgs = Array.from(new Set([...getBgImgs(elem), ...getSVGEmbeddedImages(elem)]))
+  const xtrImgs = Array.from(new Set([...getBgImgs(elem), ...getSVGEmbeddedImages(elem)]))
   context.debug("extraSearch(): Following xtrImgs are found on/below: " + JSON.stringify(xtrImgs));
   if (xtrImgs && xtrImgs.length > 0) {
     context.debug("Found extra svg or background image: " + xtrImgs[0]);
     context.debug("Looking for dimensions of extra-images via " + JSON.stringify(xtrSizes));
-    for (let xSrc of xtrImgs) {
-      let imgData = xtrSizes.find(xs => xs.src === xSrc);
+    for (const xSrc of xtrImgs) {
+      const imgData = xtrSizes.find(xs => xs.src === xSrc);
       if (imgData.width && !blacklistedImage(imgData.src) && ((request.deepSearchBigger && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearchBigger && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
-        let image = {};
+        const image = {};
         image.imageURL = xSrc;
         image.mediaType = 'image';
         image.naturalWidth = imgData.width;
@@ -512,13 +516,13 @@ if (typeof contentListenerAdded === 'undefined') {
         /**************************************************************/
 
         context.debug(" *** ADVANCED MODE WITH DEEP SEARCH *** ");
-        let elem = browser.menus.getTargetElement(request.targetId);
+        const elem = browser.menus.getTargetElement(request.targetId);
         // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/getTargetElement
         // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/OnClickData
         if (elem) {
           request.nodeName = elem.nodeName.toLowerCase(); // node name of context (right-click) target
-          let extraImages = loadImgAll(Array.from(new Set([...getBgImgs(document), ...getSVGEmbeddedImages(document)]))); // start finding and downloading images in svg and backgrounds to find the dimensions
-          let image = imageSearch(request, elem);
+          const extraImages = loadImgAll(Array.from(new Set([...getBgImgs(document), ...getSVGEmbeddedImages(document)]))); // start finding and downloading images in svg and backgrounds to find the dimensions
+          const image = imageSearch(request, elem);
           if (image) {
             loadparseshow(image);
           } else {
@@ -538,7 +542,7 @@ if (typeof contentListenerAdded === 'undefined') {
         context.debug(" *** SIMPLE 'LEGACY' MODE *** ");
         request.nodeName = 'img'; // node name of context (right-click) target
         context.debug("parseImage message received with URL = " + request.imageURL);
-        let image = {};
+        const image = {};
         image.imageURL = request.imageURL;
         image.mediaType = 'image';
         image.supportsDeepSearch = request.supportsDeepSearch; // false
@@ -546,7 +550,7 @@ if (typeof contentListenerAdded === 'undefined') {
         image.deepSearchBigger = request.deepSearchBigger;
         image.source = "img element";
         image.context = request.nodeName + " element"; // (not really anything to de with found image)
-        let img = Array.from(document.images).find(imgElem => imgElem.currentSrc === request.imageURL);
+        const img = Array.from(document.images).find(imgElem => imgElem.currentSrc === request.imageURL);
         if (img) {
           image.naturalWidth = img.naturalWidth;
           image.naturalHeight = img.naturalHeight;
@@ -568,4 +572,4 @@ if (typeof contentListenerAdded === 'undefined') {
   });
 }
 
-var contentListenerAdded = true;
+globalThis.contentListenerAdded = true;

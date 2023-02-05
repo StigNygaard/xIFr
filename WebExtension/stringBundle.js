@@ -6,9 +6,9 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-var stringBundle = {
+globalThis.stringBundle = globalThis.stringBundle || {
   getString(string) {
-    var translate = browser.i18n.getMessage(string);
+    const translate = browser.i18n.getMessage(string);
     // WebExtension docs are lying here
     if (typeof translate === "undefined" || translate === "??" || translate === "") {
       return string;
@@ -17,7 +17,7 @@ var stringBundle = {
     }
   },
   getFormattedString(string, val) {
-    var xlat = stringBundle.getString(string);
+    const xlat = stringBundle.getString(string);
     if (xlat !== string) {
       return val + xlat;
     } else {

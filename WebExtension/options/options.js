@@ -9,10 +9,10 @@ function setDisplayMode(dispMode) {
 }
 
 function updateDeepSearchSize() {
-  var inp = document.getElementById("deepSearchBiggerLimit");
-  var out = document.getElementById("deepSearchBiggerLimitEx");
+  const inp = document.getElementById("deepSearchBiggerLimit");
+  const out = document.getElementById("deepSearchBiggerLimitEx");
   out.textContent = "";
-  var d = parseInt(inp.value, 10);
+  let d = parseInt(inp.value, 10);
   if (!Number.isNaN(d)) {
     d = Math.sqrt(d);
     if (!Number.isNaN(d)) {
@@ -35,7 +35,7 @@ function saveOptions(e) {
     mlinkHere: document.querySelector("form#xIFroptions #mlinkHere").checked,
     mlinkFlickr: document.querySelector("form#xIFroptions #mlinkFlickr").checked
   }).then(
-    () => {setDisplayMode(document.forms[0].dispMode.value); updateDeepSearchSize()}, (error) => {context.error('Failed saving xIFr options: ' + error)}
+    () => {setDisplayMode(document.forms[0].dispMode.value); updateDeepSearchSize()}, (error) => {console.error('Failed saving xIFr options: ' + error)}
   );
 }
 

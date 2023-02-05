@@ -20,10 +20,10 @@ function fxifClass() {
 
     context.debug("gatherData(bis): Entering fxifClass.gatherData(bis)...");
 
-    var dataObj = {};
-    var swapbytes = false;
-    var marker = bis.read16();
-    var len;
+    const dataObj = {};
+    let swapbytes = false;
+    let marker = bis.read16();
+    let len;
 
     context.debug("gatherData(bis): Initial bis.read16() done.");
 
@@ -39,20 +39,20 @@ function fxifClass() {
         if (marker == APP1_MARKER && len >= 6) {
           context.debug("gatherData(bis): Found marker==APP1_MARKER.");
           // for EXIF the first 6 bytes should be 'Exif\0\0'
-          var header = bis.readBytes(6);
+          let header = bis.readBytes(6);
           // Is it EXIF?
           if (header == 'Exif\0\0') {
             context.debug("gatherData(bis): Found EXIF.");
             // 8 byte TIFF header
             // first two determine byte order
-            var exifData = bis.readByteArray(len - 6);
+            const exifData = bis.readByteArray(len - 6);
 
             swapbytes = fxifUtils.read16(exifData, 0, false) == INTEL_BYTE_ORDER;
 
             // next two bytes are always 0x002A
             // offset to Image File Directory (includes the previous 8 bytes)
-            var ifd_ofs = fxifUtils.read32(exifData, 4, swapbytes);
-            var exifReader = new exifClass();
+            const ifd_ofs = fxifUtils.read32(exifData, 4, swapbytes);
+            const exifReader = new exifClass();
             try {
               exifReader.readExifDir(dataObj, exifData, ifd_ofs, swapbytes);
             } catch (ex) {
@@ -74,15 +74,15 @@ function fxifClass() {
                 // There is at least one programm which writes spaces behind the namespace URI.
                 // Overread up to 5 bytes of such garbage until a '\0'. I deliberately don't read
                 // until reaching len bytes.
-                var a;
-                var j = 0;
+                let a;
+                let j = 0;
                 do {
                   a = bis.readBytes(1);
                 } while (++j < 5 && a == ' ');
                 if (a == '\0') {
-                  var xmpData = bis.readByteArray(len - (28 + j));
+                  const xmpData = bis.readByteArray(len - (28 + j));
                   try {
-                    var xmpReader = new xmpClass();
+                    const xmpReader = new xmpClass();
                     xmpReader.parseXML(dataObj, xmpData);
                   } catch (ex) {
                     pushError(dataObj, "[XMP]", ex);
@@ -120,10 +120,10 @@ function fxifClass() {
         if (marker == APP13_MARKER && len > 14) {
           context.debug("gatherData(bis): Found marker==APP13_MARKER.");
           // 6 bytes, 'Photoshop 3.0\0'
-          var psString = bis.readBytes(14);
-          var psData = bis.readByteArray(len - 14);
+          const psString = bis.readBytes(14);
+          const psData = bis.readByteArray(len - 14);
           if (psString === 'Photoshop 3.0\0') {
-            var iptcReader = new iptcClass(stringBundle);
+            const iptcReader = new iptcClass(stringBundle);
             try {
               iptcReader.readPsSection(dataObj, psData);
             } catch (ex) {
@@ -175,4 +175,4 @@ function fxifClass() {
   }
 }
 
-var fxifObj = new fxifClass();
+globalThis.fxifObj = new fxifClass();

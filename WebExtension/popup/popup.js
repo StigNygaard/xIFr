@@ -63,7 +63,7 @@ function formatWithNodeAppendables(s) { // Needs a better name? :-)
   return [...linkifyWithNodeAppendables(lines[0]), ...lines.slice(1)];
 }
 let keyShortcuts = (function KeyShortcuts() {
-  let shortcuts = new Map();
+  const shortcuts = new Map();
   window.addEventListener("keydown", function keydownListener(event) {
     if (event.defaultPrevented) {
       return; // Do nothing if the event was already processed
@@ -97,9 +97,9 @@ function populate(response) {
     return {width: w + 'px', height: h + 'px'};
   }
   if (response.properties.URL) {
-    let image = document.querySelector("#image img");
+    const image = document.querySelector("#image img");
     if (response.properties.naturalWidth) {
-      let ts = thumbsize(response.properties.naturalWidth, response.properties.naturalHeight);
+      const ts = thumbsize(response.properties.naturalWidth, response.properties.naturalHeight);
       image.style.width = ts.width;
       image.style.height = ts.height;
     }
@@ -110,7 +110,7 @@ function populate(response) {
       response.properties.naturalWidth = image.naturalWidth;
       response.properties.naturalHeight = image.naturalHeight;
       // Redo calculation if successfully loaded (Loading might fail if from file:):
-      let ts = thumbsize(response.properties.naturalWidth, response.properties.naturalHeight);
+      const ts = thumbsize(response.properties.naturalWidth, response.properties.naturalHeight);
       image.style.width = ts.width;
       image.style.height = ts.height;
       if (typeof response.properties.naturalWidth === 'number') {
@@ -120,7 +120,7 @@ function populate(response) {
     image.src = response.properties.URL;
 
     function linkProperties(imageUrl) {
-      let linkElem = createRichElement("a", {href: imageUrl});  // TODO: Can we use URL object here instead?
+      const linkElem = createRichElement("a", {href: imageUrl});  // TODO: Can we use URL object here instead?
       let textContent;
       let title = "";
       if (imageUrl.startsWith("data:")) {
@@ -139,12 +139,12 @@ function populate(response) {
       }
     }
 
-    let linkProps = linkProperties(image.src);
+    const linkProps = linkProperties(image.src);
     document.getElementById("filename").textContent = linkProps.name;
     document.getElementById("filename").title = linkProps.title;
     document.getElementById("filename").href = linkProps.url;
     if (response.properties.pageShownURL) {
-      let origLinkProps = linkProperties(response.properties.pageShownURL);
+      const origLinkProps = linkProperties(response.properties.pageShownURL);
       document.getElementById("orig_filename").textContent = origLinkProps.name;
       document.getElementById("orig_filename").title = origLinkProps.title;
       document.getElementById("orig_filename").href = origLinkProps.url;
@@ -168,8 +168,8 @@ function populate(response) {
   }
   function addMessages(list, icon, alt) {
     list.forEach(function (item) {
-      let msg = createRichElement('i', {}, item);
-      let sign = createRichElement('img', {src: icon, alt: alt});
+      const msg = createRichElement('i', {}, item);
+      const sign = createRichElement('img', {src: icon, alt: alt});
       document.getElementById('messages').appendChild(createRichElement('div', {}, sign, ' ', msg));
     });
   }
@@ -185,7 +185,7 @@ function populate(response) {
     document.body.classList.add('expandGps');
     document.querySelectorAll('.gps.expandable').forEach(
       function(elm) {
-        let row = elm.parentNode.parentNode;
+        const row = elm.parentNode.parentNode;
         row.removeAttribute('title');
         row.classList.remove('clickable', 'notice');
         row.removeEventListener("click", gpsRowClick, {capture: true, once: true});
@@ -194,34 +194,34 @@ function populate(response) {
   function softwareRowClick(event) {
     event.preventDefault();
     document.body.classList.add('expandSoftware');
-    let elm = document.querySelector('.software.expandable');
+    const elm = document.querySelector('.software.expandable');
     if (elm) {
-      let row = elm.parentNode.parentNode;
+      const row = elm.parentNode.parentNode;
       row.removeAttribute('title');
       row.classList.remove('clickable', 'notice');
     }
   }
   function listArrayWithNodeAppendables(arr) { // Inserting linebreaks to get one item pr. line
-    let ret = [];
+    const ret = [];
     arr.forEach(function(item) {ret.push(item); ret.push(document.createElement('br'))});
     return ret;
   }
-  let table = document.getElementById("data");
+  const table = document.getElementById("data");
   function addDataRow(key_v) {
     if (key_v !== "GPSPureDdLat" && key_v !== "GPSPureDdLon" && key_v !== "AdditionalSoftware" && response.data[key_v].value !== null && response.data[key_v].value !== "") {
-      let row = table.insertRow(-1);
-      let label = row.insertCell(0);
-      let value = row.insertCell(1);
+      const row = table.insertRow(-1);
+      const label = row.insertCell(0);
+      const value = row.insertCell(1);
       label.textContent = response.data[key_v].label;
       label.id = key_v + "LabelCell";
       value.textContent = response.data[key_v].value;
       value.id = key_v + "ValueCell";
       if (["LicenseURL", "CreditLine", "Copyright", "CreatorEmails", "CreatorURLs"].includes(key_v)) {
-        let text = value.textContent.trim();
+        const text = value.textContent.trim();
         value.replaceChildren(...linkifyWithNodeAppendables(text));  // Text with links - ParentNode.replaceChildren() requires Firefox 78+ (or Chrome/Edge 86+)
       } else
       if (["Caption", "UsageTerms", "DocumentNotes", "UserComment", "Comment", "Instructions"].includes(key_v)) {
-        let text = value.textContent.trim();
+        const text = value.textContent.trim();
         value.replaceChildren(...formatWithNodeAppendables(text));  // Text with linebreaks - ParentNode.replaceChildren() requires Firefox 78+ (or Chrome/Edge 86+)
       } else if (key_v === "Keywords") {
         row.classList.add('scsv');
@@ -266,7 +266,7 @@ function populate(response) {
     }
   }
   function maplink(title, className, url, letter) {
-    let link = createRichElement('a', {href: url}, letter);
+    const link = createRichElement('a', {href: url}, letter);
     return createRichElement('div', {title: title, class: className}, link);
   }
   function openOptions(event) {
@@ -280,12 +280,12 @@ function populate(response) {
   function copyPasteContent() {
     let s = 'FILE PROPERTIES\n\n';
     s += document.getElementById('properties').innerText + '\n\n';
-    let rows = document.querySelectorAll('table#data tr');
+    const rows = document.querySelectorAll('table#data tr');
     if (rows && rows.length > 0) {
       document.body.classList.add("copypastemode");
       s += 'IMAGE META DATA\n\n';
       rows.forEach((row) => {
-        let tds = row.getElementsByTagName('td');
+        const tds = row.getElementsByTagName('td');
         if (tds && tds.length > 1) {
           s += tds[0].innerText + ': ' + tds[1].innerText + '\n';
         }
@@ -303,11 +303,11 @@ function populate(response) {
     navigator.clipboard.writeText(copyPasteContent());
   }
 
-  let orderedKeys = ["Headline", "Caption", "ObjectName", "Creditline", "Copyright", "UsageTerms", "LicenseURL",
+  const orderedKeys = ["Headline", "Caption", "ObjectName", "Creditline", "Copyright", "UsageTerms", "LicenseURL",
     "Creator", "CreatorAddress", "CreatorCity", "CreatorRegion", "CreatorPostalCode", "CreatorCountry", "CreatorPhoneNumbers", "CreatorEmails", "CreatorURLs",
     "Date", "Make", "Model", "Lens", "FocalLengthText", "DigitalZoomRatio", "ApertureFNumber", "ExposureTime", "ISOequivalent", "FlashUsed", "WhiteBalance", "Distance",
     "GPSLat", "GPSLon", "GPSAlt", "GPSImgDir", "CountryName", "ProvinceState", "City", "Sublocation" ];
-  let foundKeys = Object.keys(response.data);
+  const foundKeys = Object.keys(response.data);
   orderedKeys.filter(x => foundKeys.includes(x)).forEach(addDataRow);  // First the orderedKeys (Headline, Description, Creator, Copyright, Credit Line,...)
   foundKeys.filter(x => !orderedKeys.includes(x)).forEach(addDataRow); // Then the rest...
   if (response.data.GPSPureDdLat && response.data.GPSPureDdLon && typeof response.data.GPSPureDdLat.value === 'number' && typeof response.data.GPSPureDdLon.value === 'number') {
@@ -319,12 +319,12 @@ function populate(response) {
     keyShortcuts.register("M", showMapTab);
     keyShortcuts.register("l", openLargeMap);
     keyShortcuts.register("L", openLargeMap);
-    let maplinks = document.getElementById('maplinks');
+    const maplinks = document.getElementById('maplinks');
     if (maplinks) {
-      let lat = response.data.GPSPureDdLat.value;
-      let lon = response.data.GPSPureDdLon.value;
-      let lang = browser.i18n.getUILanguage();
-      let titleString = encodeURIComponent('Photo location').replace(/_/gu, ' '); // Used by Bing. Could potentially be filename or title, but underscores means trouble :-/ ...
+      const lat = response.data.GPSPureDdLat.value;
+      const lon = response.data.GPSPureDdLon.value;
+      const lang = browser.i18n.getUILanguage();
+      const titleString = encodeURIComponent('Photo location').replace(/_/gu, ' '); // Used by Bing. Could potentially be filename or title, but underscores means trouble :-/ ...
       maplinks.appendChild(maplink('Locate on OpenStreetMap', 'OSM', `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}&layers=M`, 'O'));
       maplinks.appendChild(maplink('Locate on Google Maps', 'Google', `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`, 'G'));
       maplinks.appendChild(maplink('Locate on Bing Maps', 'Bing', `https://www.bing.com/maps/?cp=%lat%~%lon%&lvl=16&sp=point.${lat}_${lon}_${titleString}`, 'B'));

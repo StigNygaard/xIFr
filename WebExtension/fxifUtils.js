@@ -13,7 +13,7 @@
  */
 
 function fxifUtilsClass() {
-  var prefInstance = null;
+  // let prefInstance = null;
 
   this.exifDone = false;
   this.iptcDone = false;
@@ -39,11 +39,11 @@ function fxifUtilsClass() {
    * Stops at the first null byte.
    */
   this.bytesToString = function (data, offset, num, swapbytes, charWidth) {
-    var s = "";
+    let s = "";
 
     if (charWidth == 1) {
       for (let i = offset; i < offset + num; i++) {
-        let charval = data[i];
+        const charval = data[i];
         if (charval == 0)
           break;
 
@@ -51,7 +51,7 @@ function fxifUtilsClass() {
       }
     } else {
       for (let i = offset; i < offset + num; i += 2) {
-        let charval = this.read16(data, i, swapbytes);
+        const charval = this.read16(data, i, swapbytes);
         if (charval == 0)
           break;
 
@@ -64,9 +64,9 @@ function fxifUtilsClass() {
 
   /* Doesn’t stop at null bytes. */
   this.bytesToStringWithNull = function (data, offset, num) {
-    var s = "";
+    let s = "";
 
-    for (var i = offset; i < offset + num; i++)
+    for (let i = offset; i < offset + num; i++)
       s += String.fromCharCode(data[i]);
 
     return s;
@@ -75,27 +75,27 @@ function fxifUtilsClass() {
   this.dd2dms = function (gpsval) {
     // a bit unconventional calculation to get input edge cases
     // like 0x31 / 0x01, 0x0a / 0x01, 0x3c / 0x01 to 49°11'0" instead of 49°10'60"
-    var gpsDeg = Math.floor(gpsval / 3600);
+    const gpsDeg = Math.floor(gpsval / 3600);
     gpsval -= gpsDeg * 3600.0;
-    var gpsMin = Math.floor(gpsval / 60);
+    const gpsMin = Math.floor(gpsval / 60);
     // round to 2 digits after the comma
-    var gpsSec = (gpsval - gpsMin * 60.0).toFixed(2);
-    return new Array(gpsDeg, gpsMin, gpsSec);
+    const gpsSec = (gpsval - gpsMin * 60.0).toFixed(2);
+    return [gpsDeg, gpsMin, gpsSec];
   };
 
   this.dd2dm = function (gpsval) {
     // a bit unconventional calculation to get input edge cases
     // like 0x31 / 0x01, 0x0a / 0x01, 0x3c / 0x01 to 49°11'0" instead of 49°10'60"
-    var gpsDeg = Math.floor(gpsval / 3600);
+    const gpsDeg = Math.floor(gpsval / 3600);
     gpsval -= gpsDeg * 3600.0;
     // round to 2 digits after the comma
-    var gpsMin = (gpsval / 60).toFixed(4);
-    return new Array(gpsDeg, gpsMin);
+    const gpsMin = (gpsval / 60).toFixed(4);
+    return [gpsDeg, gpsMin];
   };
 
   this.dd2dd = function (gpsval) {
     // round to 6 digits after the comma
-    var gpsArr = new Array();
+    const gpsArr = [];
     gpsArr.push((gpsval / 3600).toFixed(6));
     return gpsArr;
   };
@@ -111,4 +111,4 @@ function fxifUtilsClass() {
   }
 }
 
-var fxifUtils = new fxifUtilsClass();
+globalThis.fxifUtils = new fxifUtilsClass();

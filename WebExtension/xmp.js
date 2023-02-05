@@ -13,8 +13,8 @@
 function xmpClass() {
   // Parses and reads through the XMP document within the file.
   this.parseXML = function (dataObj, xml) {
-    let parser = new DOMParser();
-    let utf8decoder = new TextDecoder('utf-8');
+    const parser = new DOMParser();
+    const utf8decoder = new TextDecoder('utf-8');
     let xmlString = utf8decoder.decode(xml);
     if (xmlString.indexOf('>') < xmlString.indexOf('<')) {
       // We are probably missing the first character("<") in xmp data. This dirty fix which apparently usually works...
@@ -35,7 +35,7 @@ function xmpClass() {
     }
 
     context.info("xmp xmlString (length=" + xmlString.length + ") :\n" + xmlString);
-    let dom = parser.parseFromString(xmlString, 'application/xml'); // alternatively "text/xml" ?
+    const dom = parser.parseFromString(xmlString, 'application/xml'); // alternatively "text/xml" ?
 
     if (dom.documentElement.nodeName === 'parsererror') {
       context.error("Error parsing XML - xmp xmlString: \n" + xmlString);
@@ -44,7 +44,7 @@ function xmpClass() {
       // return;
     }
 
-    var val;
+    let val;
 
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "Credit");
     if (val) {
@@ -57,7 +57,7 @@ function xmpClass() {
       dataObj.Creator = val.join("; "); // todo: Make a Set and handle later like Software or Keywords?
     }
 
-    let contactInfo = dom.getElementsByTagNameNS("http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CreatorContactInfo");
+    const contactInfo = dom.getElementsByTagNameNS("http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CreatorContactInfo");
     if (contactInfo.length) {
       // https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata-2019.1.html#metadata-structures
       let adr = getSubvalues(contactInfo[0], "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CiAdrExtadr");
@@ -222,7 +222,7 @@ function xmpClass() {
     if (!dataObj.Date) {
       val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "DateTimeDigitized");
       if (val) {
-        let date = readAndFormatISODate(val);
+        const date = readAndFormatISODate(val);
         if (date) {
           dataObj.Date = date;
         }
@@ -231,7 +231,7 @@ function xmpClass() {
 
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "CreateDate");
     if (val) {
-      let date = readAndFormatISODate(val);
+      const date = readAndFormatISODate(val);
       if (date) {
         dataObj.Date = date;
       }
@@ -239,7 +239,7 @@ function xmpClass() {
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "DateTimeOriginal");
     if (val) {
-      let date = readAndFormatISODate(val);
+      const date = readAndFormatISODate(val);
       if (date) {
         dataObj.Date = date;
       }
@@ -281,12 +281,11 @@ function xmpClass() {
     }
 
     if (dataObj.FocalLength) {
-      var fl = stringBundle.getFormattedString("millimeters", [dataObj.FocalLength]);
+      let fl = stringBundle.getFormattedString("millimeters", [dataObj.FocalLength]);
       if (dataObj.FocalLength35mmEquiv) {
         dataObj.FocalLength35mmEquiv = parseFloat(dataObj.FocalLength35mmEquiv);
         fl += ", " + stringBundle.getFormattedString("35mmequiv", [dataObj.FocalLength35mmEquiv.toFixed(0)]);
       }
-
       dataObj.FocalLengthText = fl;
     }
 
@@ -297,7 +296,7 @@ function xmpClass() {
       }
       if (val) {
         try {
-          var distance = parseRational(val).toFixed(2);
+          const distance = parseRational(val).toFixed(2);
           if (distance < 0 || distance > 4294967294) {
             dataObj.Distance = stringBundle.getString("infinite");
           } else {
@@ -314,7 +313,7 @@ function xmpClass() {
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "ExposureTime");
     if (val) {
       try {
-        var et = "";
+        let et = "";
         val = parseRational(val);
         if (val < 0.010) {
           et = stringBundle.getFormattedString("seconds", [val.toFixed(4)]);
@@ -359,12 +358,12 @@ function xmpClass() {
       dataObj.Temperature = stringBundle.getFormattedString("celsius", [val.toFixed(1)]);
     }
 
-    var el = dom.getElementsByTagNameNS("http://ns.adobe.com/exif/1.0/", "Flash");
-    var flashFired = 0;
-    var flashFunction = 0;
-    var flashMode = 0;
-    var redEyeMode = 0;
-    var flashReturn = 0;
+    const el = dom.getElementsByTagNameNS("http://ns.adobe.com/exif/1.0/", "Flash");
+    let flashFired = 0;
+    let flashFunction = 0;
+    let flashMode = 0;
+    let redEyeMode = 0;
+    let flashReturn = 0;
     if (el.length) {
       // Flash values can occur in two ways, as attribute values of flash
       // like <Flash Fired="True"/>
@@ -391,8 +390,8 @@ function xmpClass() {
         flashReturn = Number(el[0].getAttributeNS("http://ns.adobe.com/exif/1.0/", "Return"));
       }
 
-      var fu;
-      var addfunc = [];
+      let fu;
+      const addfunc = [];
       if (flashFired && flashFired.match(/^true$/i)) {
         fu = stringBundle.getString("yes");
 
@@ -680,7 +679,7 @@ function xmpClass() {
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "DigitalZoomRatio");
     if (val) {
       try {
-        var floatVal = parseRational(val);
+        const floatVal = parseRational(val);
         if (floatVal > 1) {
           dataObj.DigitalZoomRatio = floatVal.toFixed(3) + "x";
         }
@@ -694,7 +693,7 @@ function xmpClass() {
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "ColorSpace");
     if (val) {
       context.debug("xmp.js 1 colorspace val =" + val);
-      let postfix = (context.INFO || context.DEBUG ? " (xmp)" : "");
+      const postfix = (context.INFO || context.DEBUG ? " (xmp)" : "");
       if (val == 1) {
         dataObj.ColorSpace = "sRGB" + postfix;
       } else if (val == 2) {
@@ -715,44 +714,44 @@ function xmpClass() {
     // GPS stuff
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "GPSAltitude");
-    var gpsAlt;
+    let gpsAlt;
     if (val) {
       gpsAlt = parseRational(val);
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "GPSAltitudeRef");
-    var gpsAltRef = 0;
+    let gpsAltRef = 0;
     if (val) {
       gpsAltRef = Number(val);
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "GPSImgDirection");
-    var gpsImgDir;
+    let gpsImgDir;
     if (val) {
       gpsImgDir = parseRational(val);
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "GPSImgDirectionRef");
-    var gpsImgDirRef = 'M';
+    let gpsImgDirRef = 'M';
     if (val) {
       gpsImgDirRef = val;
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "GPSLatitude");
-    var gpsLat;
+    let gpsLat;
     if (val) {
       gpsLat = parseGPSPos(val);
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "GPSLongitude");
-    var gpsLon;
+    let gpsLon;
     if (val) {
       gpsLon = parseGPSPos(val);
     }
 
     // use dms format by default
-    var degFormat = "dms";
-    var degFormatter = fxifUtils.dd2dms;
+    let degFormat = "dms";
+    let degFormatter = fxifUtils.dd2dms;
     try {
       // 0 = DMS, 1 = DD, 2 = DM
       if (fxifUtils.getPreferences().getIntPref("gpsFormat") == 1) {
@@ -909,9 +908,9 @@ function xmpClass() {
   // Parse a GPS datum.
   // It's stored like 49,9.8672N
   function parseGPSPos(gpsstring) {
-    var matches = gpsstring.match(/^(\d{1,3}).([0-9.]+) ?([NSEW])$/);
+    const matches = gpsstring.match(/^(\d{1,3}).([0-9.]+) ?([NSEW])$/);
     if (matches) {
-      var val = matches[1] * 3600 + matches[2] * 60;
+      let val = matches[1] * 3600 + matches[2] * 60;
       val = val * (matches[3] === 'N' || matches[3] === 'E' ? 1.0 : -1.0);
       return val;
     }
@@ -922,10 +921,9 @@ function xmpClass() {
   // Throws an exception if ratstring contains to rational
   // (yes, this happens, e.g. GIMP 2.8.10 writes "f/3,5" for FNumber)?
   function parseRational(ratstring) {
-    var matches = ratstring.match(/^([+-]?\d+)\/(\d+)$/);
+    const matches = ratstring.match(/^([+-]?\d+)\/(\d+)$/);
     if (matches) {
-      var val = matches[1] / matches[2];
-      return val;
+      return matches[1] / matches[2];
     } else {
       throw ("ratstring contains no rational");
     }
@@ -938,9 +936,9 @@ function xmpClass() {
   // It’s a bit more relaxted than the specification in that
   // the time zone information is optional
   function readAndFormatISODate(datestring) {
-    var exploded_date = datestring.match(/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2})(?:(:\d{2})(?:\.\d+)?)?([+-]\d{2}:\d{2}|Z)?)?$/);
+    const exploded_date = datestring.match(/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2})(?:(:\d{2})(?:\.\d+)?)?([+-]\d{2}:\d{2}|Z)?)?$/);
     if (exploded_date) {
-      date = exploded_date[1];
+      let date = exploded_date[1];
       if (typeof exploded_date[2] != 'undefined' && exploded_date[2].length > 0) {
         date += ' ' + exploded_date[2];
         if (typeof exploded_date[3] != 'undefined' && exploded_date[3].length > 0) {
@@ -969,15 +967,13 @@ function xmpClass() {
   // ns "http://ns.adobe.com/exif/1.0/"
   // property "FNumber"
   function getXMPValue(dom, ns, property) {
-    var el = dom.getElementsByTagNameNS(ns, property);
+    const el = dom.getElementsByTagNameNS(ns, property);
     if (el.length && el[0].hasChildNodes()) {
       return el[0].firstChild.nodeValue;
     }
-
-    var list = dom.getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "Description");
-
-    for (var i = 0; i < list.length; i++) {
-      var attr = list[i].getAttributeNS(ns, property);
+    const list = dom.getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "Description");
+    for (let i = 0; i < list.length; i++) {
+      const attr = list[i].getAttributeNS(ns, property);
       if (attr) {
         return attr;
       }
@@ -989,15 +985,12 @@ function xmpClass() {
   // But only those in the first structure with the
   // given property name is fetched.
   function getXMPAltValue(dom, ns, property, langTest) {
-    var val;
-
-    var propertyList = dom.getElementsByTagNameNS(ns, property);
-
+    let val;
+    const propertyList = dom.getElementsByTagNameNS(ns, property);
     // go through all the property elements (though there should
     // only be one)
     for (let i = 0; i < propertyList.length && !val; i++) {
-      let entriesList = propertyList[0].getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "li");
-
+      const entriesList = propertyList[0].getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "li");
       for (let j = 0; j < entriesList.length; j++) {
         // found a non empty entry with fitting language
         if (entriesList[j].hasChildNodes() && langTest.test(entriesList[j].getAttribute("xml:lang"))) {
@@ -1008,8 +1001,7 @@ function xmpClass() {
     }
     // our language wasn't found or its entry was empty
     for (let i = 0; i < propertyList.length && !val; i++) {
-      let entriesList = propertyList[0].getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "li");
-
+      const entriesList = propertyList[0].getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "li");
       for (let j = 0; j < entriesList.length; j++) {
         // found a non empty entry with fitting language
         if (entriesList[j].hasChildNodes() &&
@@ -1019,22 +1011,20 @@ function xmpClass() {
         }
       }
     }
-
     return val;
   }
 
   function getSubvalues(dom, ns, property) {
-    var val;
-    var list = dom.getElementsByTagNameNS(ns, property);
+    let val;
+    const list = dom.getElementsByTagNameNS(ns, property);
     if (list.length) {
       if (list[0].hasChildNodes()) {
-        var fc = list[0].firstChild;
+        const fc = list[0].firstChild;
         if (fc.nodeType === Node.TEXT_NODE) {
           val = fc.nodeValue;
         }
       }
     }
-
     return val;
   }
 
@@ -1047,15 +1037,14 @@ function xmpClass() {
   // complicated. Should remove this when Firefox 3 is widespread.
   //function getXMPOrderedArray(dom, property)
   function getXMPOrderedArray(dom, ns, property, attrNS, attrName) {
-    var valarray = [];
-
+    const valarray = [];
     let el = dom.getElementsByTagNameNS(ns, property);
     if (el.length) {
-      var list = el[0].getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "li");
-      for (var i = 0; i < list.length; i++) {
+      const list = el[0].getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "li");
+      for (let i = 0; i < list.length; i++) {
         if (list[i].hasChildNodes()) {
           let li;
-          var tmp = list[i].getElementsByTagNameNS(attrNS, attrName);
+          const tmp = list[i].getElementsByTagNameNS(attrNS, attrName);
           if (tmp.length && tmp[0].hasChildNodes()) {
             li = tmp[0].firstChild;
           } else {
@@ -1066,14 +1055,13 @@ function xmpClass() {
           }
         } else {
           // supposedly one element with values as properties
-          var test = list[i].getAttributeNS(attrNS, attrName);
+          const test = list[i].getAttributeNS(attrNS, attrName);
           if (test) {
             valarray.push(test);
           }
         }
       }
     }
-
     return valarray;
   }
 

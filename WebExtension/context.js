@@ -1,4 +1,4 @@
-var context = (function Context() {
+globalThis.context = globalThis.context || (function Context() {
 
   // Console:
   const LOG = false; // false
@@ -35,7 +35,7 @@ var context = (function Context() {
   }
   function getOptions() {
     function onError(error) {
-      console.log(`Error: ${error}`);
+      console.warning(`getOptions() error: ${error}`);
       return defaults;
     }
     function setCurrentChoice(result) {
@@ -79,7 +79,7 @@ var context = (function Context() {
 
 })();
 
-var versionnumber = (function Versionnumber() {  // major.minor.revision
+globalThis.versionnumber = globalThis.versionnumber || (function Versionnumber() {  // major.minor.revision
   function current() {
     if (browser?.runtime) { // webextension versionnumber
       return browser.runtime.getManifest().version;
