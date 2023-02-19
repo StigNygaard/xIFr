@@ -174,6 +174,7 @@ browser.runtime.onMessage.addListener((request) => {
 browser.runtime.onInstalled.addListener(function handleInstalled({reason, temporary, previousVersion}) {
     // context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
 
+  // TODO: Before going MV3, check status of: https://bugzilla.mozilla.org/show_bug.cgi?id=1771328
   browser.contextMenus.create({ // Can I somehow prevent it on about: and AMO pages?
       id: "viewexif",
       title: browser.i18n.getMessage("contextMenuText"),
@@ -194,15 +195,16 @@ browser.runtime.onInstalled.addListener(function handleInstalled({reason, tempor
 );
 
 
-/* Using "sessionStorage" to persist the state even when background-script is terminated and restarted... */
+/* Using a "sessionStorage" to persist the state even when background-script is terminated and restarted... */
+/* (Build on-top of context.setOptions() and context.getOptions() from context.js...)                       */
 let sessionStorage = (function () {
-  let sessionData;
+  let sessionData; // When background-script is restarted sessionData will be (declared but) of undefined value
   function clear() {
-    sessionData = {};
+    sessionData = {}; // Make sessionData (defined as) empty
     context.getOptions().then(
       function (options) {
         options.sessionstorage = sessionData;
-        context.setOptions(options);
+        context.setOptions(options); // Persist the cleared sessionData
       }
     );
   }
@@ -212,18 +214,18 @@ let sessionStorage = (function () {
         sessionData = options.sessionstorage || {};
         sessionData[property] = value;
         options.sessionstorage = sessionData;
-        return context.setOptions(options)
+        return context.setOptions(options); // Persist updated sessionData
       }
     );
   }
   function get(property) {
     if (sessionData) {
-      return property ? Promise.resolve(sessionData[property]) : Promise.resolve(sessionData);
+      return Promise.resolve(property ? sessionData[property] : sessionData); // Get "in memory" sessionData
     }
     return context.getOptions().then(
       function (options) {
-        sessionData = options.sessionstorage || {};
-        return property ? sessionData[property] : sessionData;
+        sessionData = options.sessionstorage || {}; // Update "in memory" sessionData from persisted
+        return property ? sessionData[property] : sessionData; // return sessionData
       }
     );
   }

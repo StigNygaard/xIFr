@@ -1,7 +1,11 @@
-function createRichElement(tagName, attributes, ...content) {
-  let element = document.createElement(tagName);
-  if (attributes) {
-    for (const [attr, value] of Object.entries(attributes)) {
+function createRichElement(tagName, attributes = {}, ...content) {
+  const element = document.createElement(tagName);
+  for (const [attr, value] of Object.entries(attributes)) {
+    if (value === false) {
+      // Ignore - Don't create attribute (the attribute is "disabled")
+    } else if (value === true) {
+      element.setAttribute(attr, attr); // xhtml-style "enabled" attribute
+    } else {
       element.setAttribute(attr, value);
     }
   }
@@ -11,43 +15,77 @@ function createRichElement(tagName, attributes, ...content) {
   return element;
 }
 
-const PURL = /(?<=[\[:;,({\s]|^)((http|https):\/\/)?[a-z0-9][-a-z0-9.]{1,249}\.[a-z][a-z0-9]{1,62}\b([-a-z0-9@:%_+.~#?&/=]*)/im; // Lookbehind requires Firefox 78+ (Chrome 62+)
-const PEMAIL = /(?<=[\[:;,({\s]|^)(mailto:)?([a-z0-9._-]+@[a-z0-9][-a-z0-9.]{1,249}\.[a-z][a-z0-9]{1,62})/im; // Lookbehind requires Firefox 78+ (Chrome 62+)
-// Return "Linkified content" as a list of DOMStrings and Nodes, to (spread and) insert with methods like ParentNode.append(), ParentNode.replaceChildren() and ChildNode.replaceWith()
-function linkifyWithNodeAppendables(str, anchorattributes) { // Needs a better name? :-)
-  function httpLinks(str, anchorattributes) {
-    let a = str.match(PURL); // look for webdomains
+// Safari 16.3 doesn't support regexp-lookbehind: https://caniuse.com/js-regexp-lookbehind
+// (But support are on the way in Safari too: https://github.com/WebKit/WebKit/pull/7109)
+function supportsRegexLookAheadLookBehind() {
+  try {
+    return (
+      "hibyehihi"
+        .replace(new RegExp("(?<=hi)hi", "g"), "hello")
+        .replace(new RegExp("hi(?!bye)", "g"), "hey") === "hibyeheyhello"
+    );
+  } catch (error) {
+    return false;
+  }
+}
+const PURLsource = '(?<=[\\[:;,({\\s]|^)((http|https):\\/\\/)?[a-z0-9][-a-z0-9.]{1,249}\\.[a-z][a-z0-9]{1,62}\\b([-a-z0-9@:%_+.~#?&/=]*)'; // PURL.source
+const PURLflags = 'im'; // PURL.flags
+const PEMAILsource = '(?<=[\\[:;,({\\s]|^)(mailto:)?([a-z0-9._-]+@[a-z0-9][-a-z0-9.]{1,249}\\.[a-z][a-z0-9]{1,62})'; // PEMAIL.source
+const PEMAILflags = 'im'; // PEMAIL.flags
+// Return "Linkified content" as a structure of DOMStrings and Nodes.
+// Usage: (Spread and) insert result with methods like ParentNode.append(), ParentNode.replaceChildren() and ChildNode.replaceWith()
+function linkifyWithNodeAppendables(str, anchorattributes, emailanchorattributes) {
+  // The big magical text to rich-DOM-structure "transmogrifier"...
+  const PURL = new RegExp(PURLsource, PURLflags);
+  const PEMAIL = new RegExp(PEMAILsource, PEMAILflags);
+  function httpLinks(str) {
+    const a = str.match(PURL); // look for webadresses
     if (a === null) {
       return [str];
     } else {
-      if (!anchorattributes) anchorattributes = {};
-      let durl = a[0].replace(/[:\.]+$/, "");  // remove trailing dots and colons
-      anchorattributes.href = durl.search(/^https?:\/\//) === -1 ? "http://" + durl : durl;
-      let begin = str.substring(0, str.indexOf(durl));
-      let end = str.substring(begin.length + durl.length); // Use "code units" count
-      // let end = str.substring([...begin].length + [...durl].length); // Use character count ?
-      return [begin, createRichElement('a', anchorattributes, durl), ...httpLinks(end, anchorattributes)]; // recursive
+      const webattrib = anchorattributes || {};
+      const durl = a[0].replace(/[:\.]+$/, "");  // remove trailing dots and colons
+      webattrib.href = durl.search(/^https?:\/\//) === -1 ? "http://" + durl : durl;
+      const begin = str.substring(0, str.indexOf(durl));
+      const end = str.substring(begin.length + durl.length);
+      return [begin, createRichElement('a', webattrib, durl), ...httpLinks(end)]; // (recursive)
     }
   }
-  function mailtoAndHttpLinks(str, anchorattributes) {
-    let e = str.match(PEMAIL); // look for emails
+  function mailtoAndHttpLinks(str) {
+    const e = str.match(PEMAIL); // look for emails
     if (e === null) {
       return [...httpLinks(str)];
     } else {
-      if (!anchorattributes) anchorattributes = {};
-      let demail = e[0];
-      anchorattributes.href = demail.search(/^mailto:/) === -1 ? "mailto:" + demail : demail;
-      let begin = str.substring(0,str.indexOf(demail));
-      let end = str.substring(begin.length + demail.length); // Use "code units" count
-      // let end = str.substring([...begin].length + [...demail].length); // Use character count ?
-      return [...httpLinks(begin), createRichElement('a', anchorattributes, demail), ...mailtoAndHttpLinks(end, anchorattributes)]; // recursive
+      const emailattrib = emailanchorattributes || anchorattributes || {};
+      const demail = e[0];
+      emailattrib.href = demail.search(/^mailto:/) === -1 ? "mailto:" + demail : demail;
+      const begin = str.substring(0,str.indexOf(demail));
+      const end = str.substring(begin.length + demail.length);
+      return [...httpLinks(begin), createRichElement('a', emailattrib, demail), ...mailtoAndHttpLinks(end)]; // (recursive)
     }
   }
-  return mailtoAndHttpLinks(str, anchorattributes);
+  return mailtoAndHttpLinks(str);
+}
+if (!supportsRegexLookAheadLookBehind()) {
+  linkifyWithNodeAppendables = function(str, ...ignore) {return str};
+  console.warn('Current webbrowser doesn\'t support regexp-lookbehind (or lookahead)! DOMUtil.linkifyWithNodeAppendables(str) will return str parameter unchanged.');
+}
+// Return "line-breaked and linkified content" as array of DOMStrings and Nodes/subtrees.
+// Use with "spread result" like: ParentNode.append(...result), ParentNode.replaceChildren(...result) and ChildNode.replaceWith(...result)
+function formatWithNodeAppendables(s, linesplitter, anchorattributes, emailanchorattributes) {
+  let lines = [s];
+  if (linesplitter) {
+    lines = s.split(linesplitter);
+  }
+  for (let i = lines.length - 1; i > 0; i--) {
+    lines.splice(i, 0, document.createElement('br'));
+    lines.splice(i + 1, 1, ...linkifyWithNodeAppendables(lines[i + 1], anchorattributes, emailanchorattributes));
+  }
+  return [...linkifyWithNodeAppendables(lines[0], anchorattributes, emailanchorattributes), ...lines.slice(1)];
 }
 // Return "linebreaked and linkified content" as list of DOMStrings and Nodes, to (spread and) insert with ParentNode.append(), ParentNode.replaceChildren() and ChildNode.replaceWith()
 // (Will convert both "symbolic" and real linefeeds to actual <br /> DOM elements)
-function formatWithNodeAppendables(s) { // Needs a better name? :-)
+function cleanAndFormatWithNodeAppendables(s) { // Needs a better name? :-)
   s = s.replace(/\x00/g, ""); // Remove confusing nulls
   if (s.indexOf("\\r") > -1) {
     s = s.split("\\n").join("");
@@ -55,12 +93,7 @@ function formatWithNodeAppendables(s) { // Needs a better name? :-)
     s = s.split("\\n").join("\\r");
   }
   s = s.split("\n").join("\\r");
-  let lines = s.split("\\r");
-  for (let i = lines.length - 1; i > 0; i--) {
-    lines.splice(i, 0, document.createElement('br'));
-    lines.splice(i + 1, 1, ...linkifyWithNodeAppendables(lines[i + 1]));
-  }
-  return [...linkifyWithNodeAppendables(lines[0]), ...lines.slice(1)];
+  return formatWithNodeAppendables(s, "\\r");
 }
 let keyShortcuts = (function KeyShortcuts() {
   const shortcuts = new Map();
@@ -222,7 +255,7 @@ function populate(response) {
       } else
       if (["Caption", "UsageTerms", "DocumentNotes", "UserComment", "Comment", "Instructions"].includes(key_v)) {
         const text = value.textContent.trim();
-        value.replaceChildren(...formatWithNodeAppendables(text));  // Text with linebreaks - ParentNode.replaceChildren() requires Firefox 78+ (or Chrome/Edge 86+)
+        value.replaceChildren(...cleanAndFormatWithNodeAppendables(text));  // Text with linebreaks - ParentNode.replaceChildren() requires Firefox 78+ (or Chrome/Edge 86+)
       } else if (key_v === "Keywords") {
         row.classList.add('scsv');
       } else if (key_v === 'GPSLat') {

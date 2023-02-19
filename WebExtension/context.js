@@ -47,7 +47,7 @@ globalThis.context = globalThis.context || (function Context() {
 
   // Misc:
   function supportsDeepSearch() {
-    return !!(typeof browser !== 'undefined' && browser.menus && browser.menus.getTargetElement); // Well, might not be enough. But for the time being this check should tell. In practice Firefox 63+ supports, Chrome does not...
+    return !!(typeof browser !== 'undefined' && browser.menus?.getTargetElement); // Well, might not be enough. But for the time being this check should tell. In practice Firefox 63+ supports, Chrome does not...
   }
   function prefersDark(dispMode) {
     return dispMode === "darkMode" || (window?.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -91,8 +91,8 @@ globalThis.versionnumber = globalThis.versionnumber || (function Versionnumber()
       v2 = v1;
       v1 = current();
     }
-    let v1parts = v1.split('.');
-    let v2parts = v2.split('.');
+    const v1parts = v1.split('.');
+    const v2parts = v2.split('.');
     while (v1parts.length < v2parts.length) v1parts.push(0);
     while (v2parts.length < v1parts.length) v2parts.push(0);
     for (let i = 0; i < v1parts.length; ++i) {
@@ -109,7 +109,7 @@ globalThis.versionnumber = globalThis.versionnumber || (function Versionnumber()
       n = v;
       v = current();
     }
-    let vparts = v.split('.', n);
+    const vparts = v.split('.', n);
     vparts.map( function(item) {return String(parseInt(item.trim(),10))});
     while (vparts.length < n) vparts.push('0');
     return vparts.join('.');
@@ -135,11 +135,11 @@ globalThis.versionnumber = globalThis.versionnumber || (function Versionnumber()
 
   // API:
   return {
-    current,
-    compare,
-    major,
-    minor,
-    revision
+    current: current,
+    compare: compare,
+    major: major,
+    minor: minor,
+    revision: revision
   };
 
 })();
