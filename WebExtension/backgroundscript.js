@@ -81,6 +81,16 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
     context.debug("Context menu clicked. mediaType=" + info.mediaType);
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/OnClickData
     if ((info.mediaType && info.mediaType === "image" && info.srcUrl) || info.targetElementId) {
+
+      // console.log(' *** tab.id: ' + tab.id + ' *** ');
+      // console.log(' *** tab.status: ' + tab.status + ' *** ');
+      // console.log(' *** tab.title: ' + tab.title + ' *** ');
+      // console.log(' *** tab.url: ' + tab.url + ' *** ');
+      // console.log(' *** info.frameId: ' + info.frameId + ' *** ');
+      // console.log(' *** info.srcUrl: ' + info.srcUrl + ' *** ');
+      // console.log(' *** info.frameUrl: ' + info.frameUrl + ' *** ');
+      // console.log(' *** info.targetElementId: ' + info.targetElementId + ' *** ');
+
       const scripts = [
         "lib/mozilla/browser-polyfill.js",
         "context.js",
@@ -92,32 +102,85 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
         "parseJpeg.js",
         "contentscript.js"
       ];
-      const scriptLoadPromises = scripts.map(script => {
-        return browser.tabs.executeScript(null, {
-          frameId: info.frameId,
-          file: script
+
+      if (browser.scripting?.executeScript) {
+        // *** FOR FUTURE USE... - Firefox MV2 or Firefox+Chromium MV3 compatible ***
+        // TODO: Working, but requires "scripting" (or "activeTab") added to manifest permissions!
+        const scriptsInjecting = browser.scripting.executeScript({
+          target: {
+            tabId: tab.id,
+            frameIds: [info.frameId] // For a "flat" webpage, frameId is typically 0.
+          },
+          files: scripts,
+          injectImmediately: true
         });
-      });
-      Promise.all([context.getOptions(), browser.windows.getCurrent(), ...scriptLoadPromises]).then((values) => {
-        context.debug("All scripts started from background is ready...");
-        const options = values[0];
-        const winpop = {"winvp": values[1], "popupPos": options.popupPos};
-        sessionStorage.set("winpop", winpop)
-          .then(() => {
-              browser.tabs.sendMessage(tab.id, {
-                message: "parseImage",
-                imageURL: info.srcUrl,
-                mediaType: info.mediaType,
-                targetId: info.targetElementId,
-                supportsDeepSearch: !!(info.targetElementId && info.modifiers),  // "deep-search" supported in Firefox 63+
-                deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
-                deepSearchBiggerLimit: options.deepSearchBiggerLimit,
-                frameId: info.frameId, // related to globalThis/window/frames ?
-                frameUrl: info.frameUrl
-              });
+        Promise.all([context.getOptions(), browser.windows.getCurrent(), scriptsInjecting])
+          .then((values) => {
+              context.debug("All scripts started from background is ready...");
+              const options = values[0];
+              const winpop = {"winvp": values[1], "popupPos": options.popupPos};
+              if (!values[2].length || !values[2][0].result) {
+                console.error('There was an error loading contentscripts: ' + JSON.stringify(values[2]));
+                // TODO: throw?
+              }
+              sessionStorage.set("winpop", winpop)
+                .then(
+                  () => {
+                    browser.tabs.sendMessage(tab.id, {
+                      message: "parseImage",
+                      imageURL: info.srcUrl,
+                      mediaType: info.mediaType,
+                      targetId: info.targetElementId,
+                      supportsDeepSearch: !!(info.targetElementId && info.modifiers),  // "deep-search" supported in Firefox 63+
+                      deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
+                      deepSearchBiggerLimit: options.deepSearchBiggerLimit,
+                      frameId: info.frameId, // related to globalThis/window/frames ?
+                      frameUrl: info.frameUrl
+                    });
+                  }
+                )
+                .catch((err) => {
+                  console.error(`sessionStorage or sendMessage(parseImage) error: ${err}`);
+                });
             }
-          );
-      });
+          )
+          .catch((err) => {
+            console.error(`Failed getting data or injecting scripts: ${err}`);
+          });
+      } else {
+        // *** DEPRECATED BUT STILL USED SO FAR - Firefox+Chromium MV2 compatible ***
+        // TODO: Replace this with above use of new Scripting API
+        const scriptsInjecting = scripts.map(script => {
+          return browser.tabs.executeScript(null, {
+            frameId: info.frameId,
+            file: script
+          });
+        });
+        Promise.all([context.getOptions(), browser.windows.getCurrent(), ...scriptsInjecting]).then(
+          (values) => {
+            context.debug("All scripts started from background is ready...");
+            const options = values[0];
+            const winpop = {"winvp": values[1], "popupPos": options.popupPos};
+            sessionStorage.set("winpop", winpop)
+              .then(
+                () => {
+                  browser.tabs.sendMessage(tab.id, {
+                    message: "parseImage",
+                    imageURL: info.srcUrl,
+                    mediaType: info.mediaType,
+                    targetId: info.targetElementId,
+                    supportsDeepSearch: !!(info.targetElementId && info.modifiers),  // "deep-search" supported in Firefox 63+
+                    deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
+                    deepSearchBiggerLimit: options.deepSearchBiggerLimit,
+                    frameId: info.frameId, // related to globalThis/window/frames ?
+                    frameUrl: info.frameUrl
+                  });
+                }
+              );
+          }
+        );
+      }
+
     }
   }
 });
@@ -174,7 +237,10 @@ browser.runtime.onMessage.addListener((request) => {
 browser.runtime.onInstalled.addListener(function handleInstalled({reason, temporary, previousVersion}) {
     // context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
 
-  // TODO: Before going MV3, check status of: https://bugzilla.mozilla.org/show_bug.cgi?id=1771328
+  // TODO: Before going MV3, check status of:
+  //  https://bugzilla.mozilla.org/show_bug.cgi?id=1771328,
+  //  https://bugzilla.mozilla.org/show_bug.cgi?id=1817287,
+  //  https://discourse.mozilla.org/t/strange-mv3-behaviour-browser-runtime-oninstalled-event-and-menus-create/111208/11
   browser.contextMenus.create({ // Can I somehow prevent it on about: and AMO pages?
       id: "viewexif",
       title: browser.i18n.getMessage("contextMenuText"),
