@@ -123,10 +123,12 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                 console.error('There was an error loading contentscripts: ' + JSON.stringify(values[2]));
                 // TODO: throw?
               }
-              sessionStorage.set("winpop", winpop)
-                .then(
-                  () => {
-                    browser.tabs.sendMessage(tab.id, {
+            sessionStorage.set("winpop", winpop)
+              .then(
+                () => {
+                  browser.tabs.sendMessage(
+                    tab.id,
+                    {
                       message: "parseImage",
                       imageURL: info.srcUrl,
                       mediaType: info.mediaType,
@@ -136,12 +138,13 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                       deepSearchBiggerLimit: options.deepSearchBiggerLimit,
                       frameId: info.frameId, // related to globalThis/window/frames ?
                       frameUrl: info.frameUrl
-                    });
-                  }
-                )
-                .catch((err) => {
-                  console.error(`sessionStorage or sendMessage(parseImage) error: ${err}`);
-                });
+                    }
+                  );
+                }
+              )
+              .catch((err) => {
+                console.error(`sessionStorage or sendMessage(parseImage) error: ${err}`);
+              });
             }
           )
           .catch((err) => {
@@ -233,20 +236,26 @@ browser.runtime.onMessage.addListener((request) => {
   }
 });
 
-// https://extensionworkshop.com/documentation/develop/onboard-upboard-offboard-users/
-browser.runtime.onInstalled.addListener(function handleInstalled({reason, temporary, previousVersion}) {
-    // context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
-
-  // TODO: Before going MV3, check status of:
+function createMenuItem() {
+  // TODO: Remove multiple call to this when possible.
+  //  But for now, run on both onInstalled and onStartup events, because:
   //  https://bugzilla.mozilla.org/show_bug.cgi?id=1771328,
   //  https://bugzilla.mozilla.org/show_bug.cgi?id=1817287,
   //  https://discourse.mozilla.org/t/strange-mv3-behaviour-browser-runtime-oninstalled-event-and-menus-create/111208/11
-  browser.contextMenus.create({ // Can I somehow prevent it on about: and AMO pages?
-      id: "viewexif",
-      title: browser.i18n.getMessage("contextMenuText"),
-      // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/ContextType
-      contexts: browser.contextMenus.getTargetElement ? ["image", "link", "page", "frame", "editable", "video", "audio"] : ["image"] // Firefox 63+ supports getTargetElement()/targetElementId
-    });
+  browser.contextMenus.create({
+    id: "viewexif",
+    title: browser.i18n.getMessage("contextMenuText"),
+    // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/ContextType
+    contexts: browser.contextMenus.getTargetElement ? ["image", "link", "page", "frame", "editable", "video", "audio"] : ["image"] // Firefox 63+ supports getTargetElement()/targetElementId
+  });
+}
+
+// https://extensionworkshop.com/documentation/develop/onboard-upboard-offboard-users/
+browser.runtime.onInstalled.addListener(
+  function handleInstalled({reason, temporary, previousVersion}) {
+    // context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
+
+    createMenuItem();
 
     // if (details.temporary) return; // Skip during development
     switch (reason) {
@@ -301,4 +310,8 @@ let sessionStorage = (function () {
     get: get
   }
 })();
-browser.runtime.onStartup.addListener(() => sessionStorage.clear()); // Clear any old "sessionStorage" when browser starts...
+
+browser.runtime.onStartup.addListener(() => {
+  sessionStorage.clear(); // Clear any old "sessionStorage" when browser starts...
+  createMenuItem(); // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
+});
