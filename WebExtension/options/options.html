@@ -119,7 +119,7 @@
       <p>
         <label for="deepSearchBiggerLimit">Make "force big" image search ignore images up to </label>
         <input type="text" id="deepSearchBiggerLimit" required="required" minlength="2" maxlength="6" size="8" pattern="[1-9]\d+" inputmode="numeric" />
-        squarepixels big (Equivalent to f.ex: <span id="deepSearchBiggerLimitEx"></span>px).
+        "squarepixels" big (Equivalent to f.ex: <span id="deepSearchBiggerLimitEx"></span>px).
       </p>
       <p class="note"><b class="up">*</b>You initiate the "force big" image search by using shift-click to select xIFr in browser's context menu.</p>
     </fieldset>
@@ -128,7 +128,7 @@
       <p><em>Deep Search</em> is the name given to an advanced method xIFr uses to find/guess which image you where
         thinking of when right-clicking on a webpage (No, it's not always as obvious as it may seem).</p>
       <p><strong>"Deep Search" is unfortunately <em>not</em> supported in your browser!</strong>, but xIFr falls
-      back to a more basic image selection method that still works in many (most?) cases.</p>
+        back to a more basic image selection method that still works in many (most?) cases.</p>
     </fieldset>
     <fieldset>
       <legend>&nbsp;Map links&nbsp;</legend>
@@ -171,6 +171,35 @@
           <label for="mlinkFlickr">Flickr (Other nearby photos)</label>
         </p>
       </div>
+    </fieldset>
+    <fieldset id="developerSettings">
+      <legend>&nbsp;Developer settings and info&nbsp;</legend>
+      <p>These - normally hidden - settings are primarily for developing and debugging purposes. You hide or unhide
+        these settings by double-clicking the logo in top of the page.</p>
+      <div class="threeColumns">
+        <p>
+          <input type="checkbox"
+                 id="devDisableDeepSearch"
+                 value="devDisableDeepSearch"/>
+          <label for="devDisableDeepSearch" title="Force disable Deep Search even if the browser supports it">Force disable Deep Search</label>
+        </p>
+        <p>
+          <input type="radio"
+                 name="devFetchMode"
+                 id="devFrontendFetch"
+                 value="devFrontendFetch"/>
+          <label for="devFrontendFetch">Frontend fetch</label>
+        </p>
+        <p>
+          <input type="radio"
+                 name="devFetchMode"
+                 id="devBackendFetch"
+                 value="devBackendFetch"/>
+          <label for="devBackendFetch">Backend fetch</label>
+        </p>
+      </div>
+      <p><label>Is allowed to run in Private/Incognito mode: </label><span id="allowsPrivate"></span></p>
+      <p><label>initialOnboard value: </label><span id="initialOnboard"></span></p>
     </fieldset>
   </form>
 

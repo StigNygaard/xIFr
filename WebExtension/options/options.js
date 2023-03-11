@@ -33,9 +33,17 @@ function saveOptions(e) {
     mlinkBing: document.querySelector("form#xIFroptions #mlinkBing").checked,
     mlinkMapQuest: document.querySelector("form#xIFroptions #mlinkMapQuest").checked,
     mlinkHere: document.querySelector("form#xIFroptions #mlinkHere").checked,
-    mlinkFlickr: document.querySelector("form#xIFroptions #mlinkFlickr").checked
+    mlinkFlickr: document.querySelector("form#xIFroptions #mlinkFlickr").checked,
+    devDisableDeepSearch: document.querySelector("form#xIFroptions #devDisableDeepSearch").checked,
+    devFetchMode: document.forms[0].devFetchMode.value
+    //     initialOnboard: 0
   }).then(
-    () => {setDisplayMode(document.forms[0].dispMode.value); updateDeepSearchSize()}, (error) => {console.error('Failed saving xIFr options: ' + error)}
+    () => {
+      setDisplayMode(document.forms[0].dispMode.value);
+      updateDeepSearchSize()
+    }, (error) => {
+      console.error('Failed saving xIFr options: ' + error)
+    }
   );
 }
 
@@ -51,8 +59,16 @@ function handlerInitOptionsForm(options) {
     }
   });
   updateDeepSearchSize();
+  document.getElementById("initialOnboard").textContent = options["initialOnboard"];
+  document.getElementById("logo").addEventListener("dblclick", function () {
+    document.body.classList.toggle("developermode")
+  });
   // save on input event:
   document.querySelector("form#xIFroptions").addEventListener("input", saveOptions);
+}
+
+function updateAllowsPrivate(allows) { // Allowed to run in private/incognito-mode ?
+  document.getElementById('allowsPrivate').textContent = allows;
 }
 
 function initializeOptionsPage() {
@@ -64,6 +80,7 @@ function initializeOptionsPage() {
     document.body.classList.add("supportsDeepSearch");
   }
   context.getOptions().then(handlerInitOptionsForm);
+  browser.extension.isAllowedIncognitoAccess().then(updateAllowsPrivate)
 }
 
 window.addEventListener("DOMContentLoaded", initializeOptionsPage);

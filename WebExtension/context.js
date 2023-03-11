@@ -28,7 +28,10 @@ globalThis.context = globalThis.context || (function Context() {
     mlinkBing: true,
     mlinkMapQuest: true,
     mlinkHere: true,
-    mlinkFlickr: true
+    mlinkFlickr: true,
+    devDisableDeepSearch: false,
+    devFetchMode: "devFrontendFetch",
+    initialOnboard: 0
   };
   function setOptions(o) {
     return browser.storage.local.set(o);

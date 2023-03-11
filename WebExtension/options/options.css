@@ -73,7 +73,7 @@ body {
 .isFirefox .ffo {
   display: initial;
 }
-#deepSearchSettings {
+#deepSearchSettings, #developerSettings {
   display: none;
 }
 .supportsDeepSearch #deepSearchSettings {
@@ -81,6 +81,9 @@ body {
 }
 .supportsDeepSearch #noDeepSearchSettings {
   display: none;
+}
+.developermode #developerSettings {
+  display: initial;
 }
 #xIFroptions {
   padding: .4em;
