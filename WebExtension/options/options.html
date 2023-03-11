@@ -183,19 +183,28 @@
                  value="devDisableDeepSearch"/>
           <label for="devDisableDeepSearch" title="Force disable Deep Search even if the browser supports it">Force disable Deep Search</label>
         </p>
+      </div>
+      <div class="threeColumns">
+        <p>
+          <input type="radio"
+                 name="devFetchMode"
+                 id="devAutoFetch"
+                 value="devAutoFetch"/>
+          <label for="devAutoFetch">Autoselect fetch</label>
+        </p>
         <p>
           <input type="radio"
                  name="devFetchMode"
                  id="devFrontendFetch"
                  value="devFrontendFetch"/>
-          <label for="devFrontendFetch">Frontend fetch</label>
+          <label for="devFrontendFetch">Force Frontend fetch</label>
         </p>
         <p>
           <input type="radio"
                  name="devFetchMode"
                  id="devBackendFetch"
                  value="devBackendFetch"/>
-          <label for="devBackendFetch">Backend fetch</label>
+          <label for="devBackendFetch">Force Backend fetch</label>
         </p>
       </div>
       <p><label>Is allowed to run in Private/Incognito mode: </label><span id="allowsPrivate"></span></p>

@@ -313,13 +313,13 @@ function loadparseshow(imgrequest) { // handleChosenOne
   // https://bugs.chromium.org/p/chromium/issues/detail?id=248548
 
   // NOTE: If file: always do frontend fetch !?
-  if (imgrequest.fetchMode === "devFrontendFetch") { // frontend fetch
+  if (["devAutoFetch", "devFrontendFetch"].includes(imgrequest.fetchMode)) { // Frontend fetch
 
     console.log ("FRONTEND fetch: " + imgrequest.fetchMode);
 
     fetchImage(propertiesObj.URL, fetchOptions)
       .then(handleResult);
-  } else { // backend fetch
+  } else { // Backend fetch
 
     console.log ("BACKEND fetch: " + imgrequest.fetchMode);
 

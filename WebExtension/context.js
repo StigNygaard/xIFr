@@ -30,7 +30,7 @@ globalThis.context = globalThis.context || (function Context() {
     mlinkHere: true,
     mlinkFlickr: true,
     devDisableDeepSearch: false,
-    devFetchMode: "devFrontendFetch",
+    devFetchMode: "devAutoFetch",
     initialOnboard: 0
   };
   function setOptions(o) {
