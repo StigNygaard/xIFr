@@ -129,10 +129,63 @@ function loadImgAll(imgList, timeout = 500) { // Could we use https://developer.
   })
 }
 
-function loadparseshow(imgrequest) {
-  // console.log('Properties for ' + imgrequest.imageURL + '... \n srcset=' + imgrequest.srcset + ' \n crossOrigin=' + imgrequest.crossOrigin + ' \n referrerPolicy=' + imgrequest.referrerPolicy + ' (' + (typeof imgrequest.referrerPolicy) + ')' + ' \n baseURI=' + imgrequest.baseURI);
+function fetchImage(url, fetchOptions = {}) {
+  let result = {};
+  const fetchTimeout = 8000; // 8 seconds
+  if (AbortSignal?.timeout) {
+    fetchOptions.signal = AbortSignal.timeout(fetchTimeout);
+  }
+  return fetch(url, fetchOptions)
+    .then(
+      function(response) {
+        if (!response.ok) { // 200ish
+          throw Error("(" + response.status + ") " + response.statusText);
+        }
+        result.byteLength = response.headers.get('Content-Length') || '';
+        result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
+        result.lastModified = response.headers.get('Last-Modified') || '';
+
+        return response.arrayBuffer();
+      }
+    )
+    .then(
+      function(arrayBuffer) {
+        if (arrayBuffer) {
+          context.debug("Looking at the fetch response (arrayBuffer)...");
+          context.info("headers.byteLength: " + result.byteLength);
+          context.info("arraybuffer.byteLength: " + arrayBuffer.byteLength);
+          result.byteArray = new Uint8Array(arrayBuffer);
+
+          result.byteLength = arrayBuffer.byteLength || result.byteLength; // TODO: I guess these ain't both header values?
+
+        }
+        return result;
+      }
+    )
+    .catch(
+      function(error) {
+        if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+          context.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
+          result.error = "Abort - likely timeout - when load image-file for parsing.";
+        } else {
+          context.error("xIFr: fetch-ERROR trying to read image-data from " + url + " : " + error);
+          result.error = "Error trying to load image-file for parsing of the metadata!";
+          result.info = "Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image";
+        }
+        // context.debug("xIFr: fetch-ERROR Event.lengthComputable:" + error.lengthComputable);
+        result.byteLength = '';
+        result.contentType = '';
+        result.lastModified = '';
+        return result;
+      }
+    );
+}
+
+function loadparseshow(imgrequest) { // handleChosenOne
+                                     // console.log('Properties for ' + imgrequest.imageURL + '... \n srcset=' + imgrequest.srcset + ' \n crossOrigin=' + imgrequest.crossOrigin + ' \n referrerPolicy=' + imgrequest.referrerPolicy + ' (' + (typeof imgrequest.referrerPolicy) + ')' + ' \n baseURI=' + imgrequest.baseURI);
   if (!imgrequest) {
     context.debug("Exit loadparseshow. Nothing to show!");
+    context.error("Exit loadparseshow. Nothing to show!");
     return;
   }
   const propertiesObj = {};
@@ -175,91 +228,112 @@ function loadparseshow(imgrequest) {
     propertiesObj.pageShownType = imgrequest.imageType;
     propertiesObj.URL = imgrequest.proxyURL;
   }
-  const fetchTimeout = 8000; // 8 seconds
   const fetchOptions = {};
-  if (AbortSignal?.timeout) {
-    fetchOptions.signal = AbortSignal.timeout(fetchTimeout);
-  }
   if (imgrequest.referrerPolicy) {
     fetchOptions.referrerPolicy = imgrequest.referrerPolicy; // But how are referrerPolicy handled if fetch is moved to background-script?
   }
   context.debug("Will now do fetch(" + propertiesObj.URL + ") ...");
-  fetch(propertiesObj.URL, fetchOptions)
-    .then(function (response) {
-      if (!response.ok) {
-        throw Error("(" + response.status + ") " + response.statusText);
+
+
+  function handleError(error) {
+    console.error('wsGetPhotosetComments - There has been a problem with your fetch operation: ', error.message);
+  }
+  function handleResult(result) {
+    if (result.info) {
+      infosArr.push(result.info);
+    }
+    if (result.error) {
+      errorsArr.push(result.error);
+      propertiesObj.byteLength = '';
+      propertiesObj.contentType = '';
+      propertiesObj.lastModified = '';
+      browser.runtime.sendMessage({
+        message: "EXIFready",
+        data: {},
+        properties: propertiesObj,
+        errors: errorsArr,
+        warnings: warningsArr,
+        infos: infosArr
+      });
+    }
+    if (result.byteArray) {
+      // const uint8array = Uint8Array(result.byteArray) //  new Uint8Array(arrayBuffer)
+      propertiesObj.byteLength = result.byteLength;
+      propertiesObj.contentType = result.contentType;
+      propertiesObj.lastModified = result.lastModified;
+
+      context.debug("Call addByteStreamIF(byteArray)...");
+      addByteStreamIF(result.byteArray);
+      context.debug("Gather data from image header (fxifObj.gatherData(byteArray) = fxifClass.gatherData() in parseJpeg.js)...");
+      const dataObj = fxifObj.gatherData(result.byteArray); // Gather data from header (via "markers" found in file)
+      if (dataObj.error?.length) {
+        errorsArr.push(...dataObj.error);
+        delete dataObj.error;
+      }
+      if (dataObj.warning?.length) {
+        warningsArr.push(...dataObj.warning);
+        delete dataObj.warning;
       }
 
-      propertiesObj.byteLength = response.headers.get('Content-Length') || '';
-      propertiesObj.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
-      propertiesObj.lastModified = response.headers.get('Last-Modified') || '';
-      return response.arrayBuffer();
-    })
-    .then(function (arrayBuffer) {
-      if (arrayBuffer) {
-        context.debug("Looking at the fetch response (arrayBuffer)...");
-        const byteArray = new Uint8Array(arrayBuffer);
-        context.debug("Call addByteStreamIF(byteArray)...");
-        addByteStreamIF(byteArray);
-        context.debug("Gather data from image header (fxifObj.gatherData(byteArray) = fxifClass.gatherData() in parseJpeg.js)...");
-        const dataObj = fxifObj.gatherData(byteArray); // Gather data from header (via "markers" found in file)
-        if (dataObj.error?.length) {
-          errorsArr.push(...dataObj.error);
-          delete dataObj.error;
-        }
-        if (dataObj.warning?.length) {
-          warningsArr.push(...dataObj.warning);
-          delete dataObj.warning;
-        }
-
-        context.debug("request: " + JSON.stringify(imgrequest));
-        if (imgrequest.naturalWidth && imgrequest.supportsDeepSearch && !imgrequest.deepSearchBigger && (imgrequest.naturalWidth * imgrequest.naturalHeight <= imgrequest.deepSearchBiggerLimit)) {
-          infosArr.push('Not the expected image? You can force xIFr to look for a larger image than this, by holding down Shift key when selecting xIFr in the context menu!');
-        }
-
-        propertiesObj.byteLength = arrayBuffer.byteLength || propertiesObj.byteLength;
-
-        context.debug("Gathered data: \n" + JSON.stringify(dataObj));
-        const xlatData = translateFields(dataObj);
-        context.debug("Gathered data after translation: \n" + JSON.stringify(xlatData));
-
-        context.debug("EXIF parsing done. Send EXIFready message...");
-        browser.runtime.sendMessage({
-          message: "EXIFready",
-          data: xlatData,
-          properties: propertiesObj,
-          errors: errorsArr,
-          warnings: warningsArr,
-          infos: infosArr
-        });
-      } else {
-        console.warn("fetch response (arrayBuffer) is empty!...");
-        context.error("fetch response (arrayBuffer) is empty!...");
+      context.debug("request: " + JSON.stringify(imgrequest));
+      if (imgrequest.naturalWidth && imgrequest.supportsDeepSearch && !imgrequest.deepSearchBigger && (imgrequest.naturalWidth * imgrequest.naturalHeight <= imgrequest.deepSearchBiggerLimit)) {
+        infosArr.push('Not the expected image? You can force xIFr to look for a larger image than this, by holding down Shift key when selecting xIFr in the context menu!');
       }
-    })
-    .catch(function (error) {
-        if (error.name === 'TimeoutError' || error.name === 'AbortError') {
-          context.error("xIFr: Abort - likely timeout - when reading image-data from " + propertiesObj.URL);
-          errorsArr.push("Abort - likely timeout - when load image-file for parsing.");
-        } else {
-          context.error("xIFr: fetch-ERROR trying to read image-data from " + propertiesObj.URL + " : " + error);
-          errorsArr.push("Error trying to load image-file for parsing of the metadata!");
-          infosArr.push("Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image");
-        }
-        // context.debug("xIFr: fetch-ERROR Event.lengthComputable:" + error.lengthComputable);
-        propertiesObj.byteLength = '';
-        propertiesObj.contentType = '';
-        propertiesObj.lastModified = '';
-        browser.runtime.sendMessage({
-          message: "EXIFready",
-          data: {},
-          properties: propertiesObj,
-          errors: errorsArr,
-          warnings: warningsArr,
-          infos: infosArr
-        });
+
+      context.debug("Gathered data: \n" + JSON.stringify(dataObj));
+      const xlatData = translateFields(dataObj);
+      context.debug("Gathered data after translation: \n" + JSON.stringify(xlatData));
+
+      context.debug("EXIF parsing done. Send EXIFready message...");
+      browser.runtime.sendMessage({
+        message: "EXIFready",
+        data: xlatData,
+        properties: propertiesObj,
+        errors: errorsArr,
+        warnings: warningsArr,
+        infos: infosArr
+      });
+    } else {
+      console.warn("fetch response (arrayBuffer) is empty!...");
+      context.error("fetch response (arrayBuffer) is empty!...");
+    }
+  }
+
+
+  // TODO: I'm trying to understand this sh*t to make it work in Chrome, but...
+  // https://stackoverflow.com/questions/8593896/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
+  // https://stackoverflow.com/questions/6965107/converting-between-strings-and-arraybuffers
+
+  // https://fullstackuser.com/code-snippets/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
+  // https://webcache.googleusercontent.com/search?q=cache:XvCZS12o60wJ:https://fullstackuser.com/code-snippets/chrome-extension-how-to-send-data-from-content-script-to-popup-html&cd=1&hl=en&ct=clnk&gl=dk&client=firefox-b-d
+
+  // Firefox currently uses a better data-cloning algorithm than Chrome:
+  // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Chrome_incompatibilities#data_cloning_algorithm
+  // but maybe that could change in the future?:
+  // https://bugs.chromium.org/p/chromium/issues/detail?id=248548
+
+  // NOTE: If file: always do frontend fetch !?
+  if (imgrequest.fetchMode === "devFrontendFetch") { // frontend fetch
+
+    console.log ("FRONTEND fetch: " + imgrequest.fetchMode);
+
+    fetchImage(propertiesObj.URL, fetchOptions)
+      .then(handleResult);
+  } else { // backend fetch
+
+    console.log ("BACKEND fetch: " + imgrequest.fetchMode);
+
+    browser.runtime.sendMessage(
+      {
+        message: 'fetchdata',
+        href: propertiesObj.URL,
+        fetchOptions: fetchOptions
       }
-    );
+    )
+      .then(handleResult)
+      .catch(handleError);
+  }
+
 }
 
 globalThis.deepSearchGenericLimit = 10 * 10; // Just not relevant if that small
@@ -344,6 +418,7 @@ function imageSearch(request, elem) {
     image.supportsDeepSearch = request.supportsDeepSearch;
     image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
     image.deepSearchBigger = request.deepSearchBigger;
+    image.fetchMode = request.fetchMode;
     image.source = candidate.nodeName.toLowerCase() + " element";  // 'img element';
     image.context = request.nodeName + " element"; // (not really anything to de with found image)
 
@@ -476,6 +551,7 @@ function extraSearch(request, elem, xtrSizes) {
         image.supportsDeepSearch = request.supportsDeepSearch;
         image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
         image.deepSearchBigger = request.deepSearchBigger;
+        image.fetchMode = request.fetchMode;
         image.source = 'extra-search image'; // probably elem.nodeName, but not for sure
         image.context = request.nodeName + " element"; // (not really anything to de with found image)
         image.baseURI = elem.baseURI;
@@ -551,6 +627,7 @@ if (typeof contentListenerAdded === 'undefined') {
         image.supportsDeepSearch = request.supportsDeepSearch; // false
         image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
         image.deepSearchBigger = request.deepSearchBigger;
+        image.fetchMode = request.fetchMode;
         image.source = "img element";
         image.context = request.nodeName + " element"; // (not really anything to de with found image)
         const img = Array.from(document.images).find(imgElem => imgElem.currentSrc === request.imageURL);

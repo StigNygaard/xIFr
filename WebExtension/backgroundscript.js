@@ -123,28 +123,29 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                 console.error('There was an error loading contentscripts: ' + JSON.stringify(values[2]));
                 // TODO: throw?
               }
-            sessionStorage.set("winpop", winpop)
-              .then(
-                () => {
-                  browser.tabs.sendMessage(
-                    tab.id,
-                    {
-                      message: "parseImage",
-                      imageURL: info.srcUrl,
-                      mediaType: info.mediaType,
-                      targetId: info.targetElementId,
-                      supportsDeepSearch: !!(info.targetElementId && info.modifiers),  // "deep-search" supported in Firefox 63+
-                      deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
-                      deepSearchBiggerLimit: options.deepSearchBiggerLimit,
-                      frameId: info.frameId, // related to globalThis/window/frames ?
-                      frameUrl: info.frameUrl
-                    }
-                  );
-                }
-              )
-              .catch((err) => {
-                console.error(`sessionStorage or sendMessage(parseImage) error: ${err}`);
-              });
+              sessionStorage.set("winpop", winpop)
+                .then(
+                  () => {
+                    browser.tabs.sendMessage(
+                      tab.id,
+                      {
+                        message: "parseImage",
+                        imageURL: info.srcUrl,
+                        mediaType: info.mediaType,
+                        targetId: info.targetElementId,
+                        supportsDeepSearch: !!(info.targetElementId && info.modifiers),  // "deep-search" supported in Firefox 63+
+                        deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
+                        deepSearchBiggerLimit: options.deepSearchBiggerLimit,
+                        fetchMode : options.devFetchMode,
+                        frameId: info.frameId, // related to globalThis/window/frames ?
+                        frameUrl: info.frameUrl
+                      }
+                    );
+                  }
+                )
+                .catch((err) => {
+                  console.error(`sessionStorage or sendMessage(parseImage) error: ${err}`);
+                });
             }
           )
           .catch((err) => {
@@ -175,6 +176,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                     supportsDeepSearch: !!(info.targetElementId && info.modifiers),  // "deep-search" supported in Firefox 63+
                     deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
                     deepSearchBiggerLimit: options.deepSearchBiggerLimit,
+                    fetchMode : options.devFetchMode,
                     frameId: info.frameId, // related to globalThis/window/frames ?
                     frameUrl: info.frameUrl
                   });
@@ -188,53 +190,129 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
-browser.runtime.onMessage.addListener((request) => {
-  if (request.message === "EXIFready") { // 1st msg, create popup
-    const popupData = {};
-    popupData.infos = request.infos;
-    popupData.warnings = request.warnings;
-    popupData.errors = request.errors;
-    popupData.properties = request.properties;
-    if (Object.keys(request.data).length === 0) {
-      popupData.infos.push(browser.i18n.getMessage("noEXIFdata"));
-    }
-    if (popupData.properties.URL && popupData.properties.URL.startsWith('file:') && context.isFirefox()) {
-      popupData.warnings.push("Images from file system might not be shown in this popup, but meta data should still be correctly read.");
-    }
-    popupData.data = request.data;
-    sessionStorage.set("popupData", popupData).then(() => {
-      sessionStorage.get()
-        .then(({previous, winpop}) => {
-          if (previous?.imgURL && previous.imgURL === request.properties.URL) {
-            context.debug("Previous popup was same - Focus to previous if still open...");
-            browser.windows.update(previous.winId, {focused: true})
-              .then(() => {
-                  context.debug("Existing popup was attempted REfocused.")
-                }
-              )
-              .catch(() => {
-                  context.debug("REfocusing didn't succeed. Creating a new popup...");
-                  createPopup(request, winpop)
-                }
-              );
-          } else {
-            if (previous?.winId) { // But it would be smarter to just re-use an existing popup than to close previous and open a new?
-              browser.windows.remove(previous.winId)
-                .then(() => {
-                  context.debug("Popup with id=" + previous.winId + " was closed.")
-                })
-                .catch((err) => {
-                  context.debug("Closing xIFr popup with id=" + previous.winId + " failed: " + err)
-                });
+browser.runtime.onMessage.addListener(
+  function messageHandler(message, sender, sendResponse) {
+
+    if (message.message === "fetchdata") {
+
+      const result = {};
+      const url = new URL(message.href); // image.src
+      const fetchOptions = message.fetchOptions;
+      fetchOptions.credentials = 'omit'; // Recommended by Mozilla
+      fetchOptions.cache = 'no-cache'; // Recommended by Mozilla
+      const fetchTimeout = 8000; // 8 seconds
+      if (AbortSignal?.timeout) {
+        fetchOptions.signal = AbortSignal.timeout(fetchTimeout);
+      }
+      fetch(url.href, fetchOptions)
+        .then(
+          function(response) {
+            if (response.ok) { // 200ish
+              result.byteLength = response.headers.get('Content-Length') || '';
+              result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
+              result.lastModified = response.headers.get('Last-Modified') || '';
+              return response.arrayBuffer(); // Promise<ArrayBuffer>
+            } else {
+              console.error('Network response was not ok.');
+              throw new Error('Network response was not ok.');
             }
-            createPopup(request, winpop);
           }
-        });
-    });
-  } else if (request.message === "popupReady") { // 2nd msg, populate popup
-    return sessionStorage.get("popupData");
+        )
+        .then(
+          function(arrayBuffer) {
+            if (arrayBuffer) {
+              context.debug("Looking at the fetch response (arrayBuffer)...");
+              context.info("headers.byteLength: " + result.byteLength);
+              context.info("arraybuffer.byteLength: " + arrayBuffer.byteLength);
+
+              result.byteArray = new Uint8Array(arrayBuffer);
+              result.byteLength = arrayBuffer.byteLength || result.byteLength; // TODO: I guess these ain't both header values...
+            }
+
+            // It's on purpose we use sendResponse() here. Makes it easier to work with Chrome it seems...
+            // https://developer.chrome.com/docs/extensions/reference/runtime/#example-content-msg
+            // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage#addlistener_syntax
+
+            sendResponse(result);
+          }
+        )
+        .catch(
+          function(error) {
+            if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+              context.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
+              result.error = "Abort - likely timeout - when load image-file for parsing.";
+            } else {
+              context.error("xIFr: fetch-ERROR trying to read image-data from " + url + " : " + error);
+              result.error = "Error trying to load image-file for parsing of the metadata!";
+              result.info = "Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image";
+            }
+            // context.debug("xIFr: fetch-ERROR Event.lengthComputable:" + error.lengthComputable);
+            result.byteLength = '';
+            result.contentType = '';
+            result.lastModified = '';
+            sendResponse(result);
+          }
+        );
+      return true; // Important to tell the browser that we will use the sendResponse argument (in async above) after this listener (messageHandler) has returned
+
+    } else if (message.message === "EXIFready") { // 1st msg, create popup
+
+      const popupData = {};
+      popupData.infos = message.infos;
+      popupData.warnings = message.warnings;
+      popupData.errors = message.errors;
+      popupData.properties = message.properties;
+      if (Object.keys(message.data).length === 0) {
+        popupData.infos.push(browser.i18n.getMessage("noEXIFdata"));
+      }
+      if (popupData.properties.URL && popupData.properties.URL.startsWith('file:') && context.isFirefox()) {
+        popupData.warnings.push("Images from file system might not be shown in this popup, but meta data should still be correctly read.");
+      }
+      popupData.data = message.data;
+      sessionStorage.set("popupData", popupData).then(() => {
+        sessionStorage.get()
+          .then(({previous, winpop}) => {
+            if (previous?.imgURL && previous.imgURL === message.properties.URL) {
+              context.debug("Previous popup was same - Focus to previous if still open...");
+              browser.windows.update(previous.winId, {focused: true})
+                .then(() => {
+                    context.debug("Existing popup was attempted REfocused.")
+                  }
+                )
+                .catch(() => {
+                    context.debug("REfocusing didn't succeed. Creating a new popup...");
+                    createPopup(message, winpop)
+                  }
+                );
+            } else {
+              if (previous?.winId) { // But it would be smarter to just re-use an existing popup than to close previous and open a new?
+                browser.windows.remove(previous.winId)
+                  .then(() => {
+                    context.debug("Popup with id=" + previous.winId + " was closed.")
+                  })
+                  .catch((err) => {
+                    context.debug("Closing xIFr popup with id=" + previous.winId + " failed: " + err)
+                  });
+              }
+              createPopup(message, winpop);
+            }
+          });
+      });
+
+    } else if (message.message === "popupReady") { // 2nd msg, populate popup
+
+      sessionStorage.get("popupData")
+        .then (
+          function (data) {
+            sendResponse(data);
+          }
+        );
+      return true;
+
+    }
+
   }
-});
+);
 
 function createMenuItem() {
   // TODO: Remove multiple call to this when possible.
@@ -260,9 +338,14 @@ browser.runtime.onInstalled.addListener(
     // if (details.temporary) return; // Skip during development
     switch (reason) {
       case "update": // "upboarding"
-        break; // silent update
-      case "install": // "onboarding"
         browser.tabs.create({url: "onboard/onboard.html"});
+        break;
+      case "install": // "onboarding"
+        // TODO: Need a fix for disappearing onboarding page:
+        //  https://bugzilla.mozilla.org/show_bug.cgi?id=1558336
+        //  https://github.com/EFForg/privacybadger/pull/2798
+        //  https://discourse.mozilla.org/t/onboarding-page-force-close-before-you-have-read-it-with-mv3-it-becomes-a-critical-issue-i-think/111592/3
+        browser.tabs.create({url: "onboard/onboard.html?initialOnboard=1"});
         break;
     }
 
