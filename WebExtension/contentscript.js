@@ -282,6 +282,9 @@ function blacklistedImage(src) { // todo: Make blacklist configurable!
   }, {
     url: "https://static.xx.fbcdn.net/rsrc.php/v3/yt/r/pQ6WpMqXLJA.png",
     regexp: false
+  }, {
+    url: "https://static.cdninstagram.com/rsrc.php/v3/y5/r/TJztmXpWTmS.png",
+    regexp: false
   }].some(function (item) {
     return src === item.url
   });
