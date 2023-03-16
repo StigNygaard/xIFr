@@ -338,13 +338,9 @@ browser.runtime.onInstalled.addListener(
     // if (details.temporary) return; // Skip during development
     switch (reason) {
       case "update": // "upboarding"
-        browser.tabs.create({url: "onboard/onboard.html"});
+        browser.tabs.create({url: "onboard/onboard.html?updatefrom=" + previousVersion});
         break;
       case "install": // "onboarding"
-        // TODO: Need a fix for disappearing onboarding page:
-        //  https://bugzilla.mozilla.org/show_bug.cgi?id=1558336
-        //  https://github.com/EFForg/privacybadger/pull/2798
-        //  https://discourse.mozilla.org/t/onboarding-page-force-close-before-you-have-read-it-with-mv3-it-becomes-a-critical-issue-i-think/111592/3
         browser.tabs.create({url: "onboard/onboard.html?initialOnboard=1"});
         break;
     }
@@ -359,10 +355,10 @@ let sessionStorage = (function () {
   let sessionData; // When background-script is restarted sessionData will be (declared but) of undefined value
   function clear() {
     sessionData = {}; // Make sessionData (defined as) empty
-    context.getOptions().then(
+    return context.getOptions().then(
       function (options) {
         options.sessionstorage = sessionData;
-        context.setOptions(options); // Persist the cleared sessionData
+        return context.setOptions(options); // Persist the cleared sessionData
       }
     );
   }
@@ -395,6 +391,23 @@ let sessionStorage = (function () {
 })();
 
 browser.runtime.onStartup.addListener(() => {
-  sessionStorage.clear(); // Clear any old "sessionStorage" when browser starts...
-  createMenuItem(); // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
+  sessionStorage.clear() // Clear any old "sessionStorage" when browser starts... (https://bugzilla.mozilla.org/show_bug.cgi?id=1687778)
+    .then (function() {
+      createMenuItem(); // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
+      context.getOptions().then( // Re-show onboarding if risk of was force-closed first time (https://bugzilla.mozilla.org/show_bug.cgi?id=1558336)
+        function (options) {
+          if (options?.initialOnboard === '1') {
+            browser.extension.isAllowedIncognitoAccess().then(
+              function (allowsPrivate) {
+                if (allowsPrivate && context.isFirefox()) {
+                  browser.tabs.create({url: "onboard/onboard.html?initialOnboard=2"}); // show second time
+                } else {
+                  context.setOption('initialOnboard', 3); // second time not needed
+                }
+              }
+            )
+          }
+        }
+      )
+    });
 });

@@ -36,6 +36,11 @@ globalThis.context = globalThis.context || (function Context() {
   function setOptions(o) {
     return browser.storage.local.set(o);
   }
+  function setOption(prop, value) {
+    const o = {};
+    o[prop] = value;
+    return setOptions(o);
+  }
   function getOptions() {
     function onError(error) {
       console.warning(`getOptions() error: ${error}`);
@@ -73,6 +78,7 @@ globalThis.context = globalThis.context || (function Context() {
     debug: debug,
     error: error,
     setOptions: setOptions,
+    setOption: setOption,
     getOptions: getOptions,
     isFirefox: isFirefox,
     isChromium: isChromium,
