@@ -133,7 +133,9 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                         imageURL: info.srcUrl,
                         mediaType: info.mediaType,
                         targetId: info.targetElementId,
-                        supportsDeepSearch: !!(info.targetElementId && info.modifiers),  // "deep-search" supported in Firefox 63+
+                        supportsDeepSearch: !!info.targetElementId,  // "deep-search" supported in Firefox 63+
+                        goDeepSearch: !!info.targetElementId && !options.devDisableDeepSearch,
+                        supportsDeepSearchModifier: !!info.modifiers,
                         deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
                         deepSearchBiggerLimit: options.deepSearchBiggerLimit,
                         fetchMode : options.devFetchMode,
@@ -173,10 +175,11 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                     imageURL: info.srcUrl,
                     mediaType: info.mediaType,
                     targetId: info.targetElementId,
-                    supportsDeepSearch: !!(info.targetElementId && info.modifiers),  // "deep-search" supported in Firefox 63+
+                    supportsDeepSearch: !!info.targetElementId,  // "deep-search" supported in Firefox 63+
+                    goDeepSearch: !!info.targetElementId && !options.devDisableDeepSearch,
+                    supportsDeepSearchModifier: !!info.modifiers,
                     deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
-                    deepSearchBiggerLimit: options.deepSearchBiggerLimit,
-                    fetchMode : options.devFetchMode,
+                    deepSearchBiggerLimit: options.deepSearchBiggerLimit,                    fetchMode : options.devFetchMode,
                     frameId: info.frameId, // related to globalThis/window/frames ?
                     frameUrl: info.frameUrl
                   });
@@ -314,7 +317,7 @@ browser.runtime.onMessage.addListener(
   }
 );
 
-function createMenuItem() {
+function createMenuItem(useDeepSearch) {
   // TODO: Remove multiple call to this when possible.
   //  But for now, run on both onInstalled and onStartup events, because:
   //  https://bugzilla.mozilla.org/show_bug.cgi?id=1771328,
@@ -324,7 +327,7 @@ function createMenuItem() {
     id: "viewexif",
     title: browser.i18n.getMessage("contextMenuText"),
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/ContextType
-    contexts: browser.contextMenus.getTargetElement ? ["image", "link", "page", "frame", "editable", "video", "audio"] : ["image"] // Firefox 63+ supports getTargetElement()/targetElementId
+    contexts: useDeepSearch ? ["image", "link", "page", "frame", "editable", "video", "audio"] : ["image"]
   });
 }
 
@@ -333,7 +336,10 @@ browser.runtime.onInstalled.addListener(
   function handleInstalled({reason, temporary, previousVersion}) {
     // context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
 
-    createMenuItem();
+    context.getOptions().then(
+      function (options) {
+        createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement);
+      });
 
     // if (details.temporary) return; // Skip during development
     switch (reason) {
@@ -393,13 +399,14 @@ let sessionStorage = (function () {
 browser.runtime.onStartup.addListener(() => {
   sessionStorage.clear() // Clear any old "sessionStorage" when browser starts... (https://bugzilla.mozilla.org/show_bug.cgi?id=1687778)
     .then (function() {
-      createMenuItem(); // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
-      context.getOptions().then( // Re-show onboarding if risk of was force-closed first time (https://bugzilla.mozilla.org/show_bug.cgi?id=1558336)
+      context.getOptions().then(
         function (options) {
+          createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement); // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
           if (options?.initialOnboard === '1') {
             browser.extension.isAllowedIncognitoAccess().then(
               function (allowsPrivate) {
                 if (allowsPrivate && context.isFirefox()) {
+                  // Re-show onboarding if risk of was force-closed first time (https://bugzilla.mozilla.org/show_bug.cgi?id=1558336)
                   browser.tabs.create({url: "onboard/onboard.html?initialOnboard=2"}); // show second time
                 } else {
                   context.setOption('initialOnboard', 3); // second time not needed

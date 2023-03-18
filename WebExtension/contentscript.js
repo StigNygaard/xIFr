@@ -276,7 +276,7 @@ function loadparseshow(imgrequest) { // handleChosenOne
       }
 
       context.debug("request: " + JSON.stringify(imgrequest));
-      if (imgrequest.naturalWidth && imgrequest.supportsDeepSearch && !imgrequest.deepSearchBigger && (imgrequest.naturalWidth * imgrequest.naturalHeight <= imgrequest.deepSearchBiggerLimit)) {
+      if (imgrequest.naturalWidth && imgrequest.goDeepSearch && imgrequest.supportsDeepSearchModifier && !imgrequest.deepSearchBigger && (imgrequest.naturalWidth * imgrequest.naturalHeight <= imgrequest.deepSearchBiggerLimit)) {
         infosArr.push('Not the expected image? You can force xIFr to look for a larger image than this, by holding down Shift key when selecting xIFr in the context menu!');
       }
 
@@ -314,15 +314,11 @@ function loadparseshow(imgrequest) { // handleChosenOne
 
   // NOTE: If file: always do frontend fetch !?
   if (["devAutoFetch", "devFrontendFetch"].includes(imgrequest.fetchMode)) { // Frontend fetch
-
-    console.log ("FRONTEND fetch: " + imgrequest.fetchMode);
-
+    if (imgrequest.fetchMode!=="devAutoFetch") console.warn (`xIFr: Forced FRONTEND fetch (${imgrequest.fetchMode})`);
     fetchImage(propertiesObj.URL, fetchOptions)
       .then(handleResult);
   } else { // Backend fetch
-
-    console.log ("BACKEND fetch: " + imgrequest.fetchMode);
-
+    if (imgrequest.fetchMode!=="devAutoFetch") console.warn (`xIFr: Forced BACKEND fetch (${imgrequest.fetchMode})`);
     browser.runtime.sendMessage(
       {
         message: 'fetchdata',
@@ -416,6 +412,8 @@ function imageSearch(request, elem) {
     image.naturalWidth = candidate.naturalWidth;
     image.naturalHeight = candidate.naturalHeight;
     image.supportsDeepSearch = request.supportsDeepSearch;
+    image.goDeepSearch = request.goDeepSearch;
+    image.supportsDeepSearchModifier = request.supportsDeepSearchModifier;
     image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
     image.deepSearchBigger = request.deepSearchBigger;
     image.fetchMode = request.fetchMode;
@@ -549,6 +547,8 @@ function extraSearch(request, elem, xtrSizes) {
         image.naturalWidth = imgData.width;
         image.naturalHeight = imgData.height;
         image.supportsDeepSearch = request.supportsDeepSearch;
+        image.supportsDeepSearchModifier = request.supportsDeepSearchModifier;
+        image.goDeepSearch = request.goDeepSearch;
         image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
         image.deepSearchBigger = request.deepSearchBigger;
         image.fetchMode = request.fetchMode;
@@ -588,7 +588,7 @@ if (typeof contentListenerAdded === 'undefined') {
 
     if (request.message === "parseImage") {
 
-      if (request.supportsDeepSearch) {
+      if (request.goDeepSearch) {
 
         /**************************************************************/
         /*  ***  Advanced mode with "deep-search" (Firefox 63+)  ***  */
@@ -616,15 +616,19 @@ if (typeof contentListenerAdded === 'undefined') {
 
         /************************************************************************/
         /*  ***  Simple "legacy mode" (Chrome and older Firefox versions)  ***  */
+        /*  ***      (or "deep search" forced disabled in options)         ***  */
         /************************************************************************/
 
         context.debug(" *** SIMPLE 'LEGACY' MODE *** ");
         request.nodeName = 'img'; // node name of context (right-click) target
         context.debug("parseImage message received with URL = " + request.imageURL);
+        if (request.supportsDeepSearch) console.warn('xIFr: Using simple "legacy mode" even though browser supports Deep Search')
         const image = {};
         image.imageURL = request.imageURL;
         image.mediaType = 'image';
-        image.supportsDeepSearch = request.supportsDeepSearch; // false
+        image.supportsDeepSearch = request.supportsDeepSearch;
+        image.goDeepSearch = request.goDeepSearch; // false
+        image.supportsDeepSearchModifier = request.supportsDeepSearchModifier;
         image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
         image.deepSearchBigger = request.deepSearchBigger;
         image.fetchMode = request.fetchMode;
