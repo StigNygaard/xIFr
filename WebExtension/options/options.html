@@ -176,12 +176,15 @@
       <legend>&nbsp;Developer settings and info&nbsp;</legend>
       <p>These - normally hidden - settings are primarily for developing and debugging purposes. You hide or unhide
         these settings by double-clicking the logo in top of the page.</p>
-      <div class="threeColumns">
+      <p><label>initialOnboard value: </label><span id="initialOnboard"></span></p>
+      <p><label>Is allowed to run in Private/Incognito mode: </label><span id="allowsPrivate"></span></p>
+      <p><label>The browser supports Deep Search: </label><span id="supportsDeepSearch"></span></p>
+      <div>
         <p>
           <input type="checkbox"
                  id="devDisableDeepSearch"
                  value="devDisableDeepSearch"/>
-          <label for="devDisableDeepSearch" title="Force disable Deep Search even if the browser supports it">Force disable Deep Search</label>
+          <label for="devDisableDeepSearch" title="Disable Deep Search even if the browser supports it">Force-disable Deep Search (Context-menu might not reflex changing this until next browser restart)</label>
         </p>
       </div>
       <div class="threeColumns">
@@ -190,25 +193,23 @@
                  name="devFetchMode"
                  id="devAutoFetch"
                  value="devAutoFetch"/>
-          <label for="devAutoFetch">Autoselect fetch</label>
+          <label for="devAutoFetch">Autoselect type of fetch</label>
         </p>
         <p>
           <input type="radio"
                  name="devFetchMode"
                  id="devFrontendFetch"
                  value="devFrontendFetch"/>
-          <label for="devFrontendFetch">Force Frontend fetch</label>
+          <label for="devFrontendFetch">Force frontend-fetch</label>
         </p>
         <p>
           <input type="radio"
                  name="devFetchMode"
                  id="devBackendFetch"
                  value="devBackendFetch"/>
-          <label for="devBackendFetch">Force Backend fetch</label>
+          <label for="devBackendFetch">Force backend-fetch</label>
         </p>
       </div>
-      <p><label>Is allowed to run in Private/Incognito mode: </label><span id="allowsPrivate"></span></p>
-      <p><label>initialOnboard value: </label><span id="initialOnboard"></span></p>
     </fieldset>
   </form>
 

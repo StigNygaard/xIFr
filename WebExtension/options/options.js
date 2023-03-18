@@ -76,6 +76,7 @@ function initializeOptionsPage() {
   if (context.isFirefox()) {
     document.body.classList.add("isFirefox");
   }
+  document.getElementById('supportsDeepSearch').textContent = context.supportsDeepSearch();
   if (context.supportsDeepSearch()) {
     document.body.classList.add("supportsDeepSearch");
   }
