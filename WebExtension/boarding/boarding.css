@@ -1,0 +1,72 @@
+body {
+  background-color: #fff;
+  color: #242424;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+#all {
+  width: 720px;
+  margin: 4em auto;
+}
+img#logo {
+  display: block;
+  float: right;
+  width: 128px;
+  height: 128px;
+  margin: 0 0 1em 1em;
+  padding: 0;
+}
+.secondOnboard {
+  display: none;
+  background-color: rgb(255, 240, 110);
+  padding: .1em 1em;
+  margin: .5em 0;
+  border-radius: 1em;
+}
+.secondOnboard a, .secondOnboard a:visited {
+  color: #242424;
+}
+img.settings {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: none;
+  padding: 0;
+  margin: 0 0;
+  opacity: 0.2;
+  cursor: pointer;
+  vertical-align: bottom;
+}
+#introlink {
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 2em;
+}
+table {
+  border: none;
+}
+table td, table th {
+  text-align: left;
+  padding: 0 1em 0 .5em;
+}
+.new::before {content: url(../icons/new27x14.png);margin:0 6px 0 2px;vertical-align:bottom}
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: rgb(43, 43, 43);
+    color: rgb(249, 249, 249);
+    scrollbar-color: rgb(43, 43, 43) black;
+  }
+  .secondOnboard {
+    background-color: rgb(210, 110, 30);
+  }
+  .secondOnboard a, .secondOnboard a:visited {
+    color: rgb(249, 249, 249);
+  }
+  a, a:hover, a:active, a:visited {
+    color: rgb(69, 161, 255);
+  }
+  img.settings {
+    filter: invert(100%);
+  }
+}
