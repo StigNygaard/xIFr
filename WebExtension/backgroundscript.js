@@ -11,77 +11,51 @@ if (browser.menus?.getTargetElement) { // An easy way to use Firefox extended AP
 }
 context.log(" *** xIFr backgroundscript has (re)started! *** ");
 
-function createPopup(request, {popupPos, winvp}) { // Called when 'EXIFready'
-
-  // context.info("window.screen.width: " + window.screen.width + " (" + window.screen.width + ")");
-  // context.info("window.screen.availWidth: " + window.screen.availWidth);
-  // context.info("window.screen.height: " + window.screen.height);
-  // context.info("window.screen.availHeight: " + window.screen.availHeight);
-  // context.info("browser.windows.Window.width: " + winvp.width);
-  // context.info("browser.windows.Window.height: " + winvp.height);
-  // context.info("browser.windows.Window.top: " + winvp.top);
-  // context.info("browser.windows.Window.left: " + winvp.left);
-
-  let pos = {};
-  const width = 650;
-  const height = 500;
-  switch (popupPos) {
-    case "center":
-      pos = {
-        left: Math.floor(window.screen.availWidth / 2) - 325,
-        top: Math.floor(window.screen.availHeight / 2) - 250
-      };
-      break;
-    case "centerBrowser":
-      pos = {left: winvp.left + Math.floor(winvp.width / 2) - 325, top: winvp.top + Math.floor(winvp.height / 2) - 250};
-      break;
-    case "topLeft":
-      pos = {left: 10, top: 10};
-      break;
-    case "topRight":
-      pos = {left: window.screen.availWidth - 650 - 10, top: 10};
-      break;
-    case "topLeftBrowser":
-      pos = {left: winvp.left + 10, top: winvp.top + 10};
-      break;
-    case "topRightBrowser":
-      pos = {left: winvp.left + winvp.width - 650 - 10, top: winvp.top + 10};
-      break;
-    case "leftish":
-      pos = {left: Math.max(winvp.left - 200, 10), top: Math.max(winvp.top + Math.floor(winvp.height / 2) - 350, 10)};
-      break;
-    case "rightish":
-      pos = {
-        left: Math.min(winvp.left + winvp.width - 450, window.screen.availWidth - 650 - 10),
-        top: Math.max(winvp.top + Math.floor(winvp.height / 2) - 350, 10)
-      };
-      break;
-    case "snapLeft":
-      pos = {left: 0, top: 0, height: window.screen.availHeight};
-      break;
-    case "snapRight":
-      pos = {left: window.screen.availWidth - width, top: 0, height: window.screen.availHeight};
-      break;
+browser.runtime.onInstalled.addListener(
+  function handleInstalled({reason, temporary, previousVersion}) {
+    context.getOptions().then(
+      function (options) {
+        createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement);
+      });
+    switch (reason) {
+      case "update": // "upboarding"
+        // browser.tabs.create({url: "boarding/upboard.html?previousVersion=" + previousVersion});
+        break;
+      case "install": // "onboarding"
+        browser.tabs.create({url: "boarding/onboard.html?initialOnboard=1"});
+        break;
+    }
   }
-  browser.windows.create(Object.assign(
-    {
-      url: browser.runtime.getURL("/popup/popup.html"),
-      type: "popup",
-      width: width,
-      height: height
-    }, pos))
-    .then((popwin) => {
-        sessionStorage.set("previous", {"winId": popwin.id, "imgURL": request.properties.URL});
-      }
-    );
-}
+);
+
+browser.runtime.onStartup.addListener(() => {
+  sessionStorage.clear() // Clear any old "sessionStorage" when browser starts... (https://bugzilla.mozilla.org/show_bug.cgi?id=1687778)
+    .then (function() {
+      context.getOptions().then(
+        function (options) {
+          createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement); // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
+          if (options?.initialOnboard === '1') {
+            browser.extension.isAllowedIncognitoAccess().then(
+              function (allowsPrivate) {
+                if (allowsPrivate && context.isFirefox()) {
+                  // Re-show onboarding if risk of was force-closed first time (https://bugzilla.mozilla.org/show_bug.cgi?id=1558336)
+                  browser.tabs.create({url: "boarding/onboard.html?initialOnboard=2"}); // show second time
+                } else {
+                  context.setOption('initialOnboard', 3); // second time not needed
+                }
+              }
+            )
+          }
+        }
+      )
+    });
+});
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "viewexif") {
     context.debug("Context menu clicked. mediaType=" + info.mediaType);
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/OnClickData
     if ((info.mediaType && info.mediaType === "image" && info.srcUrl) || info.targetElementId) {
-
       // console.log(' *** tab.id: ' + tab.id + ' *** ');
       // console.log(' *** tab.status: ' + tab.status + ' *** ');
       // console.log(' *** tab.title: ' + tab.title + ' *** ');
@@ -90,7 +64,6 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       // console.log(' *** info.srcUrl: ' + info.srcUrl + ' *** ');
       // console.log(' *** info.frameUrl: ' + info.frameUrl + ' *** ');
       // console.log(' *** info.targetElementId: ' + info.targetElementId + ' *** ');
-
       const scripts = [
         "lib/mozilla/browser-polyfill.js",
         "context.js",
@@ -317,9 +290,73 @@ browser.runtime.onMessage.addListener(
   }
 );
 
+
+function createPopup(request, {popupPos, winvp}) { // Called when 'EXIFready'
+  // context.info("window.screen.width: " + window.screen.width + " (" + window.screen.width + ")");
+  // context.info("window.screen.availWidth: " + window.screen.availWidth);
+  // context.info("window.screen.height: " + window.screen.height);
+  // context.info("window.screen.availHeight: " + window.screen.availHeight);
+  // context.info("browser.windows.Window.width: " + winvp.width);
+  // context.info("browser.windows.Window.height: " + winvp.height);
+  // context.info("browser.windows.Window.top: " + winvp.top);
+  // context.info("browser.windows.Window.left: " + winvp.left);
+  let pos = {};
+  const width = 650;
+  const height = 500;
+  switch (popupPos) {
+    case "center":
+      pos = {
+        left: Math.floor(window.screen.availWidth / 2) - 325,
+        top: Math.floor(window.screen.availHeight / 2) - 250
+      };
+      break;
+    case "centerBrowser":
+      pos = {left: winvp.left + Math.floor(winvp.width / 2) - 325, top: winvp.top + Math.floor(winvp.height / 2) - 250};
+      break;
+    case "topLeft":
+      pos = {left: 10, top: 10};
+      break;
+    case "topRight":
+      pos = {left: window.screen.availWidth - 650 - 10, top: 10};
+      break;
+    case "topLeftBrowser":
+      pos = {left: winvp.left + 10, top: winvp.top + 10};
+      break;
+    case "topRightBrowser":
+      pos = {left: winvp.left + winvp.width - 650 - 10, top: winvp.top + 10};
+      break;
+    case "leftish":
+      pos = {left: Math.max(winvp.left - 200, 10), top: Math.max(winvp.top + Math.floor(winvp.height / 2) - 350, 10)};
+      break;
+    case "rightish":
+      pos = {
+        left: Math.min(winvp.left + winvp.width - 450, window.screen.availWidth - 650 - 10),
+        top: Math.max(winvp.top + Math.floor(winvp.height / 2) - 350, 10)
+      };
+      break;
+    case "snapLeft":
+      pos = {left: 0, top: 0, height: window.screen.availHeight};
+      break;
+    case "snapRight":
+      pos = {left: window.screen.availWidth - width, top: 0, height: window.screen.availHeight};
+      break;
+  }
+  browser.windows.create(Object.assign(
+    {
+      url: browser.runtime.getURL("/popup/popup.html"),
+      type: "popup",
+      width: width,
+      height: height
+    }, pos))
+    .then((popwin) => {
+        sessionStorage.set("previous", {"winId": popwin.id, "imgURL": request.properties.URL});
+      }
+    );
+}
+
 function createMenuItem(useDeepSearch) {
   // TODO: Remove multiple call to this when possible.
-  //  But for now, run on both onInstalled and onStartup events, because:
+  //  But for now, run "frequently" because:
   //  https://bugzilla.mozilla.org/show_bug.cgi?id=1771328,
   //  https://bugzilla.mozilla.org/show_bug.cgi?id=1817287,
   //  https://discourse.mozilla.org/t/strange-mv3-behaviour-browser-runtime-oninstalled-event-and-menus-create/111208/11
@@ -331,31 +368,9 @@ function createMenuItem(useDeepSearch) {
   });
 }
 
-// https://extensionworkshop.com/documentation/develop/onboard-upboard-offboard-users/
-browser.runtime.onInstalled.addListener(
-  function handleInstalled({reason, temporary, previousVersion}) {
-    // context.info("Reason: " + reason + ". Temporary: " + temporary + ". previousVersion: " + previousVersion);
-
-    context.getOptions().then(
-      function (options) {
-        createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement);
-      });
-
-    switch (reason) {
-      case "update": // "upboarding"
-        // browser.tabs.create({url: "boarding/upboard.html?previousVersion=" + previousVersion});
-        break;
-      case "install": // "onboarding"
-        browser.tabs.create({url: "boarding/onboard.html?initialOnboard=1"});
-        break;
-    }
-
-  }
-);
-
-
-/* Using a "sessionStorage" to persist the state even when background-script is terminated and restarted... */
-/* (Build on-top of context.setOptions() and context.getOptions() from context.js...)                       */
+/* Using a custom-built "sessionStorage" to persist the state when background-script is terminated and restarted, */
+/* because Firefox ain't got its own (yet?): https://bugzilla.mozilla.org/show_bug.cgi?id=1687778.                */
+/* (Build on-top of context.setOptions() and context.getOptions() from context.js...)                             */
 let sessionStorage = (function () {
   let sessionData; // When background-script is restarted sessionData will be (declared but) of undefined value
   function clear() {
@@ -394,26 +409,3 @@ let sessionStorage = (function () {
     get: get
   }
 })();
-
-browser.runtime.onStartup.addListener(() => {
-  sessionStorage.clear() // Clear any old "sessionStorage" when browser starts... (https://bugzilla.mozilla.org/show_bug.cgi?id=1687778)
-    .then (function() {
-      context.getOptions().then(
-        function (options) {
-          createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement); // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
-          if (options?.initialOnboard === '1') {
-            browser.extension.isAllowedIncognitoAccess().then(
-              function (allowsPrivate) {
-                if (allowsPrivate && context.isFirefox()) {
-                  // Re-show onboarding if risk of was force-closed first time (https://bugzilla.mozilla.org/show_bug.cgi?id=1558336)
-                  browser.tabs.create({url: "boarding/onboard.html?initialOnboard=2"}); // show second time
-                } else {
-                  context.setOption('initialOnboard', 3); // second time not needed
-                }
-              }
-            )
-          }
-        }
-      )
-    });
-});
