@@ -51,6 +51,14 @@ browser.runtime.onStartup.addListener(() => {
     });
 });
 
+// Attempt to fix missing menu-item right after an install where support for use in Private mode was enabled.
+// Probably https://bugzilla.mozilla.org/show_bug.cgi?id=1771328
+context.getOptions().then(
+  function (options) {
+    createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement);
+  }
+);
+
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "viewexif") {
     context.debug("Context menu clicked. mediaType=" + info.mediaType);
@@ -75,7 +83,6 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
         "parseJpeg.js",
         "contentscript.js"
       ];
-
       if (browser.scripting?.executeScript) {
         // *** FOR FUTURE USE... - Firefox MV2 or Firefox+Chromium MV3 compatible ***
         // TODO: Working, but requires "scripting" (or "activeTab") added to manifest permissions!
@@ -161,7 +168,6 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
           }
         );
       }
-
     }
   }
 });
@@ -289,7 +295,6 @@ browser.runtime.onMessage.addListener(
 
   }
 );
-
 
 function createPopup(request, {popupPos, winvp}) { // Called when 'EXIFready'
   // context.info("window.screen.width: " + window.screen.width + " (" + window.screen.width + ")");
