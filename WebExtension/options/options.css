@@ -71,19 +71,25 @@ body {
   display: none;
 }
 .isFirefox .ffo {
-  display: initial;
+  display: revert;
+}
+.hideInFirefox {
+  display: none;
+}
+.notFirefox .hideInFirefox {
+  display: revert;
 }
 #deepSearchSettings, #developerSettings {
   display: none;
 }
 .supportsDeepSearch #deepSearchSettings {
-  display: initial;
+  display: revert;
 }
 .supportsDeepSearch #noDeepSearchSettings {
   display: none;
 }
 .developermode #developerSettings {
-  display: initial;
+  display: revert;
 }
 #xIFroptions {
   padding: .4em;
@@ -93,6 +99,8 @@ body {
 #xIFroptions fieldset {
   position: relative;
   margin: 0 0 .3em 0;
+  padding-left: 1em;
+  padding-right: 1em;
 }
 #xIFroptions input, #xIFroptions select, #xIFroptions textarea {
   font-family: inherit;

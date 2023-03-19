@@ -75,6 +75,8 @@ function initializeOptionsPage() {
   document.querySelector('div#xIFroptionspage #verstr').textContent = browser.runtime.getManifest().version;
   if (context.isFirefox()) {
     document.body.classList.add("isFirefox");
+  } else {
+    document.body.classList.add("notFirefox");
   }
   document.getElementById('supportsDeepSearch').textContent = context.supportsDeepSearch();
   if (context.supportsDeepSearch()) {
