@@ -343,7 +343,7 @@ browser.runtime.onInstalled.addListener(
 
     switch (reason) {
       case "update": // "upboarding"
-        browser.tabs.create({url: "boarding/upboard.html?previousVersion=" + previousVersion});
+        // browser.tabs.create({url: "boarding/upboard.html?previousVersion=" + previousVersion});
         break;
       case "install": // "onboarding"
         browser.tabs.create({url: "boarding/onboard.html?initialOnboard=1"});
