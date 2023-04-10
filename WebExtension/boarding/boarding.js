@@ -6,6 +6,11 @@ function init() {
   document.querySelectorAll('.settings').forEach((elm) => {
     elm.addEventListener('click', () => browser.runtime.openOptionsPage())
   });
+  document.querySelectorAll('#introlink a').forEach((elm) => {
+    const url = new URL(elm.href);
+    url.searchParams.set(elm.dataset.context, browser.runtime.getManifest().version);
+    elm.href = url.href;
+  });
 
   if (document.querySelector('body.onboard')) {
     // onboarding only...

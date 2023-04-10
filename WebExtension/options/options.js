@@ -82,6 +82,11 @@ function initializeOptionsPage() {
   if (context.supportsDeepSearch()) {
     document.body.classList.add("supportsDeepSearch");
   }
+  document.querySelectorAll('.aboutlinks a').forEach((elm) => {
+    const url = new URL(elm.href);
+    url.searchParams.set('version', browser.runtime.getManifest().version);
+    elm.href = url.href;
+  });
   context.getOptions().then(handlerInitOptionsForm);
   browser.extension.isAllowedIncognitoAccess().then(updateAllowsPrivate)
 }
