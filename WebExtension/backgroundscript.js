@@ -370,7 +370,15 @@ function createMenuItem(useDeepSearch) {
     title: browser.i18n.getMessage("contextMenuText"),
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/ContextType
     contexts: useDeepSearch ? ["image", "link", "page", "frame", "editable", "video", "audio"] : ["image"]
-  });
+    },
+    () => {
+      if (browser.runtime.lastError) {
+        context.log('Menu-item probably already created: ' + browser.runtime.lastError.message);
+      } else {
+        context.log('Menu-item created.');
+      }
+    }
+  );
 }
 
 /* Using a custom-built "sessionStorage" to persist the state when background-script is terminated and restarted, */
