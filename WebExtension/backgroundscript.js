@@ -59,6 +59,13 @@ context.getOptions().then(
   }
 );
 
+// MV2. browserAction.onClicked used with "browser_action":{} in manifest.json...
+// https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserAction/onClicked
+browser.browserAction.onClicked.addListener(() => {
+  browser.runtime.openOptionsPage();
+});
+browser.browserAction.setTitle({ title: "Open Options-page" });
+
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "viewexif") {
     context.debug("Context menu clicked. mediaType=" + info.mediaType);

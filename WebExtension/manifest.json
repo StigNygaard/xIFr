@@ -19,6 +19,10 @@
     "512": "icons/xIFr-512.png"
   },
 
+  "browser_action" : {
+
+  },
+
   "browser_specific_settings": {
     "gecko": {
       "strict_min_version": "109.0"
