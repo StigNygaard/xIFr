@@ -304,9 +304,6 @@ function loadparseshow(imgrequest) { // handleChosenOne
   // https://stackoverflow.com/questions/8593896/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
   // https://stackoverflow.com/questions/6965107/converting-between-strings-and-arraybuffers
 
-  // https://fullstackuser.com/code-snippets/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
-  // https://webcache.googleusercontent.com/search?q=cache:XvCZS12o60wJ:https://fullstackuser.com/code-snippets/chrome-extension-how-to-send-data-from-content-script-to-popup-html&cd=1&hl=en&ct=clnk&gl=dk&client=firefox-b-d
-
   // Firefox currently uses a better data-cloning algorithm than Chrome:
   // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Chrome_incompatibilities#data_cloning_algorithm
   // but maybe that could change in the future?:
@@ -314,11 +311,16 @@ function loadparseshow(imgrequest) { // handleChosenOne
 
   // NOTE: If file: always do frontend fetch !?
   if (["devAutoFetch", "devFrontendFetch"].includes(imgrequest.fetchMode)) { // Frontend fetch
-    if (imgrequest.fetchMode!=="devAutoFetch") console.warn (`xIFr: Forced FRONTEND fetch (${imgrequest.fetchMode})`);
+    if (imgrequest.fetchMode!=="devAutoFetch") {
+      console.warn (`xIFr: Forced FRONTEND fetch (${imgrequest.fetchMode})`);
+    }
     fetchImage(propertiesObj.URL, fetchOptions)
       .then(handleResult);
   } else { // Backend fetch
-    if (imgrequest.fetchMode!=="devAutoFetch") console.warn (`xIFr: Forced BACKEND fetch (${imgrequest.fetchMode})`);
+    if (imgrequest.fetchMode!=="devAutoFetch") {
+      console.warn (`xIFr: Forced BACKEND fetch (${imgrequest.fetchMode})`);
+    }
+
     browser.runtime.sendMessage(
       {
         message: 'fetchdata',

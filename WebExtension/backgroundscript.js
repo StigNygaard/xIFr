@@ -101,6 +101,9 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
           files: scripts,
           injectImmediately: true
         });
+        // TODO: Vil browser.windows.getCurrent() virke med MV3 background service worker?
+        //  (https://developer.chrome.com/docs/extensions/migrating/to-service-workers/)
+        //  (But: https://stackoverflow.com/questions/73778202/using-window-globals-in-manifestv3-service-worker-background-script)
         Promise.all([context.getOptions(), browser.windows.getCurrent(), scriptsInjecting])
           .then((values) => {
               context.debug("All scripts started from background is ready...");
@@ -318,6 +321,9 @@ function createPopup(request, {popupPos, winvp}) { // Called when 'EXIFready'
   switch (popupPos) {
     case "center":
       pos = {
+        // TODO: window objekt vil ikke være tilgængelig med MV3 background service worker?
+        //  (https://developer.chrome.com/docs/extensions/migrating/to-service-workers/)
+        //  (But: https://stackoverflow.com/questions/73778202/using-window-globals-in-manifestv3-service-worker-background-script)
         left: Math.floor(window.screen.availWidth / 2) - 325,
         top: Math.floor(window.screen.availHeight / 2) - 250
       };
