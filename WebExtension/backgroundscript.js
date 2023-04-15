@@ -182,13 +182,42 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
+function convertBlobToBase64(blob) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    reader.onloadend = () => {
+      const base64data = reader.result;
+      resolve(base64data);
+    };
+  });
+}
+
 browser.runtime.onMessage.addListener(
   function messageHandler(message, sender, sendResponse) {
 
-    if (message.message === "fetchdata") {
+    if (["fetchdata", "fetchdataBase64"].includes(message.message)) { // backend fetch
+
+      // TODO: Maybe consider how this could be refactored? ...
 
       const result = {};
       const url = new URL(message.href); // image.src
+      function fetchdata_error(error) {
+        console.error('Background ' + message.message + ' error!', error);
+        if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+          context.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
+          result.error = "Abort - likely timeout - when load image-file for parsing.";
+        } else {
+          context.error("xIFr: fetch-ERROR trying to read image-data from " + url + " : " + error);
+          result.error = "Error trying to load image-file for parsing of the metadata!";
+          result.info = "Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image";
+        }
+        // context.debug("xIFr: fetch-ERROR Event.lengthComputable:" + error.lengthComputable);
+        result.byteLength = '';
+        result.contentType = '';
+        result.lastModified = '';
+        sendResponse(result);
+      }
       const fetchOptions = message.fetchOptions;
       fetchOptions.credentials = 'omit'; // Recommended by Mozilla
       fetchOptions.cache = 'no-cache'; // Recommended by Mozilla
@@ -196,56 +225,71 @@ browser.runtime.onMessage.addListener(
       if (AbortSignal?.timeout) {
         fetchOptions.signal = AbortSignal.timeout(fetchTimeout);
       }
-      fetch(url.href, fetchOptions)
-        .then(
-          function(response) {
-            if (response.ok) { // 200ish
-              result.byteLength = response.headers.get('Content-Length') || '';
-              result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
-              result.lastModified = response.headers.get('Last-Modified') || '';
-              return response.arrayBuffer(); // Promise<ArrayBuffer>
-            } else {
-              console.error('Network response was not ok.');
-              throw new Error('Network response was not ok.');
-            }
-          }
-        )
-        .then(
-          function(arrayBuffer) {
-            if (arrayBuffer) {
-              context.debug("Looking at the fetch response (arrayBuffer)...");
-              context.info("headers.byteLength: " + result.byteLength);
-              context.info("arraybuffer.byteLength: " + arrayBuffer.byteLength);
 
-              result.byteArray = new Uint8Array(arrayBuffer);
-              result.byteLength = arrayBuffer.byteLength || result.byteLength; // TODO: I guess these ain't both header values...
-            }
+      if (message.message === "fetchdata") { // Probably Firefox
 
-            // It's on purpose we use sendResponse() here. Makes it easier to work with Chrome it seems...
-            // https://developer.chrome.com/docs/extensions/reference/runtime/#example-content-msg
-            // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage#addlistener_syntax
-
-            sendResponse(result);
-          }
-        )
-        .catch(
-          function(error) {
-            if (error.name === 'TimeoutError' || error.name === 'AbortError') {
-              context.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
-              result.error = "Abort - likely timeout - when load image-file for parsing.";
-            } else {
-              context.error("xIFr: fetch-ERROR trying to read image-data from " + url + " : " + error);
-              result.error = "Error trying to load image-file for parsing of the metadata!";
-              result.info = "Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image";
+        fetch(url.href, fetchOptions)
+          .then(
+            function(response) {
+              if (response.ok) { // 200ish
+                result.byteLength = response.headers.get('Content-Length') || '';
+                result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
+                result.lastModified = response.headers.get('Last-Modified') || '';
+                return response.arrayBuffer(); // Promise<ArrayBuffer>
+              } else {
+                console.error('Network response was not ok.');
+                throw new Error('Network response was not ok.');
+              }
             }
-            // context.debug("xIFr: fetch-ERROR Event.lengthComputable:" + error.lengthComputable);
-            result.byteLength = '';
-            result.contentType = '';
-            result.lastModified = '';
-            sendResponse(result);
-          }
-        );
-      return true; // Important to tell the browser that we will use the sendResponse argument (in async above) after this listener (messageHandler) has returned
+          )
+          .then(
+            function(arrayBuffer) {
+              if (arrayBuffer) {
+                context.debug("Looking at the fetch response (arrayBuffer)...");
+                context.info("headers.byteLength: " + result.byteLength);
+                context.info("arraybuffer.byteLength: " + arrayBuffer.byteLength);
+                result.byteArray = new Uint8Array(arrayBuffer);
+                result.byteLength = arrayBuffer.byteLength || result.byteLength; // TODO: I guess these ain't both header values...
+              }
+              sendResponse(result);
+            }
+          )
+          .catch(fetchdata_error);
+        return true;
+
+      } else if (message.message === "fetchdataBase64") { // Probably a Chromium browser
+
+        fetch(url.href, fetchOptions)
+          .then(
+            function(response) {
+              if (response.ok) { // 200ish
+                result.byteLength = response.headers.get('Content-Length') || '';
+                result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
+                result.lastModified = response.headers.get('Last-Modified') || '';
+                return response.blob(); // Promise<Blob>
+              } else {
+                console.error('Network response was not ok.');
+                throw new Error('Network response was not ok.');
+              }
+            }
+          )
+          .then(convertBlobToBase64)
+          .then(
+            function(base64) {
+              if (base64) {
+                context.debug("Looking at the fetch response (base64)...");
+                context.info("headers.byteLength: " + result.byteLength);
+                // context.info("arraybuffer.byteLength: " + arrayBuffer.byteLength);
+                result.base64 = base64;
+                // result.byteLength = arrayBuffer.byteLength || result.byteLength; // TODO: I guess these ain't both header values...
+              }
+              sendResponse(result);
+            }
+          )
+          .catch(fetchdata_error);
+        return true;
+
+      }
 
     } else if (message.message === "EXIFready") { // 1st msg, create popup
 

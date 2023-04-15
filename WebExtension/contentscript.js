@@ -164,6 +164,7 @@ function fetchImage(url, fetchOptions = {}) {
     )
     .catch(
       function(error) {
+        console.error('Error from frontend fetch', error.message, error)
         if (error.name === 'TimeoutError' || error.name === 'AbortError') {
           context.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
           result.error = "Abort - likely timeout - when load image-file for parsing.";
@@ -235,8 +236,15 @@ function loadparseshow(imgrequest) { // handleChosenOne
   context.debug("Will now do fetch(" + propertiesObj.URL + ") ...");
 
 
-  function handleError(error) {
-    console.error('wsGetPhotosetComments - There has been a problem with your fetch operation: ', error.message);
+  async function handleBase64Result(result) {
+    if (result.base64) {
+      const response = await fetch(result.base64);
+      const blob = await response.blob();
+      const arrayBuffer = await blob.arrayBuffer();
+      result.byteArray = new Uint8Array(arrayBuffer);
+      delete result.base64;
+      return result;
+    }
   }
   function handleResult(result) {
     if (result.info) {
@@ -309,27 +317,49 @@ function loadparseshow(imgrequest) { // handleChosenOne
   // but maybe that could change in the future?:
   // https://bugs.chromium.org/p/chromium/issues/detail?id=248548
 
-  // NOTE: If file: always do frontend fetch !?
-  if (["devAutoFetch", "devFrontendFetch"].includes(imgrequest.fetchMode)) { // Frontend fetch
-    if (imgrequest.fetchMode!=="devAutoFetch") {
-      console.warn (`xIFr: Forced FRONTEND fetch (${imgrequest.fetchMode})`);
+  context.debug(' *** fetchMode: ' + imgrequest.fetchMode + ' ***');
+
+  // TODO: If file:, always do frontend fetch !?
+  if (imgrequest.fetchMode === 'devFrontendFetch' || imgrequest.fetchMode === 'devAutoFetch' && context.isFirefox()) { // Do frontend fetch...
+    if (imgrequest.fetchMode !== 'devAutoFetch') {
+      console.warn(`xIFr: Forced FRONTEND fetch (${imgrequest.fetchMode})`);
     }
     fetchImage(propertiesObj.URL, fetchOptions)
       .then(handleResult);
-  } else { // Backend fetch
-    if (imgrequest.fetchMode!=="devAutoFetch") {
-      console.warn (`xIFr: Forced BACKEND fetch (${imgrequest.fetchMode})`);
+  } else { // Do backend fetch...
+    if (imgrequest.fetchMode !== "devAutoFetch") {
+      console.warn(`xIFr: Forced BACKEND fetch (${imgrequest.fetchMode})`);
     }
 
-    browser.runtime.sendMessage(
-      {
-        message: 'fetchdata',
-        href: propertiesObj.URL,
-        fetchOptions: fetchOptions
-      }
-    )
-      .then(handleResult)
-      .catch(handleError);
+    if (context.isFirefox()) { // Fastest Structured clone algorithm. Supported by Firefox
+      context.debug('fetchdata: Receiving from backend as Uint8Array-arrayBuffer by the Structured clone algorithm (The fastest way, and supported by Firefox)');
+      browser.runtime.sendMessage(
+        {
+          message: 'fetchdata',
+          href: propertiesObj.URL,
+          fetchOptions: fetchOptions
+        }
+      )
+        .then(handleResult)
+        .catch(
+          (error) => console.error('fetchdata backend fetch - There has been a problem with your fetch operation: ', error.message, error)
+        );
+    } else { // Slower JSON serialization algorithm. Supported by both Firefox and Chromium...
+      context.debug('fetchdataBase64: Receiving from backend as base64 by the JSON serialization algorithm (The widely supported way, and supported by both Chromium and Firefox)');
+      browser.runtime.sendMessage(
+        {
+          message: 'fetchdataBase64',
+          href: propertiesObj.URL,
+          fetchOptions: fetchOptions
+        }
+      )
+        .then(handleBase64Result)
+        .then(handleResult)
+        .catch(
+          (error) => console.error('fetchdataBase64 backend fetch - There has been a problem with your fetch operation: ', error.message, error)
+        );
+    }
+
   }
 
 }
