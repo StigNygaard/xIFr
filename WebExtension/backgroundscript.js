@@ -6,6 +6,9 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
+// import '/lib/mozilla/browser-polyfill.js';
+// import '/context.js';
+
 if (browser.menus?.getTargetElement) { // An easy way to use Firefox extended API while preserving Chrome (and older Firefox) compatibility.
   browser.contextMenus = browser.menus;
 }
@@ -362,45 +365,81 @@ function createPopup(request, {popupPos, winvp}) { // Called when 'EXIFready'
   let pos = {};
   const width = 650;
   const height = 500;
+  if (!winvp?.width) {
+    console.error('Current window (winvp) seems not defined (or available) in backgroundscript');
+  }
+  if (!window?.screen?.availWidth) {
+    console.error('window.screen seems not defined (or available) in backgroundscript');
+  }
+  // TODO: Will I be able to get window and screen properties from MV3 background service workers?
+  //  (https://developer.chrome.com/docs/extensions/migrating/to-service-workers/)
+  //  (But: https://stackoverflow.com/questions/73778202/using-window-globals-in-manifestv3-service-worker-background-script)
+  //  https://stackoverflow.com/questions/68194103/error-in-event-handler-referenceerror-window-is-not-defined-chrome-extension-w/68194718#68194718
+  //  ManifestV3 extension uses a service worker so it doesn't have DOM or window.
+  //     Use chrome.windows.getCurrent to get the size/position of the current browser window.    ( So this will apparently still work? )
+  //     Use chrome.system.display.getInfo (since Chrome 94) to get the display's size/metrics.   ( !!! Chrome-only so far? !!! )
   switch (popupPos) {
     case "center":
-      pos = {
-        // TODO: window objekt vil ikke være tilgængelig med MV3 background service worker?
-        //  (https://developer.chrome.com/docs/extensions/migrating/to-service-workers/)
-        //  (But: https://stackoverflow.com/questions/73778202/using-window-globals-in-manifestv3-service-worker-background-script)
-        left: Math.floor(window.screen.availWidth / 2) - 325,
-        top: Math.floor(window.screen.availHeight / 2) - 250
-      };
+      if (window?.screen?.availWidth) {
+        pos = {
+          left: Math.floor(window.screen.availWidth / 2) - 325,
+          top: Math.floor(window.screen.availHeight / 2) - 250
+        };
+      }
       break;
     case "centerBrowser":
-      pos = {left: winvp.left + Math.floor(winvp.width / 2) - 325, top: winvp.top + Math.floor(winvp.height / 2) - 250};
+      if (winvp?.width) {
+        pos = {
+          left: winvp.left + Math.floor(winvp.width / 2) - 325,
+          top: winvp.top + Math.floor(winvp.height / 2) - 250
+        };
+      }
       break;
     case "topLeft":
       pos = {left: 10, top: 10};
       break;
     case "topRight":
-      pos = {left: window.screen.availWidth - 650 - 10, top: 10};
+      if (winvp?.width) {
+        if (window?.screen?.availWidth) {
+          pos = {left: window.screen.availWidth - 650 - 10, top: 10};
+        }
+      }
       break;
     case "topLeftBrowser":
-      pos = {left: winvp.left + 10, top: winvp.top + 10};
+      if (winvp?.width) {
+        pos = {left: winvp.left + 10, top: winvp.top + 10};
+      }
       break;
     case "topRightBrowser":
-      pos = {left: winvp.left + winvp.width - 650 - 10, top: winvp.top + 10};
+      if (winvp?.width) {
+        pos = {left: winvp.left + winvp.width - 650 - 10, top: winvp.top + 10};
+      }
       break;
     case "leftish":
-      pos = {left: Math.max(winvp.left - 200, 10), top: Math.max(winvp.top + Math.floor(winvp.height / 2) - 350, 10)};
+      if (winvp?.width) {
+        pos = {
+          left: Math.max(winvp.left - 200, 10),
+          top: Math.max(winvp.top + Math.floor(winvp.height / 2) - 350, 10)
+        };
+      }
       break;
     case "rightish":
-      pos = {
-        left: Math.min(winvp.left + winvp.width - 450, window.screen.availWidth - 650 - 10),
-        top: Math.max(winvp.top + Math.floor(winvp.height / 2) - 350, 10)
-      };
+      if (winvp?.width || window?.screen?.availWidth) {
+        pos = {
+          left: Math.min(winvp.left + winvp.width - 450, window.screen.availWidth - 650 - 10),
+          top: Math.max(winvp.top + Math.floor(winvp.height / 2) - 350, 10)
+        };
+      }
       break;
     case "snapLeft":
-      pos = {left: 0, top: 0, height: window.screen.availHeight};
+      if (window?.screen?.availWidth) {
+        pos = {left: 0, top: 0, height: window.screen.availHeight};
+      }
       break;
     case "snapRight":
-      pos = {left: window.screen.availWidth - width, top: 0, height: window.screen.availHeight};
+      if (window?.screen?.availWidth) {
+        pos = {left: window.screen.availWidth - width, top: 0, height: window.screen.availHeight};
+      }
       break;
   }
   browser.windows.create(Object.assign(
