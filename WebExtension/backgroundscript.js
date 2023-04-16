@@ -22,7 +22,7 @@ browser.runtime.onInstalled.addListener(
       });
     switch (reason) {
       case "update": // "upboarding"
-        // browser.tabs.create({url: "boarding/upboard.html?previousVersion=" + previousVersion});
+        browser.tabs.create({url: "boarding/upboard.html?previousVersion=" + previousVersion});
         break;
       case "install": // "onboarding"
         browser.tabs.create({url: "boarding/onboard.html?initialOnboard=1"});
@@ -306,6 +306,8 @@ browser.runtime.onMessage.addListener(
       }
       if (popupData.properties.URL && popupData.properties.URL.startsWith('file:') && context.isFirefox()) {
         popupData.warnings.push("Images from file system might not be shown in this popup, but meta data should still be correctly read.");
+        // TODO: Er det faktisk muligt at vise lokalt image med URL.createObjectURL(blob) ?
+        //  https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Working_with_files#retrieving_stored_images_for_display
       }
       popupData.data = message.data;
       sessionStorage.set("popupData", popupData).then(() => {
