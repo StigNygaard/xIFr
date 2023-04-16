@@ -151,6 +151,9 @@ function populate(response) {
       }
     });
     image.src = response.properties.URL;
+    if (response.properties.crossOrigin) {
+      image.crossOrigin = response.properties.crossOrigin;
+    }
 
     function linkProperties(imageUrl) {
       const linkElem = createRichElement("a", {href: imageUrl});  // TODO: Can we use URL object here instead?

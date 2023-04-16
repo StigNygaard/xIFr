@@ -191,6 +191,8 @@ function loadparseshow(imgrequest) { // handleChosenOne
   }
   const propertiesObj = {};
   propertiesObj.URL = imgrequest.imageURL;
+  propertiesObj.crossOrigin = imgrequest.crossOrigin;
+  propertiesObj.referrerPolicy = imgrequest.referrerPolicy;
   if (imgrequest.naturalWidth) {
     propertiesObj.naturalWidth = imgrequest.naturalWidth;
     propertiesObj.naturalHeight = imgrequest.naturalHeight;
