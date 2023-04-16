@@ -367,6 +367,7 @@ function populate(response) {
       maplinks.appendChild(maplink('Locate on MapQuest', 'MapQuest', `https://www.mapquest.com/latlng/${lat},${lon}`, 'Q'));
       maplinks.appendChild(maplink('Locate on Here WeGo', 'Here', `https://share.here.com/l/${lat},${lon}`, 'H'));
       maplinks.appendChild(maplink('Explore nearby on Flickr', 'Flickr', `https://www.flickr.com/map/?fLat=${lat}&fLon=${lon}&zl=15`, 'F')); // "https://www.flickr.com/map/?fLat=${lat}&fLon=${lon}&zl=15&everyone_nearby=1"  -  &zl=15&min_upload_date=2019-06-07%2000%3A00%3A00&max_upload_date=2019-07-08%2000%3A00%3A00 ?
+      maplinks.appendChild(maplink('Investigate more on GeoHack', 'GeoHack', `https://geohack.toolforge.org/geohack.php?language=en&params=${lat};${lon}`, 'X'));
     }
   } else {
     // Disable map-tab
@@ -400,7 +401,7 @@ function setup(options) {
     document.body.classList.add("light"); // But also set light if dark wasn't set
   }
   // Enable selected maplinks...
-  ["OSM", "Google", "Bing", "MapQuest", "Here", "Flickr"].forEach((v) => {
+  ["OSM", "Google", "Bing", "MapQuest", "Here", "Flickr", "GeoHack"].forEach((v) => {
     if (options["mlink" + v]) {
       document.body.classList.add("show" + v);
     }

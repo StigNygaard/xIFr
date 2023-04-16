@@ -26,9 +26,10 @@ globalThis.context = globalThis.context || (function Context() {
     mlinkOSM: true,
     mlinkGoogle: true,
     mlinkBing: true,
-    mlinkMapQuest: true,
-    mlinkHere: true,
+    mlinkMapQuest: false,
+    mlinkHere: false,
     mlinkFlickr: true,
+    mlinkGeoHack: false,
     devDisableDeepSearch: false,
     devFetchMode: "devAutoFetch",
     initialOnboard: 0

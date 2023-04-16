@@ -212,10 +212,10 @@ body.mapmode img#cpClipboard, body.copyUnsupported img#cpClipboard {
 body.copypastemode #maplinks {
   display: none;
 }
-.OSM, .Google, .Bing, .MapQuest, .Here, .Flickr {
+.OSM, .Google, .Bing, .MapQuest, .Here, .Flickr, .GeoHack {
   display: none;
 }
-.showOSM .OSM, .showGoogle .Google, .showBing .Bing, .showMapQuest .MapQuest, .showHere .Here, .showFlickr .Flickr {
+.showOSM .OSM, .showGoogle .Google, .showBing .Bing, .showMapQuest .MapQuest, .showHere .Here, .showFlickr .Flickr, .showGeoHack .GeoHack {
   display: block;
 }
 body.mainmode #maptab.disabled {
