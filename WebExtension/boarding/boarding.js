@@ -1,20 +1,25 @@
 function init() {
 
+  const initialOnboard = (new URL(window.location.href)).searchParams.get('initialOnboard');
+  const currentVersion = versionnumber.validOr(versionnumber.current(), '');
+  const previousVersion = versionnumber.validOr((new URL(window.location.href)).searchParams.get('previousVersion'), '');
+
   document.querySelectorAll('.verstr').forEach((elm) => {
-    elm.textContent = browser.runtime.getManifest().version;
+    elm.textContent = currentVersion;
   });
   document.querySelectorAll('.settings').forEach((elm) => {
     elm.addEventListener('click', () => browser.runtime.openOptionsPage())
   });
+  let vboarding = currentVersion;
+  if (previousVersion) vboarding += (',' + previousVersion);
   document.querySelectorAll('#introlink a').forEach((elm) => {
     const url = new URL(elm.href);
-    url.searchParams.set(elm.dataset.context, browser.runtime.getManifest().version);
+    url.searchParams.set(elm.dataset.context, vboarding);
     elm.href = url.href;
   });
 
   if (document.querySelector('body.onboard')) {
     // onboarding only...
-    const initialOnboard = (new URL(window.location.href)).searchParams.get('initialOnboard');
     if (initialOnboard) {
       context.setOption('initialOnboard', initialOnboard);
       if (initialOnboard === '2') {
@@ -23,7 +28,6 @@ function init() {
     }
   } else {
     // upboarding only...
-    const previousVersion = (new URL(window.location.href)).searchParams.get('previousVersion');
     if (previousVersion) {
       // ...
     }

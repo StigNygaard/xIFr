@@ -120,7 +120,9 @@ globalThis.versionnumber = globalThis.versionnumber || (function Versionnumber()
       v = current();
     }
     const vparts = v.split('.', n);
-    vparts.map( function(item) {return String(parseInt(item.trim(),10))});
+    vparts.map(function (item) {
+      return String(parseInt(item.trim(), 10))
+    });
     while (vparts.length < n) vparts.push('0');
     return vparts.join('.');
   }
@@ -142,6 +144,27 @@ globalThis.versionnumber = globalThis.versionnumber || (function Versionnumber()
     }
     return parts(v, 3);
   }
+  function validate(v) {
+    if (typeof v === 'string' || v instanceof String) {
+      const vparts = v.split('.');
+      if (vparts.length >= 1 && vparts.length <= 3) {
+        for (const part of vparts) {
+          const parsed = parseInt(part, 10);
+          if (isNaN(parsed)) return false;
+          if (part !== String(parsed)) return false; // This doesn't allow leading 0s like in yyyy.mm.dd versionnumbers (ok?)
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+  function validOr(v, alt) {
+    if (validate(v)) {
+      return v;
+    } else {
+      return alt;
+    }
+  }
 
   // API:
   return {
@@ -149,7 +172,9 @@ globalThis.versionnumber = globalThis.versionnumber || (function Versionnumber()
     compare: compare,
     major: major,
     minor: minor,
-    revision: revision
+    revision: revision,
+    validate: validate,
+    validOr: validOr
   };
 
 })();
