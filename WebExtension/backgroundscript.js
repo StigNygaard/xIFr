@@ -224,6 +224,7 @@ browser.runtime.onMessage.addListener(
       const fetchOptions = message.fetchOptions;
       fetchOptions.credentials = 'omit'; // Recommended by Mozilla
       fetchOptions.cache = 'no-cache'; // Recommended by Mozilla
+      fetchOptions.headers = new Headers({'Accept': 'image/*'});
       const fetchTimeout = 8000; // 8 seconds
       if (AbortSignal?.timeout) {
         fetchOptions.signal = AbortSignal.timeout(fetchTimeout);

@@ -132,6 +132,7 @@ function loadImgAll(imgList, timeout = 500) { // Could we use https://developer.
 function fetchImage(url, fetchOptions = {}) {
   let result = {};
   const fetchTimeout = 8000; // 8 seconds
+  fetchOptions.headers = new Headers({'Accept': 'image/*'});
   if (AbortSignal?.timeout) {
     fetchOptions.signal = AbortSignal.timeout(fetchTimeout);
   }
