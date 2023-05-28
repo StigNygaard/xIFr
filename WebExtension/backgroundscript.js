@@ -224,7 +224,10 @@ browser.runtime.onMessage.addListener(
       const fetchOptions = message.fetchOptions;
       fetchOptions.credentials = 'omit'; // Recommended by Mozilla
       fetchOptions.cache = 'no-cache'; // Recommended by Mozilla
-      fetchOptions.headers = new Headers({'Accept': 'image/*'});
+      if (!fetchOptions.headers) {
+        // https://developer.mozilla.org/en-US/docs/Web/API/Request/headers
+        fetchOptions.headers = new Headers({'Accept': 'image/*'});
+      } // or use Headers.append() !?
       const fetchTimeout = 8000; // 8 seconds
       if (AbortSignal?.timeout) {
         fetchOptions.signal = AbortSignal.timeout(fetchTimeout);
@@ -283,9 +286,9 @@ browser.runtime.onMessage.addListener(
               if (base64) {
                 context.debug("Looking at the fetch response (base64)...");
                 context.info("headers.byteLength: " + result.byteLength);
-                // context.info("arraybuffer.byteLength: " + arrayBuffer.byteLength);
                 result.base64 = base64;
-                // result.byteLength = arrayBuffer.byteLength || result.byteLength; // TODO: I guess these ain't both header values...
+              } else {
+                context.error('base64 data missing');
               }
               sendResponse(result);
             }
@@ -464,6 +467,7 @@ function createMenuItem(useDeepSearch) {
   //  https://bugzilla.mozilla.org/show_bug.cgi?id=1771328,
   //  https://bugzilla.mozilla.org/show_bug.cgi?id=1817287,
   //  https://discourse.mozilla.org/t/strange-mv3-behaviour-browser-runtime-oninstalled-event-and-menus-create/111208/11
+  // TODO: Also see https://bugzilla.mozilla.org/show_bug.cgi?id=1527979
   browser.contextMenus.create({
     id: "viewexif",
     title: browser.i18n.getMessage("contextMenuText"),

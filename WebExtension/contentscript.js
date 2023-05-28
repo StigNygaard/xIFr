@@ -132,7 +132,10 @@ function loadImgAll(imgList, timeout = 500) { // Could we use https://developer.
 function fetchImage(url, fetchOptions = {}) {
   let result = {};
   const fetchTimeout = 8000; // 8 seconds
-  fetchOptions.headers = new Headers({'Accept': 'image/*'});
+  if (!fetchOptions.headers) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/Request/headers
+    fetchOptions.headers = new Headers({'Accept': 'image/*'});
+  } // or use Headers.append() !?
   if (AbortSignal?.timeout) {
     fetchOptions.signal = AbortSignal.timeout(fetchTimeout);
   }
@@ -226,6 +229,8 @@ function loadparseshow(imgrequest) { // handleChosenOne
   // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement
   // A discussion if moving to backend: https://stackoverflow.com/questions/8593896/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
 
+  // TODO CORS preflighted requests ?! https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests
+
   if (imgrequest.proxyURL) {
     infosArr.push('Image shown on webpage is in ' + imgrequest.imageType.replace('image/', '') + ' format. Found alternative (assumed similar) ' + (imgrequest.proxyType ? imgrequest.proxyType.replace('image/', '') : '') + ' image to look for meta-data in...');
     propertiesObj.pageShownURL = imgrequest.imageURL;
@@ -246,8 +251,14 @@ function loadparseshow(imgrequest) { // handleChosenOne
       const arrayBuffer = await blob.arrayBuffer();
       result.byteArray = new Uint8Array(arrayBuffer);
       delete result.base64;
-      return result;
+    } else {
+      result.error = "Error trying to load image-file for parsing of the metadata!";
+      result.info = "Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image";
+      result.byteLength = '';
+      result.contentType = '';
+      result.lastModified = '';
     }
+    return result;
   }
   function handleResult(result) {
     if (result.info) {
