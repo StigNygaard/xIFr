@@ -81,7 +81,7 @@ function getBgImgs(elem) {
 // Finding and loading image(s) embedded in inline SVG....
 function getSVGEmbeddedImages(elem) {
   return Array.from(
-    (elem.nodeName === 'image' ? [elem] : []).concat(Array.from(elem.querySelectorAll('svg image'))) // Includes elem (itself) unless elem is document
+    (elem.nodeName === 'image' ? [elem] : []).concat(Array.from(elem.querySelectorAll('svg image, svg feImage'))) // Includes elem (itself) unless elem is document
       .reduce((collection, node) => {
         const cstyle = window.getComputedStyle(node, null);
         const display = cstyle.getPropertyValue('display');
