@@ -536,6 +536,10 @@
     "message": "Multicapture"
   },
 
+  "DigitalSourceType": {
+    "message": "Digital Source Type"
+  },
+
   "CameraOwnerName": {
     "message": "Camera Owner"
   },

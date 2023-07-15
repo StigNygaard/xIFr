@@ -111,6 +111,17 @@ function xmpClass() {
     }
     // There's also an "PersonInImageWDetails": https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#person-shown-in-the-image
 
+
+    // DigitalSourceType might identify some AI generated images:
+    //  https://iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#digital-source-type
+    //  http://iptc.org/std/photometadata/specification/iptc-pmd-techreference_2022.1.json
+    //  https://cv.iptc.org/newscodes/digitalsourcetype/
+    val = getXMPValue(dom, "http://iptc.org/std/Iptc4xmpExt/2008-02-29/", "DigitalSourceType");
+    if (val) {
+      dataObj.DigitalSourceType = val; // This is an URL TODO: Make descriptive?
+    }
+
+
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "City");
     if (val) {
       dataObj.City = val;
