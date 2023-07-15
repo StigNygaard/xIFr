@@ -54,7 +54,7 @@ browser.runtime.onStartup.addListener(() => {
     });
 });
 
-// Attempt to fix missing menu-item right after an install where support for use in Private mode was enabled.
+// Attempt to fix missing menu-item right after an installation where support for use in Private mode was enabled.
 // Probably https://bugzilla.mozilla.org/show_bug.cgi?id=1771328
 context.getOptions().then(
   function (options) {
@@ -484,6 +484,7 @@ function createMenuItem(useDeepSearch) {
   );
 }
 
+// TODO: Firefox 115+ supports storage.session: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/storage/session
 /* Using a custom-built "sessionStorage" to persist the state when background-script is terminated and restarted, */
 /* because Firefox ain't got its own (yet?): https://bugzilla.mozilla.org/show_bug.cgi?id=1687778.                */
 /* (Build on-top of context.setOptions() and context.getOptions() from context.js...)                             */

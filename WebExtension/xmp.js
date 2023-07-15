@@ -35,6 +35,7 @@ function xmpClass() {
     }
 
     context.info("xmp xmlString (length=" + xmlString.length + ") :\n" + xmlString);
+    // console.log("xmp xmlString (length=" + xmlString.length + ") :\n" + xmlString);
     const dom = parser.parseFromString(xmlString, 'application/xml'); // alternatively "text/xml" ?
 
     if (dom.documentElement.nodeName === 'parsererror') {
@@ -49,12 +50,14 @@ function xmpClass() {
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "Credit");
     if (val) {
       dataObj.Creditline = val;
+      // Might be used by Google Image Search
     }
 
     // Creators come in an ordered list. Get them all.
     val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "creator", "").filter( item => item && item.trim()); // filter skips empty values
     if (val?.length) {
       dataObj.Creator = val.join("; "); // todo: Make a Set and handle later like Software or Keywords?
+      // Might be used by Google Image Search
     }
 
     const contactInfo = dom.getElementsByTagNameNS("http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", "CreatorContactInfo");
@@ -180,6 +183,7 @@ function xmpClass() {
     val = getXMPAltValue(dom, "http://purl.org/dc/elements/1.1/", "rights", langTest);
     if (val) {
       dataObj.Copyright = val;
+      // Might be used by Google Image Search
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/xap/1.0/rights/", "WebStatement"); // License URL used by Google Image Search
@@ -195,6 +199,43 @@ function xmpClass() {
     if (val && !dataObj.LicenseURL || val && val !== dataObj.LicenseURL) {
       dataObj.UsageTerms = val;
     }
+
+
+
+    // TODO investigations and experiments...
+    // val = getXMPOrderedArray(dom, "http://ns.useplus.org/ldf/xmp/1.0/", "ImageCreator", "http://ns.useplus.org/ldf/xmp/1.0/", "ImageCreatorName").filter( item => item && item.trim()); // filter skips empty values
+    // if (val.length) {
+    //   const values = [...(new Set(val.filter(s => s !== dataObj.ImageCreatorName)))]; // Might become an empty array
+    //   if (values.length) {
+    //     dataObj.TESTImageCreatorName = values[0];
+    //   }
+    // }
+    // val = getXMPOrderedArray(dom, "http://ns.useplus.org/ldf/xmp/1.0/", "CopyrightOwner", "http://ns.useplus.org/ldf/xmp/1.0/", "CopyrightOwnerName").filter( item => item && item.trim());
+    // if (val.length) {
+    //   const values = [...(new Set(val.filter(s => s !== dataObj.CopyrightOwnerName)))]; // Might become an empty array
+    //   if (values.length) {
+    //     dataObj.TESTCopyrightOwnerName = values[0];
+    //   }
+    // }
+    // val = getXMPOrderedArray(dom, "http://ns.useplus.org/ldf/xmp/1.0/", "Licensor", "http://ns.useplus.org/ldf/xmp/1.0/", "LicensorName").filter( item => item && item.trim());
+    // if (val.length) {
+    //   const values = [...(new Set(val.filter(s => s !== dataObj.LicensorName)))]; // Might become an empty array.
+    //   if (values.length) {
+    //     dataObj.TESTLicensorName = values[0];
+    //     // Where or with whom to get the license
+    //   }
+    // }
+    // val = getXMPOrderedArray(dom, "http://ns.useplus.org/ldf/xmp/1.0/", "Licensor", "http://ns.useplus.org/ldf/xmp/1.0/", "LicensorURL").filter( item => item && item.trim());
+    // if (val.length) {
+    //   const values = [...(new Set(val.filter(s => s !== dataObj.LicensorURL)))]; // Might become an empty array.
+    //   if (values.length) {
+    //     dataObj.TESTLicensorURL = values[0];
+    //     // Licensor URL => "How to license URL"/"Licensing URL" (NOT THE license URL!)
+    //     // Might be used by Google Image Search
+    //   }
+    // }
+
+
 
     // Subjects (keywords) comes in a list/set. Get them all.
     val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "subject", "").filter( item => item && item.trim()); // filter skips empty values
