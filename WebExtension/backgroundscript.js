@@ -22,7 +22,9 @@ browser.runtime.onInstalled.addListener(
       });
     switch (reason) {
       case "update": // "upboarding"
-        browser.tabs.create({url: "boarding/upboard.html?previousVersion=" + previousVersion});
+        if (versionnumber.compare(previousVersion, '2.12.0') < 0) { // Only show "upboarding" if previous version LESS than 2.12.0
+          browser.tabs.create({url: "boarding/upboard.html?previousVersion=" + previousVersion});
+        }
         break;
       case "install": // "onboarding"
         browser.tabs.create({url: "boarding/onboard.html?initialOnboard=1"});
