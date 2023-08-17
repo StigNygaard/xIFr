@@ -52,7 +52,55 @@ function translateFields(data) {
 }
 
 
-// Finding and loading backgrounds is slightly modified code from https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/ (by CRIMX) ...
+// A map to connect non-jpeg background-images and alternative jpeg-versions found in css image-sets:
+bgAlternatives = new Map(); // TODO: but would be nicer to design without this "global" property...
+// Following updates the map
+function updateBgAlternatives(bgimage) {
+  // Does getComputedStyle() return exact same format in all browsers? If one day Chromium (or other
+  // browsers) starts supporting "deep search", maybe re-visit this to verify the functionality!?...
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/background-image
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/image/image-set
+  const optionsParser = /^(image-set\()?url\("(?<url>[^"]+)"\)\s(?<resolution>\S+)\stype\("(?<type>[^"]+)"\)/iu;
+  // console.log('Computed background-image css with some image-set and type: ' + bgimage);
+  const imageSets = bgimage.split(/(^\s*|\s+)(?=image-set)/).filter((part) => part.startsWith('image-set('));
+  for (const imageSet of imageSets) {
+    // console.log('Looking at imageSet:' + imageSet);
+    const imagedefs = imageSet.split(', ').filter((opts) => opts.includes('url(') && opts.includes('type('));
+    // console.log('Computed background-image relevant imagedefs count:' + imagedefs.length);
+    let jpegs = [];
+    let others = [];
+    for (const imagedef of imagedefs) {
+      // console.log('Now image-def:' + imagedef);
+      // Notice, we expect the properties/options of imagedef in order: (absolute)url, resolution, type. Like:
+      // url("https://www.rockland.dk/img/test.avif") 1dppx type("image/avif")
+      const options = imagedef.trim().match(optionsParser);
+      if (options !== null) {
+        // console.log('- Matched url: ' + options.groups.url);
+        // console.log('- Matched resolution: ' + options.groups.resolution);
+        // console.log('- Matched type: ' + options.groups.type);
+        let obj = {
+          'url': options.groups.url,
+          'resolution': options.groups.resolution,
+          'type': options.groups.type
+        };
+        if (options.groups.type === 'image/jpeg') {
+          jpegs.push(obj);
+        } else {
+          others.push(obj);
+        }
+      }
+    }
+    for (const other of others) {
+      for (const jpeg of jpegs) {
+        if (other.resolution === jpeg.resolution) {
+          bgAlternatives.set(other.url, {'other': other, 'jpeg': jpeg});
+        }
+      }
+    }
+  }
+}
+
+// Much of following based on code/concept from https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/ (by CRIMX) ...
 function getBgImgs(elem) {
   const srcChecker = /url\(\s*?['"]?\s*?(\S+?)\s*?["']?\s*?\)/giu;
   return Array.from(
@@ -70,8 +118,11 @@ function getBgImgs(elem) {
             // get the background-image in headers of "itunes" artist pages (as of 08/2023):
             bgimage = cstyle.getPropertyValue('--background-image');
           }
+          if (bgimage.includes('image-set(') && bgimage.includes('type("image/jpeg")')) {
+            updateBgAlternatives(bgimage);
+          }
           let match;
-          while ((match = srcChecker.exec(bgimage)) !== null) { // There might actually be multiple. Like:  background-image: url("img_tree.gif"), url("paper.gif");
+          while ((match = srcChecker.exec(bgimage)) !== null) { // There might be multiple, like: background-image: url("img_tree.gif"), url("paper.gif");
             collection.add(match[1]);
           }
         }
@@ -625,6 +676,13 @@ function deeperSearch(request, elem, xtrSizes) {
   }
   if (image) {
     context.debug("deeperSearch(): Return with image");
+    // Check if bgAlternatives holds a better (jpeg-)alternative:
+    let related = bgAlternatives.get(image.imageURL);
+    if (related) {
+      image.proxyURL = related.jpeg.url;
+      image.proxyType = related.jpeg.type;
+      image.imageType = related.other.type;
+    }
     return image;
   } else {
     return deeperSearch(request, elem, xtrSizes);
