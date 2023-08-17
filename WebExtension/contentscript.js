@@ -61,17 +61,19 @@ function getBgImgs(elem) {
         const cstyle = window.getComputedStyle(node, null);
         const display = cstyle.getPropertyValue('display');
         const visibility = cstyle.getPropertyValue('visibility');
+        const appleHack = location.hostname.endsWith('apple.com');
         if (display !== 'none' && visibility !== 'hidden') {
-          const bgimage = cstyle.getPropertyValue('background-image');
-          // match 'url(...)'
+          let bgimage = cstyle.getPropertyValue('background-image');
+          if (bgimage === 'none' && appleHack) {
+            // A site-specific hack for apple.music.com...
+            // I don't know how they do it (will have to investigate), but this works to
+            // get the background-image in headers of "itunes" artist pages (as of 08/2023):
+            bgimage = cstyle.getPropertyValue('--background-image');
+          }
           let match;
           while ((match = srcChecker.exec(bgimage)) !== null) { // There might actually be multiple. Like:  background-image: url("img_tree.gif"), url("paper.gif");
             collection.add(match[1]);
           }
-          // bgimage = cstyle.getPropertyValue('--background-image'); // '--background-image' seen used on music.apple.com. Is it legal css at all? But apparently it works - also here!?
-          // while((match = srcChecker.exec(bgimage)) !== null ) {
-          //   collection.add(match[1]);
-          // }
         }
         return collection;
       }, new Set())
