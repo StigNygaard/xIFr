@@ -109,11 +109,11 @@ function getBgImgs(elem) {
         const cstyle = window.getComputedStyle(node, null);
         const display = cstyle.getPropertyValue('display');
         const visibility = cstyle.getPropertyValue('visibility');
-        const appleHack = location.hostname.endsWith('apple.com');
+        const appleHack = location.hostname.endsWith('.apple.com');
         if (display !== 'none' && visibility !== 'hidden') {
           let bgimage = cstyle.getPropertyValue('background-image');
           if (bgimage === 'none' && appleHack) {
-            // A site-specific hack for apple.music.com...
+            // An experimental/temporary(?) site-specific hack for apple.music.com...
             // I don't know how they do it (will have to investigate), but this works to
             // get the background-image in headers of "itunes" artist pages (as of 08/2023):
             bgimage = cstyle.getPropertyValue('--background-image');
@@ -161,7 +161,7 @@ function loadImg(src, timeout = 500) {
       })
     });
     img.addEventListener("error", function () {
-      context.error("Deep Search load image error for " + src);
+      context.warn("Deep Search: Error when trying to load image " + src + ".");
       reject()
     });
     img.src = src;
@@ -284,11 +284,11 @@ function loadparseshow(imgrequest) { // handleChosenOne
 
   // TODO CORS preflighted requests ?! https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests
 
-  if (imgrequest.proxyURL) {
+  if (imgrequest.jpegURL) {
     infosArr.push('Image shown on webpage is in ' + imgrequest.imageType.replace('image/', '') + ' format. Found alternative (assumed similar) ' + (imgrequest.proxyType ? imgrequest.proxyType.replace('image/', '') : '') + ' image to look for meta-data in...');
     propertiesObj.pageShownURL = imgrequest.imageURL;
     propertiesObj.pageShownType = imgrequest.imageType;
-    propertiesObj.URL = imgrequest.proxyURL;
+    propertiesObj.URL = imgrequest.jpegURL;
   }
   const fetchOptions = {};
   if (imgrequest.referrerPolicy) {
@@ -608,19 +608,19 @@ function imageSearch(request, elem) {
           // Replace unwanted image with something from potentials list...
           for (const potential of potentials) {
             if (potential.descriptor === descriptorToMatch) {
-              image.proxyURL = potential.url;
-              image.proxyType = potential.type;
+              image.jpegURL = potential.url;
+              image.jpegType = potential.type;
               return image;
             }
           }
           // If no exact descriptor-match in potentials, then use the one with "highest descriptor" (probably largest image)...
           const potential = potentials.reduce((max, other) => max.sortWeight > other.sortWeight ? max : other); // Find item with highest sortWeight (descriptor-value)
-          image.proxyURL = potential.url;
-          image.proxyType = potential.type;
+          image.jpegURL = potential.url;
+          image.jpegType = potential.type;
           return image;
         }
         // If no potentials at all, use fallback img.src...
-        image.proxyURL = candidate.src;
+        image.jpegURL = candidate.src;
       }
       // If we arrive here, we are probably already using img fallback. Cannot do any better.
     }
@@ -639,7 +639,7 @@ function extraSearch(request, elem, xtrSizes) {
     context.debug("Looking for dimensions of extra-images via " + JSON.stringify(xtrSizes));
     for (const xSrc of xtrImgs) {
       const imgData = xtrSizes.find(xs => xs.src === xSrc);
-      if (imgData.width && !blacklistedImage(imgData.src) && ((request.deepSearchBigger && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearchBigger && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
+      if (imgData?.width && !blacklistedImage(imgData.src) && ((request.deepSearchBigger && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearchBigger && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
         const image = {};
         image.imageURL = xSrc;
         image.mediaType = 'image';
@@ -679,8 +679,8 @@ function deeperSearch(request, elem, xtrSizes) {
     // Check if bgAlternatives holds a better (jpeg-)alternative:
     let related = bgAlternatives.get(image.imageURL);
     if (related) {
-      image.proxyURL = related.jpeg.url;
-      image.proxyType = related.jpeg.type;
+      image.jpegURL = related.jpeg.url;
+      image.jpegType = related.jpeg.type;
       image.imageType = related.other.type;
     }
     return image;

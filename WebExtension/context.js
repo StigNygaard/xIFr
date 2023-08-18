@@ -4,6 +4,7 @@ globalThis.context = globalThis.context || (function Context() {
   const LOG = false; // false
   const INFO = false; // false
   const DEBUG = false; // false
+  const WARN = true;
   const ERROR = true;
   function log(...arg) {
     if (console && LOG) console.log(...arg);
@@ -13,6 +14,9 @@ globalThis.context = globalThis.context || (function Context() {
   }
   function debug(...arg) {
     if (console && DEBUG) console.debug(...arg);
+  }
+  function warn(...arg) {
+    if (console && WARN) console.warn(...arg);
   }
   function error(...arg) {
     if (console && ERROR) console.error(...arg);
@@ -77,6 +81,7 @@ globalThis.context = globalThis.context || (function Context() {
     log: log,
     info: info,
     debug: debug,
+    warn: warn,
     error: error,
     setOptions: setOptions,
     setOption: setOption,
