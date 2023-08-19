@@ -111,16 +111,71 @@ function xmpClass() {
     }
     // There's also an "PersonInImageWDetails": https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#person-shown-in-the-image
 
-
-    // DigitalSourceType might identify some AI generated images:
+    // DigitalSourceType:
     //  https://iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#digital-source-type
     //  http://iptc.org/std/photometadata/specification/iptc-pmd-techreference_2022.1.json
     //  https://cv.iptc.org/newscodes/digitalsourcetype/
+    const digitalSourceTypeMap = new Map(Object.entries({
+      "http://cv.iptc.org/newscodes/digitalsourcetype/digitalCapture" : {
+        name: "Original digital capture sampled from real life",
+        def: "The digital media is captured from a real-life source using a digital camera or digital recording device"},
+      "http://cv.iptc.org/newscodes/digitalsourcetype/negativeFilm" : {
+        name: "Digitised from a negative on film",
+        def: "The digital image was digitised from a negative on film or any other transparent medium"
+      },
+      "http://cv.iptc.org/newscodes/digitalsourcetype/positiveFilm" : {
+        name: "Digitised from a positive on film",
+        def: "The digital image was digitised from a positive on a transparency or any other transparent medium"
+      },
+      "http://cv.iptc.org/newscodes/digitalsourcetype/print" : {
+        name: "Digitised from a print on non-transparent medium",
+        def: "The digital image was digitised from an image printed on a non-transparent medium"
+      },
+      "http://cv.iptc.org/newscodes/digitalsourcetype/minorHumanEdits" : {
+        name: "Original media with minor human edits",
+        def: "Minor augmentation or correction by a human, such as a digitally-retouched photo used in a magazine"
+      },
+      "http://cv.iptc.org/newscodes/digitalsourcetype/compositeCapture" : {
+        name: "Composite of captured elements",
+        def: "Mix or composite of several elements that are all captures of real life"
+      },
+      "http://cv.iptc.org/newscodes/digitalsourcetype/algorithmicallyEnhanced" : {
+        name: "Algorithmically-enhanced media",
+        def: "Minor augmentation or correction by algorithm"
+      },
+      "http://cv.iptc.org/newscodes/digitalsourcetype/dataDrivenMedia" : {
+        name: "Data-driven media",
+        def: "Digital media representation of data via human programming or creativity"
+      },
+      "http://cv.iptc.org/newscodes/digitalsourcetype/digitalArt" : {
+        name: "Digital art",
+        def: "Media created by a human using digital tools"
+      },
+      "http://cv.iptc.org/newscodes/digitalsourcetype/virtualRecording" : {
+        name: "Virtual recording",
+        def: "Live recording of virtual event based on synthetic and optionally captured elements"
+      },
+      "http://cv.iptc.org/newscodes/digitalsourcetype/compositeSynthetic" : {
+        name: "Composite including synthetic elements",
+        def: "Mix or composite of several elements, at least one of which is synthetic"
+      },
+      "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia" : {
+        name: "Composite with trained algorithmic media",
+        def: "The compositing of trained algorithmic media with some other media, such as with inpainting or outpainting operations"
+      },
+      "http://cv.iptc.org/newscodes/digitalsourcetype/algorithmicMedia" : {
+        name: "Pure algorithmic media",
+        def: "Media created purely by an algorithm not based on any sampled training data, e.g. an image created by software using a mathematical formula"
+      },
+      "http://cv.iptc.org/newscodes/digitalsourcetype/softwareImage" : { // deprecated
+        name: "Created by software",
+        def: "The digital image was created by computer software"
+      }
+    }));
     val = getXMPValue(dom, "http://iptc.org/std/Iptc4xmpExt/2008-02-29/", "DigitalSourceType");
     if (val) {
-      dataObj.DigitalSourceType = val; // This is an URL TODO: Make descriptive?
+      dataObj.DigitalSourceType = digitalSourceTypeMap.get(val)?.name || val;
     }
-
 
     val = getXMPValue(dom, "http://ns.adobe.com/photoshop/1.0/", "City");
     if (val) {
