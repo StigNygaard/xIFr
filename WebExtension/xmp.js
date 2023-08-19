@@ -988,7 +988,7 @@ function xmpClass() {
   // It’s a bit more relaxted than the specification in that
   // the time zone information is optional
   function readAndFormatISODate(datestring) {
-    const exploded_date = datestring.match(/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2})(?:(:\d{2})(?:\.\d+)?)?([+-]\d{2}:\d{2}|Z)?)?$/);
+    const exploded_date = datestring.match(/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2})(?:(:\d{2})(?:\.\d+)?)?([+-]\d{2}:\d{2}|Z)?)?$/u);
     if (exploded_date) {
       let date = exploded_date[1];
       if (typeof exploded_date[2] != 'undefined' && exploded_date[2].length > 0) {

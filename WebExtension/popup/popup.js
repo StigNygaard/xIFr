@@ -21,17 +21,17 @@ function supportsRegexLookAheadLookBehind() {
   try {
     return (
       "hibyehihi"
-        .replace(new RegExp("(?<=hi)hi", "g"), "hello")
-        .replace(new RegExp("hi(?!bye)", "g"), "hey") === "hibyeheyhello"
+        .replace(new RegExp("(?<=hi)hi", "gu"), "hello")
+        .replace(new RegExp("hi(?!bye)", "gu"), "hey") === "hibyeheyhello"
     );
   } catch (error) {
     return false;
   }
 }
 const PURLsource = '(?<=[\\[:;,({\\s]|^)((http|https):\\/\\/)?[a-z0-9][-a-z0-9.]{1,249}\\.[a-z][a-z0-9]{1,62}\\b([-a-z0-9@:%_+.~#?&/=]*)'; // PURL.source
-const PURLflags = 'im'; // PURL.flags
+const PURLflags = 'imu'; // PURL.flags
 const PEMAILsource = '(?<=[\\[:;,({\\s]|^)(mailto:)?([a-z0-9._-]+@[a-z0-9][-a-z0-9.]{1,249}\\.[a-z][a-z0-9]{1,62})'; // PEMAIL.source
-const PEMAILflags = 'im'; // PEMAIL.flags
+const PEMAILflags = 'imu'; // PEMAIL.flags
 // Return "Linkified content" as a structure of DOMStrings and Nodes.
 // Usage: (Spread and) insert result with methods like ParentNode.append(), ParentNode.replaceChildren() and ChildNode.replaceWith()
 function linkifyWithNodeAppendables(str, anchorattributes, emailanchorattributes) {
@@ -44,8 +44,8 @@ function linkifyWithNodeAppendables(str, anchorattributes, emailanchorattributes
       return [str];
     } else {
       const webattrib = anchorattributes || {};
-      const durl = a[0].replace(/[:\.]+$/, "");  // remove trailing dots and colons
-      webattrib.href = durl.search(/^https?:\/\//) === -1 ? "http://" + durl : durl;
+      const durl = a[0].replace(/[:\.]+$/u, "");  // remove trailing dots and colons
+      webattrib.href = durl.search(/^https?:\/\//u) === -1 ? "http://" + durl : durl;
       const begin = str.substring(0, str.indexOf(durl));
       const end = str.substring(begin.length + durl.length);
       return [begin, createRichElement('a', webattrib, durl), ...httpLinks(end)]; // (recursive)
@@ -58,7 +58,7 @@ function linkifyWithNodeAppendables(str, anchorattributes, emailanchorattributes
     } else {
       const emailattrib = emailanchorattributes || anchorattributes || {};
       const demail = e[0];
-      emailattrib.href = demail.search(/^mailto:/) === -1 ? "mailto:" + demail : demail;
+      emailattrib.href = demail.search(/^mailto:/u) === -1 ? "mailto:" + demail : demail;
       const begin = str.substring(0,str.indexOf(demail));
       const end = str.substring(begin.length + demail.length);
       return [...httpLinks(begin), createRichElement('a', emailattrib, demail), ...mailtoAndHttpLinks(end)]; // (recursive)
@@ -86,7 +86,7 @@ function formatWithNodeAppendables(s, linesplitter, anchorattributes, emailancho
 // Return "linebreaked and linkified content" as list of DOMStrings and Nodes, to (spread and) insert with ParentNode.append(), ParentNode.replaceChildren() and ChildNode.replaceWith()
 // (Will convert both "symbolic" and real linefeeds to actual <br /> DOM elements)
 function cleanAndFormatWithNodeAppendables(s) { // Needs a better name? :-)
-  s = s.replace(/\x00/g, ""); // Remove confusing nulls
+  s = s.replace(/\x00/gu, ""); // Remove confusing nulls
   if (s.indexOf("\\r") > -1) {
     s = s.split("\\n").join("");
   } else {

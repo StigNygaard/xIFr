@@ -62,7 +62,7 @@ function updateBgAlternatives(bgimage) {
   // https://developer.mozilla.org/en-US/docs/Web/CSS/image/image-set
   const optionsParser = /^(image-set\()?url\("(?<url>[^"]+)"\)\s(?<resolution>\S+)\stype\("(?<type>[^"]+)"\)/iu;
   // console.log('Computed background-image css with some image-set and type: ' + bgimage);
-  const imageSets = bgimage.split(/(^\s*|\s+)(?=image-set)/).filter((part) => part.startsWith('image-set('));
+  const imageSets = bgimage.split(/(^\s*|\s+)(?=image-set)/u).filter((part) => part.startsWith('image-set('));
   for (const imageSet of imageSets) {
     // console.log('Looking at imageSet:' + imageSet);
     const imagedefs = imageSet.split(', ').filter((opts) => opts.includes('url(') && opts.includes('type('));
@@ -539,7 +539,7 @@ function imageSearch(request, elem) {
             // Populate potentials with jpeg images...
             const findings = child.srcset.split(',');
             for (const found of findings) {
-              const parts = found.trim().split(/\s+/);
+              const parts = found.trim().split(/\s+/u);
               const foundUrl = new URL(parts[0].trim(), child.baseURI).href;
               let foundDescriptor = parts.slice(1).join(' ');
               if (foundDescriptor === '') {
@@ -564,7 +564,7 @@ function imageSearch(request, elem) {
             const findings = child.srcset.split(',');
             const foundType = child.type.split(';')[0].trim();
             for (const found of findings) {
-              const parts = found.trim().split(/\s+/);
+              const parts = found.trim().split(/\s+/u);
               const foundUrl = new URL(parts[0].trim(), child.baseURI).href;
               let foundDescriptor = parts.slice(1).join(' ');
               if (foundDescriptor === '') {
@@ -586,7 +586,7 @@ function imageSearch(request, elem) {
           // If potentials is empty and img.srcset is defined, add img.srcset to potentials...
           const findings = candidate.srcset.split(',');
           for (const found of findings) {
-            const parts = found.trim().split(/\s+/);
+            const parts = found.trim().split(/\s+/u);
             const foundUrl = new URL(parts[0].trim(), candidate.baseURI).href;
             let foundDescriptor = parts.slice(1).join(' ');
             if (foundDescriptor === '') {
