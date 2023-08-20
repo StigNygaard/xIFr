@@ -15,7 +15,7 @@ function addByteStreamIF(arr) {
   };
   arr.readBytes = byteCount => {
     if (byteCount < 0) {
-      context.error("readBytes(byteCount): Can't read negative byteCount=" + byteCount);
+      console.error("xIFr: readBytes(byteCount): Can't read negative byteCount=" + byteCount);
       throw "xIFr contentscript.js, readBytes(byteCount): Can't read negative byteCount=" + byteCount;
       // pushError(dataObj, "[xmp]", ex);
       return;
@@ -161,7 +161,7 @@ function loadImg(src, timeout = 500) {
       })
     });
     img.addEventListener("error", function () {
-      context.warn("Deep Search: Error when trying to load image " + src + ".");
+      console.warn('xIFr: Error when trying to "pre-analyze" image ' + src + '.');
       reject()
     });
     img.src = src;
@@ -221,12 +221,12 @@ function fetchImage(url, fetchOptions = {}) {
     )
     .catch(
       function(error) {
-        console.error('Error from frontend fetch', error.message, error)
+        console.error('xIFr: Error from frontend fetch', error.message, error)
         if (error.name === 'TimeoutError' || error.name === 'AbortError') {
-          context.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
+          console.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
           result.error = "Abort - likely timeout - when load image-file for parsing.";
         } else {
-          context.error("xIFr: fetch-ERROR trying to read image-data from " + url + " : " + error);
+          console.error("xIFr: fetch-ERROR trying to read image-data from " + url + " : " + error);
           result.error = "Error trying to load image-file for parsing of the metadata!";
           result.info = "Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image";
         }
@@ -242,8 +242,7 @@ function fetchImage(url, fetchOptions = {}) {
 function loadparseshow(imgrequest) { // handleChosenOne
                                      // console.log('Properties for ' + imgrequest.imageURL + '... \n srcset=' + imgrequest.srcset + ' \n crossOrigin=' + imgrequest.crossOrigin + ' \n referrerPolicy=' + imgrequest.referrerPolicy + ' (' + (typeof imgrequest.referrerPolicy) + ')' + ' \n baseURI=' + imgrequest.baseURI);
   if (!imgrequest) {
-    context.debug("Exit loadparseshow. Nothing to show!");
-    context.error("Exit loadparseshow. Nothing to show!");
+    console.warn("xIFr: Exit loadparseshow. Got nothing to show!");
     return;
   }
   const propertiesObj = {};
@@ -369,8 +368,7 @@ function loadparseshow(imgrequest) { // handleChosenOne
         infos: infosArr
       });
     } else {
-      console.warn("fetch response (arrayBuffer) is empty!...");
-      context.error("fetch response (arrayBuffer) is empty!...");
+      console.warn("xIFr: fetch response (arrayBuffer) is empty!...");
     }
   }
 
@@ -409,7 +407,7 @@ function loadparseshow(imgrequest) { // handleChosenOne
       )
         .then(handleResult)
         .catch(
-          (error) => console.error('fetchdata backend fetch - There has been a problem with your fetch operation: ', error.message, error)
+          (error) => console.error('xIFr: fetchdata backend fetch - There has been a problem with your fetch operation: ', error.message, error)
         );
     } else { // Slower JSON serialization algorithm. Supported by both Firefox and Chromium...
       context.debug('fetchdataBase64: Receiving from backend as base64 by the JSON serialization algorithm (The widely supported way, and supported by both Chromium and Firefox)');
@@ -423,7 +421,7 @@ function loadparseshow(imgrequest) { // handleChosenOne
         .then(handleBase64Result)
         .then(handleResult)
         .catch(
-          (error) => console.error('fetchdataBase64 backend fetch - There has been a problem with your fetch operation: ', error.message, error)
+          (error) => console.error('xIFr: fetchdataBase64 backend fetch - There has been a problem with your fetch operation: ', error.message, error)
         );
     }
 
@@ -701,11 +699,29 @@ if (typeof contentListenerAdded === 'undefined') {
         /**************************************************************/
 
         context.debug(" *** ADVANCED MODE WITH DEEP SEARCH *** ");
+        /**
+         * The right-clicked node/element
+         * @type {?Element}
+         */
         const elem = browser.menus.getTargetElement(request.targetId);
         // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/getTargetElement
         // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/OnClickData
         if (elem) {
-          request.nodeName = elem.nodeName.toLowerCase(); // node name of context (right-click) target
+          console.log('xIFr: The righclicked element is of type: ' + elem.nodeName?.toLowerCase());
+          if (elem.shadowRoot) {
+            console.warn('xIFr: The rightclicked element hosts a shadowDOM which may be invisible for current version of the Deep Search algorithm!');
+          }
+          const rootNode = elem.getRootNode({composed:false});
+          if (rootNode) {
+            if (rootNode instanceof ShadowRoot) {
+              console.warn('xIFr: The rightclicked element is in a shadowDOM. Current version of xIFr only have very limited Deep Search support here.');
+              console.log('xIFr: - and the shadowDOM is attached to a host element of type: ' + rootNode.host.nodeName?.toLowerCase());
+            }
+          } else {
+            console.warn('xIFr: The rightclicked element has NO RootNode?!?');
+          }
+
+          request.nodeName = elem.nodeName?.toLowerCase(); // node name of context (right-click) target
           const extraImages = loadImgAll(Array.from(new Set([...getBgImgs(document), ...getSVGEmbeddedImages(document)]))); // start finding and downloading images in svg and backgrounds to find the dimensions
           const image = imageSearch(request, elem);
           if (image) {
@@ -716,6 +732,8 @@ if (typeof contentListenerAdded === 'undefined') {
               loadparseshow(deeperSearch(request, elem, xtrSizes))
             });
           }
+        } else {
+          console.error('xIFr: getTargetElement did NOT return an element!')
         }
 
       } else if (typeof request.imageURL !== 'undefined' && request.mediaType === 'image') {

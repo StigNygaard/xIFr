@@ -160,7 +160,7 @@ function exifClass() {
   function ConvertAnyFormat(data, format, offset, components, numbytes, swapbytes, charWidth) {
     // centralised check if the data lays within the data array
     if (offset + numbytes > data.length) {
-      context.error("Data outside array.");
+      console.error("xIFr: Data outside array.");
       // throw "Data outside array.";
       return;
     }

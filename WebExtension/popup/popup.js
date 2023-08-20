@@ -137,7 +137,7 @@ function populate(response) {
       image.style.height = ts.height;
     }
     image.addEventListener("error", function() {
-      console.error("Load image error for " + response.properties.URL)
+      console.error("xIFr: Load image error for " + response.properties.URL)
     });
     image.addEventListener("load", function() {
       response.properties.naturalWidth = image.naturalWidth;

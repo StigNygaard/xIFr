@@ -115,7 +115,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
               const options = values[0];
               const winpop = {"winvp": values[1], "popupPos": options.popupPos};
               if (!values[2].length || !values[2][0].result) {
-                console.error('There was an error loading contentscripts: ' + JSON.stringify(values[2]));
+                console.error('xIFr: There was an error loading contentscripts: ' + JSON.stringify(values[2]));
                 // TODO: throw?
               }
               sessionStorage.set("winpop", winpop)
@@ -141,12 +141,12 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                   }
                 )
                 .catch((err) => {
-                  console.error(`sessionStorage or sendMessage(parseImage) error: ${err}`);
+                  console.error(`xIFr: sessionStorage or sendMessage(parseImage) error: ${err}`);
                 });
             }
           )
           .catch((err) => {
-            console.error(`Failed getting data or injecting scripts: ${err}`);
+            console.error(`xIFr: Failed getting data or injecting scripts: ${err}`);
           });
       } else {
         // *** DEPRECATED BUT STILL USED SO FAR - Firefox+Chromium MV2 compatible ***
@@ -208,12 +208,12 @@ browser.runtime.onMessage.addListener(
       const result = {};
       const url = new URL(message.href); // image.src
       function fetchdata_error(error) {
-        console.error('Background ' + message.message + ' error!', error);
+        console.error('xIFr: Background ' + message.message + ' error!', error);
         if (error.name === 'TimeoutError' || error.name === 'AbortError') {
-          context.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
+          console.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
           result.error = "Abort - likely timeout - when load image-file for parsing.";
         } else {
-          context.error("xIFr: fetch-ERROR trying to read image-data from " + url + " : " + error);
+          console.error("xIFr: fetch-ERROR trying to read image-data from " + url + " : " + error);
           result.error = "Error trying to load image-file for parsing of the metadata!";
           result.info = "Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image";
         }
@@ -246,7 +246,7 @@ browser.runtime.onMessage.addListener(
                 result.lastModified = response.headers.get('Last-Modified') || '';
                 return response.arrayBuffer(); // Promise<ArrayBuffer>
               } else {
-                console.error('Network response was not ok.');
+                console.error('xIFr: Network response was not ok.');
                 throw new Error('Network response was not ok.');
               }
             }
@@ -277,7 +277,7 @@ browser.runtime.onMessage.addListener(
                 result.lastModified = response.headers.get('Last-Modified') || '';
                 return response.blob(); // Promise<Blob>
               } else {
-                console.error('Network response was not ok.');
+                console.error('xIFr: Network response was not ok.');
                 throw new Error('Network response was not ok.');
               }
             }
@@ -290,7 +290,7 @@ browser.runtime.onMessage.addListener(
                 context.info("headers.byteLength: " + result.byteLength);
                 result.base64 = base64;
               } else {
-                context.error('base64 data missing');
+                console.error('xIFr: base64 data missing');
               }
               sendResponse(result);
             }
@@ -374,10 +374,10 @@ function createPopup(request, {popupPos, winvp}) { // Called when 'EXIFready'
   const width = 650;
   const height = 500;
   if (!winvp?.width) {
-    console.error('Current window (winvp) seems not defined (or available) in backgroundscript');
+    console.error('xIFr: Current window (winvp) seems not defined (or available) in backgroundscript');
   }
   if (!window?.screen?.availWidth) {
-    console.error('window.screen seems not defined (or available) in backgroundscript');
+    console.error('xIFr: window.screen seems not defined (or available) in backgroundscript');
   }
   // TODO: Will I be able to get window and screen properties from MV3 background service workers?
   //  (https://developer.chrome.com/docs/extensions/migrating/to-service-workers/)

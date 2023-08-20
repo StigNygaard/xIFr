@@ -26,7 +26,7 @@ globalThis.context = globalThis.context || (function Context() {
   let defaults = {
     dispMode: "defaultMode",
     popupPos: "defaultPos",
-    deepSearchBiggerLimit: 175 * 175, // 30625 - Go bigger than this when "force larger size" (shift-select in context menu - Firefox 63+ feature) to avoid overlayered icons and logos
+    deepSearchBiggerLimit: 175 * 175, // 30625
     mlinkOSM: true,
     mlinkGoogle: true,
     mlinkBing: true,
@@ -48,7 +48,7 @@ globalThis.context = globalThis.context || (function Context() {
   }
   function getOptions() {
     function onError(error) {
-      console.warning(`getOptions() error: ${error}`);
+      console.warning(`xIFr: getOptions() error: ${error}`);
       return defaults;
     }
     function setCurrentChoice(result) {

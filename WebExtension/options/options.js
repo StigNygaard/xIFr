@@ -43,7 +43,7 @@ function saveOptions(e) {
       setDisplayMode(document.forms[0].dispMode.value);
       updateDeepSearchSize()
     }, (error) => {
-      console.error('Failed saving xIFr options: ' + error)
+      console.error('xIFr: Failed saving options: ' + error)
     }
   );
 }

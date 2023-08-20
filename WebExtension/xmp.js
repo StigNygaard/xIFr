@@ -39,7 +39,8 @@ function xmpClass() {
     const dom = parser.parseFromString(xmlString, 'application/xml'); // alternatively "text/xml" ?
 
     if (dom.documentElement.nodeName === 'parsererror') {
-      context.error("Error parsing XML - xmp xmlString: \n" + xmlString);
+      console.error("xIFr: Error parsing XML");
+      context.debug("xIFr: Error parsing XML - xmp xmlString: \n" + xmlString);
       throw ("Error parsing XMP in parseXML()");
       // pushError(dataObj, "[xmp]", ex);
       // return;
