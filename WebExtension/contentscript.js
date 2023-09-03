@@ -8,6 +8,8 @@
 
 (function() {
 
+  const LOG_DSEARCH = false; // Some logging to console to trace Deep Search steps?
+
   // A map to connect non-jpeg background-images and alternative jpeg-versions found in css image-sets:
   const bgAlternatives = new Map(); // Will be updated by updateBgAlternatives
   // Minimum image-size to be relevant:
@@ -107,8 +109,11 @@
   // Much of following based on code/concept from https://blog.crimx.com/2017/03/09/get-all-images-in-dom-including-background-en/ (by CRIMX) ...
   function getBgImgs(elem) {
     const srcChecker = /url\(\s*?['"]?\s*?(\S+?)\s*?["']?\s*?\)/giu;
+    let extras = [];
+    if (elem instanceof Element) extras.push(elem); // Includes elem (itself) unless elem is (f.ex.) document
+    if ((elem instanceof DocumentFragment) && elem.host) extras.push(elem.host); // include host-element if elem is root of a shadowDOM
     return Array.from(
-      (elem instanceof Element ? [elem] : []).concat(Array.from(elem.querySelectorAll('*'))) // Includes elem (itself) unless elem is (f.ex.) document
+    extras.concat(Array.from(elem.querySelectorAll('*')))
         .reduce((collection, node) => {
           const cstyle = window.getComputedStyle(node, null);
           const display = cstyle.getPropertyValue('display');
@@ -460,24 +465,22 @@
   }
 
   function imageSearch(request, elem) {
+    // TODO: Look if elem has a shadowDOM beneath it?
     context.debug("imageSearch(): Looking for img elements on/below " + elem.nodeName.toLowerCase());
-    let candidate;
 
-    // If target-elem is a candidate, just set it now. If we are in shadowDOM we will not find it later (TODO: Better handling of shadowDOMs !)
-    if (elem.nodeName && elem.nodeName.toLowerCase() === 'img' && elem.naturalWidth && !blacklistedImage(elem.currentSrc)) {
-      if (((request.deepSearchBigger && (elem.naturalWidth * elem.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearchBigger && (elem.naturalWidth * elem.naturalHeight) > deepSearchGenericLimit))) {
-        const propDisplay = window.getComputedStyle(elem, null).getPropertyValue('display');
-        const propVisibility = window.getComputedStyle(elem, null).getPropertyValue('visibility');
-        if (propDisplay !== 'none' && propVisibility !== 'hidden') {
-          candidate = elem;
-        }
-      }
-    }
+    let candidate;
 
     // https://time2hack.com/checking-overlap-between-elements/
     // https://www.youtube.com/watch?v=cUZ2r6C2skA
     // https://css-tricks.com/how-to-stack-elements-in-css/
-    for (const img of document.images) {
+    const documentImages = [];
+    const rootNode = elem.getRootNode({composed:false});
+    documentImages.push(...Array.from(rootNode.images || rootNode.querySelectorAll('img')).sort( // sort by size descending...
+      (a, b) => (b.naturalWidth || 1) * (b.naturalHeight || 1) - (a.naturalWidth || 1) * (a.naturalHeight || 1)
+    ));
+
+    LOG_DSEARCH && console.log(` *** Doing initial imageSearch with documentImages list (length ${documentImages.length}): ${JSON.stringify(documentImages.map(im => ` (${im.currentSrc}, w=${im.naturalWidth}, s=${(im.naturalWidth||1)*(im.naturalHeight||1)})`))}`);
+    for (const img of documentImages) {
       if (elem.contains(img)) { // img is itself/elem or img is a "sub-node"
         context.debug("Found image within target element! img.src=" + img.src + " and naturalWidth=" + img.naturalWidth + ", naturalHeight=" + img.naturalHeight);
         // We could look for best match, or just continue with the first we find?
@@ -491,11 +494,11 @@
             if (typeof candidate !== "undefined") {
               context.debug("Compare img with candidate: " + img.naturalWidth * img.naturalHeight + " > " + candidate.naturalWidth * candidate.naturalHeight + "? -  document.images.length = " + document.images.length);
               if ((img.naturalWidth * img.naturalHeight) > (candidate.naturalWidth * candidate.naturalHeight)) {
-                context.debug("Setting new candidate. -  document.images.length = " + document.images.length);
+                context.debug("Setting new candidate. -  documentImages.length = " + documentImages.length);
                 candidate = img;
               }
             } else {
-              context.debug("Setting first candidate. -  document.images.length = " + document.images.length);
+              context.debug("Setting first candidate. -  documentImages.length = " + documentImages.length);
               candidate = img;
             }
           }
@@ -632,13 +635,14 @@
 
   function extraSearch(request, elem, xtrSizes) {
     context.debug("extraSearch(): Looking for backgrounds/svg on/below " + elem.nodeName.toLowerCase());
-    const xtrImgs = Array.from(new Set([...getBgImgs(elem), ...getSVGEmbeddedImages(elem)]))
+    const xtrImgs = Array.from(new Set([...getBgImgs(elem), ...getSVGEmbeddedImages(elem)]));
     context.debug("extraSearch(): Following xtrImgs are found on/below: " + JSON.stringify(xtrImgs));
+    LOG_DSEARCH && console.log(`extraSearch(): Following xtrImgs (backgrounds and svgs) are found on/below ${elem.nodeName.toLowerCase()}: ${JSON.stringify(xtrImgs)}.`);
     if (xtrImgs && xtrImgs.length > 0) {
       context.debug("Found extra svg or background image: " + xtrImgs[0]);
       context.debug("Looking for dimensions of extra-images via " + JSON.stringify(xtrSizes));
       for (const xSrc of xtrImgs) {
-        const imgData = xtrSizes.find(xs => xs.src === xSrc);
+        const imgData = xtrSizes.find(xs => xs.src === xSrc); // TODO Should use this to sort xtrImgs!?
         if (imgData?.width && !blacklistedImage(imgData.src) && ((request.deepSearchBigger && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearchBigger && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
           const image = {};
           image.imageURL = xSrc;
@@ -666,12 +670,19 @@
     let image = extraSearch(request, elem, xtrSizes);
     if (!image) {
       context.debug("deeperSearch(): No image from extraSearch()");
-      if (elem.nodeName.toLowerCase() === 'html' || elem.nodeName.toLowerCase() === '#document' || elem instanceof HTMLDocument || !elem.parentNode) {
+      let parentElem = elem.parentNode;
+      if (!parentElem && elem.host) {
+        parentElem = elem.host;
+        LOG_DSEARCH && console.log(`deeperSearch(): Using shadowDOM host element (${parentElem.nodeName.toLowerCase()}) as "parent elem" for next imageSearch()...`);
+      }
+      if (!parentElem) {
         context.debug("deeperSearch(): Cannot go higher from " + elem.nodeName.toLowerCase() + ", return without image!  typeof elem.parentNode = " + typeof elem.parentNode);
+        LOG_DSEARCH && console.log("deeperSearch(): Cannot go higher from " + elem.nodeName.toLowerCase() + ", return without image!  typeof elem.parentNode = " + typeof elem.parentNode);
         return; // no image found
       }
-      context.debug("deeperSearch(): Going from " + elem.nodeName + " element, up to " + elem.parentNode?.nodeName + " element...");
-      elem = elem.parentNode;
+      context.debug("deeperSearch(): Going from " + elem.nodeName?.toLowerCase() + " element, up to " + parentElem.nodeName?.toLowerCase() + " element...");
+      LOG_DSEARCH && console.log(`deeperSearch(): Going from ${elem.nodeName} element, up to ${parentElem.nodeName} element...`);
+      elem = parentElem;
       image = imageSearch(request, elem);
     }
     if (image) {
@@ -705,37 +716,44 @@
            * The right-clicked node/element
            * @type {?Element}
            */
-          const elem = browser.menus.getTargetElement(request.targetId);
+          const elem = browser.menus.getTargetElement(request.targetId); // TODO can I use focused element instead if it fails? (but that requires there is only ONE contentscript running!)
           // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/getTargetElement
           // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/OnClickData
           if (elem) {
-            console.log('xIFr: The righclicked element is of type: ' + elem.nodeName?.toLowerCase());
+            request.nodeName = elem.nodeName?.toLowerCase(); // node name of context (right-click) target
+            LOG_DSEARCH && console.log(`xIFr: The righclicked element is a <${request.nodeName} /> (${elem}) found on ${elem.ownerDocument.documentURI} (${elem.ownerDocument}).`);
+            LOG_DSEARCH && console.log(`xIFr: The DocumentElement is a : <${elem.ownerDocument.documentElement?.nodeName?.toLowerCase()} /> (${elem.ownerDocument.documentElement})`);
+            // console.log(`xIFr: OwnerDocument.images: (${JSON.stringify(Array.from(elem.ownerDocument.images).map(im => im.currentSrc))})`);
             if (elem.shadowRoot) {
-              console.warn('xIFr: The rightclicked element hosts a shadowDOM which may be invisible for current version of the Deep Search algorithm!');
+              LOG_DSEARCH && console.warn('xIFr: The rightclicked element hosts a shadowDOM which may be invisible for current version of the Deep Search algorithm!');
             }
-            const rootNode = elem.getRootNode({composed: false});
-            if (rootNode) {
-              if (rootNode instanceof ShadowRoot) {
-                console.warn('xIFr: The rightclicked element is in a shadowDOM. Current version of xIFr only have very limited Deep Search support here.');
-                console.log('xIFr: - and the shadowDOM is attached to a host element of type: ' + rootNode.host.nodeName?.toLowerCase());
-              }
-            } else {
-              console.warn('xIFr: The rightclicked element has NO RootNode?!?');
+            const extraLoads = [];
+            let rootNode = elem.getRootNode({composed:false});
+            if (rootNode instanceof ShadowRoot) {
+              LOG_DSEARCH && console.warn(`xIFr: We are in a shadowDOM (Host element: <${rootNode.host.nodeName?.toLowerCase()} />). Current version of xIFr might have limited Deep Search support here.`);
+            }
+            while (rootNode) {
+              LOG_DSEARCH && console.log(`xIFr: Finding "extras" to preload below root ${rootNode.nodeName?.toLowerCase()}.`);
+              extraLoads.push(...getBgImgs(rootNode), ...getSVGEmbeddedImages(rootNode));
+              rootNode = rootNode.host?.getRootNode({composed:false});
             }
 
-            request.nodeName = elem.nodeName?.toLowerCase(); // node name of context (right-click) target
-            const extraImages = loadImgAll(Array.from(new Set([...getBgImgs(document), ...getSVGEmbeddedImages(document)]))); // start finding and downloading images in svg and backgrounds to find the dimensions
+            // Start finding and downloading images found in svg and in backgrounds, to find the dimensions...
+            const extraImages = loadImgAll(Array.from(new Set(extraLoads)));
             const image = imageSearch(request, elem);
             if (image) {
               loadparseshow(image);
             } else {
               extraImages.then(xtrSizes => {
-                context.debug("Going deep search with preloaded backgrounds and images in svg: " + JSON.stringify(xtrSizes));
+                context.debug("Going deep search with preloaded backgrounds plus images in svg and shadowDOM: " + JSON.stringify(xtrSizes));
+                LOG_DSEARCH && console.log(` *** Doing deeperSearch with images list: ${JSON.stringify(...extraLoads)}`);
                 loadparseshow(deeperSearch(request, elem, xtrSizes))
               });
             }
           } else {
-            console.error('xIFr: getTargetElement did NOT return an element!')
+            LOG_DSEARCH && console.log(`xIFr: A contextscript running on ${document.documentURI} (${document}) did not get a target element id!`);
+            context.debug(`xIFr: A contextscript running on ${document.documentURI} (${document}) did not get a target element id`);
+            // TODO but the focused element on page is...
           }
 
         } else if (typeof request.imageURL !== 'undefined' && request.mediaType === 'image') {
@@ -772,11 +790,15 @@
             image.x = img.x;
             image.y = img.y;
           } else {
-            // Is it possible to arrive here? I don't think so, but...
-            // If so, maybe: New Image(request.imageURL); load promise -> dimensions
+            // Is it possible to arrive here? I'm not sure, but maybe if right-clicked image is in a shadowDOM?...
+            // TODO: If so, maybe: New Image(request.imageURL); load promise -> dimensions ... ???
+            LOG_DSEARCH && console.warn('xIFr: Simple search did not find a match in document.images');
           }
           loadparseshow(image);
 
+      } else {
+        // Normally we should NOT get here...
+        console.error('xIFr: No image detected in simple search.');
         }
       }
     });
