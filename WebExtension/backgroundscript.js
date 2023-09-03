@@ -211,11 +211,11 @@ browser.runtime.onMessage.addListener(
         console.error('xIFr: Background ' + message.message + ' error!', error);
         if (error.name === 'TimeoutError' || error.name === 'AbortError') {
           console.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
-          result.error = "Abort - likely timeout - when load image-file for parsing.";
+          result.error = browser.i18n.getMessage('fetchImageAbortError');
         } else {
           console.error("xIFr: fetch-ERROR trying to read image-data from " + url + " : " + error);
-          result.error = "Error trying to load image-file for parsing of the metadata!";
-          result.info = "Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image";
+          result.error = browser.i18n.getMessage('fetchImageError');
+          result.info = browser.i18n.getMessage('fetchFileWorkAroundInfo');
         }
         // context.debug("xIFr: fetch-ERROR Event.lengthComputable:" + error.lengthComputable);
         result.byteLength = '';
@@ -311,7 +311,7 @@ browser.runtime.onMessage.addListener(
         popupData.infos.push(browser.i18n.getMessage("noEXIFdata"));
       }
       if (popupData.properties.URL && popupData.properties.URL.startsWith('file:') && context.isFirefox()) {
-        popupData.warnings.push("Images from file system might not be shown in this popup, but meta data should still be correctly read.");
+        popupData.warnings.push(browser.i18n.getMessage('displayFileTrouble'));
         // TODO: Er det faktisk muligt at vise lokalt image med URL.createObjectURL(blob) ?
         //  https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Working_with_files#retrieving_stored_images_for_display
       }
@@ -319,7 +319,7 @@ browser.runtime.onMessage.addListener(
       sessionStorage.set("popupData", popupData).then(() => {
         sessionStorage.get()
           .then(({previous, winpop}) => {
-            if (previous?.imgURL && previous.imgURL === message.properties.URL) {
+            if (!message.properties.URL.startsWith('file:') && previous?.imgURL && previous.imgURL === message.properties.URL) {
               context.debug("Previous popup was same - Focus to previous if still open...");
               browser.windows.update(previous.winId, {focused: true})
                 .then(() => {

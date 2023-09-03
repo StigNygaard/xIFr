@@ -377,7 +377,12 @@ function populate(response) {
     elem.addEventListener('click', (event) => {
       event.stopPropagation();
       event.preventDefault();
+      try {
       window.open(event.target.href, '_blank', 'noopener,noreferrer');
+      } catch (e) {
+        console.error(e);
+        return;
+      }
       self.close();
     }, true)
   });

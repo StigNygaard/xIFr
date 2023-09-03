@@ -224,11 +224,11 @@ function fetchImage(url, fetchOptions = {}) {
         console.error('xIFr: Error from frontend fetch', error.message, error)
         if (error.name === 'TimeoutError' || error.name === 'AbortError') {
           console.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
-          result.error = "Abort - likely timeout - when load image-file for parsing.";
+          result.error = browser.i18n.getMessage('fetchImageAbortError');
         } else {
           console.error("xIFr: fetch-ERROR trying to read image-data from " + url + " : " + error);
-          result.error = "Error trying to load image-file for parsing of the metadata!";
-          result.info = "Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image";
+          result.error = browser.i18n.getMessage('fetchImageError');
+          result.info = browser.i18n.getMessage('fetchFileWorkAroundInfo');
         }
         // context.debug("xIFr: fetch-ERROR Event.lengthComputable:" + error.lengthComputable);
         result.byteLength = '';
@@ -304,8 +304,8 @@ function loadparseshow(imgrequest) { // handleChosenOne
       result.byteArray = new Uint8Array(arrayBuffer);
       delete result.base64;
     } else {
-      result.error = "Error trying to load image-file for parsing of the metadata!";
-      result.info = "Possible work-around for error: Try opening image directly from above link, and open xIFr again directly from the displayed image";
+      result.error = browser.i18n.getMessage('fetchImageError');
+      result.info = browser.i18n.getMessage('fetchFileWorkAroundInfo');
       result.byteLength = '';
       result.contentType = '';
       result.lastModified = '';

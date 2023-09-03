@@ -504,6 +504,22 @@
     "message": " Error while interpreting %S data. Might not show all or any %S data. "
   },
 
+  "fetchImageAbortError": {
+    "message": "Abort - likely timeout - when load image-file for parsing."
+  },
+
+  "fetchImageError": {
+    "message": "Error trying to load image-file for parsing of the metadata!"
+  },
+
+  "fetchFileWorkAroundInfo": {
+    "message": "Possible work-around for error: Copy above image URL. Open URL directly in browser, and try open xIFr again from the displayed image"
+  },
+
+  "displayFileTrouble": {
+    "message": "Image from your file system probably ain't displayed in this popup, but it might still be possible to get the meta-data."
+  },
+
   "UserComment": {
     "message": "User Comment"
   },
