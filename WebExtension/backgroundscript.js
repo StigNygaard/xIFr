@@ -22,7 +22,7 @@ browser.runtime.onInstalled.addListener(
       });
     switch (reason) {
       case "update": // "upboarding"
-        if (versionnumber.compare(previousVersion, '2.12.0') < 0) { // Only show "upboarding" if previous version LESS than 2.12.0
+        if (versionnumber.compare(previousVersion, '2.15.0') < 0) { // Only show "upboarding" if previous version LESS than 2.15.0
           browser.tabs.create({url: "boarding/upboard.html?previousVersion=" + previousVersion});
         }
         break;

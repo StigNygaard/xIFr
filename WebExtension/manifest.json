@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "xIFr",
-  "version": "2.14.0",
+  "version": "2.15.0",
   "default_locale": "en",
 
   "description": "__MSG_extensionDescription__",
@@ -25,7 +25,7 @@
 
   "browser_specific_settings": {
     "gecko": {
-      "strict_min_version": "109.0"
+      "strict_min_version": "115.0"
     }
   },
   "minimum_chrome_version": "109.0",

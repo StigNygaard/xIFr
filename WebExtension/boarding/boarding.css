@@ -54,7 +54,7 @@ table td, table th {
 @media (prefers-color-scheme: dark) {
   body {
     background-color: rgb(43, 43, 43);
-    color: rgb(249, 249, 249);
+    color: rgb(220, 220, 220);
     scrollbar-color: rgb(43, 43, 43) black;
   }
   .secondOnboard {
@@ -68,5 +68,8 @@ table td, table th {
   }
   img.settings {
     filter: invert(100%);
+  }
+  h1, h2, h3, strong {
+    color:  rgb(255, 255, 255);
   }
 }
