@@ -53,7 +53,7 @@ function translateFields(data) {
 
 
 // A map to connect non-jpeg background-images and alternative jpeg-versions found in css image-sets:
-bgAlternatives = new Map(); // TODO: but would be nicer to design without this "global" property...
+globalThis.bgAlternatives = new Map(); // TODO: but would be nicer to design without this "global" property...
 // Following updates the map
 function updateBgAlternatives(bgimage) {
   // Does getComputedStyle() return exact same format in all browsers? If one day Chromium (or other
@@ -134,7 +134,7 @@ function getBgImgs(elem) {
 // Finding and loading image(s) embedded in inline SVG....
 function getSVGEmbeddedImages(elem) {
   return Array.from(
-    (elem.nodeName === 'image' ? [elem] : []).concat(Array.from(elem.querySelectorAll('svg image, svg feImage'))) // Includes elem (itself) unless elem is document
+    (['image', 'feimage'].includes(elem.nodeName.toLowerCase()) ? [elem] : []).concat(Array.from(elem.querySelectorAll('svg image, svg feImage')))
       .reduce((collection, node) => {
         const cstyle = window.getComputedStyle(node, null);
         const display = cstyle.getPropertyValue('display');
@@ -373,7 +373,6 @@ function loadparseshow(imgrequest) { // handleChosenOne
   }
 
 
-  // TODO: I'm trying to understand this sh*t to make it work in Chrome, but...
   // https://stackoverflow.com/questions/8593896/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
   // https://stackoverflow.com/questions/6965107/converting-between-strings-and-arraybuffers
 
