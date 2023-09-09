@@ -749,7 +749,7 @@
               LOG_DSEARCH && console.warn(`xIFr: We are in a shadowDOM (Host element: <${rootNode.host.nodeName?.toLowerCase()} />). Current version of xIFr might have limited Deep Search support here.`);
             }
             while (rootNode) {
-              LOG_DSEARCH && console.log(`xIFr: Finding "extras" to preload below root ${rootNode.nodeName?.toLowerCase()}.`);
+              LOG_DSEARCH && console.log(`xIFr: Finding "extras" to preload below root ${rootNode.nodeName?.toLowerCase()}...`);
               extraLoads.push(...getBgImgs(rootNode), ...getSVGEmbeddedImages(rootNode));
               rootNode = rootNode.host?.getRootNode({composed:false});
             }
@@ -762,7 +762,7 @@
             } else {
               extraImages.then(xtrSizes => {
                 context.debug("Going deep search with preloaded backgrounds plus images in svg and shadowDOM: " + JSON.stringify(xtrSizes));
-                LOG_DSEARCH && console.log(`xIFr: *** Doing deeperSearch with images list: ${JSON.stringify(...extraLoads)}`);
+                LOG_DSEARCH && console.log(`xIFr: *** Doing deeperSearch with images list: ${JSON.stringify([...extraLoads])}`);
                 loadparseshow(deeperSearch(request, elem, xtrSizes))
               });
             }
