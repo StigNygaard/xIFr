@@ -438,6 +438,16 @@
   }
 
   function blacklistedImage(src) { // todo: Make blacklist configurable!
+    if (src.startsWith('data:') || src.startsWith('blob:')) {
+      if (src.length < 500 || src.substring(5,11) !== 'image/') {
+        console.warn('xIFr: Skipping ' + src);
+        // ignore tiny inline data: and blob: images - and those that doesn't have some 'image' mimetype
+        return true;
+      }
+    } else if (src.startsWith('moz-extension:') || src.startsWith('chrome-extension:')) {
+      console.warn('xIFr: Skipping ' + src);
+      return true; // Apparently we can detect images inserted by other extensions, but we cannot access them
+    }
     return [{
       url: "https://combo.staticflickr.com/ap/build/images/sprites/icons-cc4be245.png",
       regexp: false
@@ -449,6 +459,12 @@
       regexp: false
     }, {
       url: "https://static.kuula.io/prod/assets/sprites-main.png",
+      regexp: false
+    }, {
+      url: "https://m.media-amazon.com/images/G/01/digital/music/player/web/EQ_accent.gif",
+      regexp: false
+    }, {
+      url: "https://m.media-amazon.com/images/G/01/digital/music/player/web/EQ_accent.webp",
       regexp: false
     }, {
       url: "https://www.instagram.com/static/bundles/es6/sprite_core_32f0a4f27407.png/32f0a4f27407.png",
