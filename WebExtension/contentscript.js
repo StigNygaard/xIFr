@@ -165,7 +165,8 @@
         resolve({
           src: src,
           width: img.naturalWidth,
-          height: img.naturalHeight
+          height: img.naturalHeight,
+          weight: (img.naturalWidth || 1) * (img.naturalHeight || 1)
         })
       });
       img.addEventListener("error", function () {
@@ -650,15 +651,24 @@
   }
 
   function extraSearch(request, elem, xtrSizes) {
-    context.debug("extraSearch(): Looking for backgrounds/svg on/below " + elem.nodeName.toLowerCase());
-    const xtrImgs = Array.from(new Set([...getBgImgs(elem), ...getSVGEmbeddedImages(elem)]));
-    context.debug("extraSearch(): Following xtrImgs are found on/below: " + JSON.stringify(xtrImgs));
-    LOG_DSEARCH && console.log(`extraSearch(): Following xtrImgs (backgrounds and svgs) are found on/below ${elem.nodeName.toLowerCase()}: ${JSON.stringify(xtrImgs)}.`);
-    if (xtrImgs && xtrImgs.length > 0) {
-      context.debug("Found extra svg or background image: " + xtrImgs[0]);
-      context.debug("Looking for dimensions of extra-images via " + JSON.stringify(xtrSizes));
-      for (const xSrc of xtrImgs) {
-        const imgData = xtrSizes.find(xs => xs.src === xSrc); // TODO Should use this to sort xtrImgs!?
+    const xtrImgURLsUnsorted = Array.from(new Set([...getBgImgs(elem), ...getSVGEmbeddedImages(elem)]));
+    context.debug(`extraSearch(): Following "extra" image urls are found on/below ${elem.nodeName.toLowerCase()}: ${JSON.stringify(xtrImgURLsUnsorted)}.`);
+    LOG_DSEARCH && console.log(`xIFr: Found ${xtrImgURLsUnsorted.length} extra background (or in SVG) image URLs to check on/below ${elem.nodeName.toLowerCase()}: \n${JSON.stringify(xtrImgURLsUnsorted)}`);
+    if (xtrImgURLsUnsorted.length > 0) {
+      const xtrImgURLs = [];
+      for (const im of xtrSizes) {
+        if (xtrImgURLsUnsorted.find(xSrc => im.src === xSrc)) {
+          xtrImgURLs.push(im.src); // same order as in the already sorted xtrSizes
+        }
+      }
+      LOG_DSEARCH && console.log(`xIFr: - Same list sorted: ${JSON.stringify(xtrImgURLs)}`);
+      if (xtrImgURLsUnsorted.length > xtrImgURLs.length) {
+        const difference = xtrImgURLsUnsorted.filter((element) => !xtrImgURLs.includes(element));
+        console.warn(`xIFr: Something fell out the loop: ${difference}.`);
+      }
+      context.debug("First extra background (or in SVG) image to check in SORTED list: " + xtrImgURLs[0]);
+      for (const xSrc of xtrImgURLs) {
+        const imgData = xtrSizes.find(xs => xs.src === xSrc);
         if (imgData?.width && !blacklistedImage(imgData.src) && ((request.deepSearchBigger && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearchBigger && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
           const image = {};
           image.imageURL = xSrc;
@@ -762,8 +772,8 @@
             } else {
               extraImages.then(xtrSizes => {
                 context.debug("Going deep search with preloaded backgrounds plus images in svg and shadowDOM: " + JSON.stringify(xtrSizes));
-                LOG_DSEARCH && console.log(`xIFr: *** Doing deeperSearch with images list: ${JSON.stringify([...extraLoads])}`);
-                loadparseshow(deeperSearch(request, elem, xtrSizes))
+                LOG_DSEARCH && console.log(`xIFr: *** Doing deeperSearch with "extras": ${JSON.stringify([...extraLoads])}`);
+                loadparseshow(deeperSearch(request, elem, xtrSizes.sort((a, b) => (b.weight || 1) - (a.weight || 1))))
               });
             }
           } else {
