@@ -21,8 +21,8 @@ function supportsRegexLookAheadLookBehind() {
   try {
     return (
       "hibyehihi"
-        .replace(new RegExp("(?<=hi)hi", "gu"), "hello")
-        .replace(new RegExp("hi(?!bye)", "gu"), "hey") === "hibyeheyhello"
+        .replace(/(?<=hi)hi/gu, "hello")
+        .replace(/hi(?!bye)/gu, "hey") === "hibyeheyhello"
     );
   } catch (error) {
     return false;
@@ -389,7 +389,7 @@ function populate(response) {
   document.getElementById("settings").addEventListener('click', openOptions, true);
   keyShortcuts.register("o", openOptions);
   keyShortcuts.register("O", openOptions);
-  if (navigator.clipboard && navigator.clipboard.writeText) { // Firefox 63+
+  if (navigator.clipboard?.writeText) {
     document.getElementById("cpClipboard").addEventListener('click', copyToClipboard, true);
     keyShortcuts.register("c", copyToClipboard);
     keyShortcuts.register("C", copyToClipboard);

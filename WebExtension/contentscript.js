@@ -169,7 +169,7 @@
         })
       });
       img.addEventListener("error", function () {
-        console.warn('xIFr: Error when trying to "pre-analyze" image ' + src + '.');
+        console.warn(`xIFr: Error when trying to "pre-fetch" image ${src}.`);
         reject()
       });
       img.src = src;
@@ -495,7 +495,7 @@
       (a, b) => (b.naturalWidth || 1) * (b.naturalHeight || 1) - (a.naturalWidth || 1) * (a.naturalHeight || 1)
     ));
 
-    LOG_DSEARCH && console.log(` *** Doing initial imageSearch with documentImages list (length ${documentImages.length}): ${JSON.stringify(documentImages.map(im => ` (${im.currentSrc}, w=${im.naturalWidth}, s=${(im.naturalWidth||1)*(im.naturalHeight||1)})`))}`);
+    LOG_DSEARCH && console.log(`xIFr: *** Doing initial imageSearch with documentImages list (length ${documentImages.length}): ${JSON.stringify(documentImages.map(im => ` (${im.currentSrc}, w=${im.naturalWidth}, s=${(im.naturalWidth||1)*(im.naturalHeight||1)})`))}`);
     for (const img of documentImages) {
       if (elem.contains(img)) { // img is itself/elem or img is a "sub-node"
         context.debug("Found image within target element! img.src=" + img.src + " and naturalWidth=" + img.naturalWidth + ", naturalHeight=" + img.naturalHeight);
@@ -689,15 +689,15 @@
       let parentElem = elem.parentNode;
       if (!parentElem && elem.host) {
         parentElem = elem.host;
-        LOG_DSEARCH && console.log(`deeperSearch(): Using shadowDOM host element (${parentElem.nodeName.toLowerCase()}) as "parent elem" for next imageSearch()...`);
+        LOG_DSEARCH && console.log(`xIFr/deeperSearch(): Using shadowDOM host element (${parentElem.nodeName.toLowerCase()}) as "parent elem" for next imageSearch()...`);
       }
       if (!parentElem) {
-        context.debug("deeperSearch(): Cannot go higher from " + elem.nodeName.toLowerCase() + ", return without image!  typeof elem.parentNode = " + typeof elem.parentNode);
-        LOG_DSEARCH && console.log("deeperSearch(): Cannot go higher from " + elem.nodeName.toLowerCase() + ", return without image!  typeof elem.parentNode = " + typeof elem.parentNode);
+        context.debug("deeperSearch(): Cannot go higher from " + elem.nodeName.toLowerCase() + ", return without image! typeof elem.parentNode = " + typeof elem.parentNode);
+        LOG_DSEARCH && console.log(`xIFr/deeperSearch(): Cannot go higher from ${elem.nodeName.toLowerCase()}, return without image! typeof elem.parentNode = ${typeof elem.parentNode}.`);
         return; // no image found
       }
       context.debug("deeperSearch(): Going from " + elem.nodeName?.toLowerCase() + " element, up to " + parentElem.nodeName?.toLowerCase() + " element...");
-      LOG_DSEARCH && console.log(`deeperSearch(): Going from ${elem.nodeName} element, up to ${parentElem.nodeName} element...`);
+      LOG_DSEARCH && console.log(`xIFr/deeperSearch(): Going from ${elem.nodeName} element, up to ${parentElem.nodeName} element...`);
       elem = parentElem;
       image = imageSearch(request, elem);
     }
@@ -762,7 +762,7 @@
             } else {
               extraImages.then(xtrSizes => {
                 context.debug("Going deep search with preloaded backgrounds plus images in svg and shadowDOM: " + JSON.stringify(xtrSizes));
-                LOG_DSEARCH && console.log(` *** Doing deeperSearch with images list: ${JSON.stringify(...extraLoads)}`);
+                LOG_DSEARCH && console.log(`xIFr: *** Doing deeperSearch with images list: ${JSON.stringify(...extraLoads)}`);
                 loadparseshow(deeperSearch(request, elem, xtrSizes))
               });
             }
