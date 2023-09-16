@@ -1,7 +1,7 @@
 # xIFr
 
 xIFr is a Firefox browser extension for viewing EXIF, IPTC and XMP metadata in image files, including a map-view of
-geolocation. It features "deep search" to find images that normally can't be selected or rightclicked on webpages.
+geolocation. It features "deep search" to find the images that normally can't be selected just by rightclicking.
 
 * [Install xIFr from Mozilla Firefox Add-ons](https://addons.mozilla.org/firefox/addon/xifr/?utm_source=github.com)
 
