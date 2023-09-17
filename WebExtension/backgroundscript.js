@@ -241,7 +241,7 @@ browser.runtime.onMessage.addListener(
           .then(
             function(response) {
               if (response.ok) { // 200ish
-                result.byteLength = response.headers.get('Content-Length') || '';
+                result.byteLength = response.headers.get('Content-Length') ?? '';
                 result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
                 result.lastModified = response.headers.get('Last-Modified') || '';
                 return response.arrayBuffer(); // Promise<ArrayBuffer>
@@ -258,7 +258,7 @@ browser.runtime.onMessage.addListener(
                 context.info("headers.byteLength: " + result.byteLength);
                 context.info("arraybuffer.byteLength: " + arrayBuffer.byteLength);
                 result.byteArray = new Uint8Array(arrayBuffer);
-                result.byteLength = arrayBuffer.byteLength || result.byteLength; // TODO: I guess these ain't both header values...
+                result.byteLength = arrayBuffer.byteLength ?? result.byteLength; // TODO: I guess these ain't both header values...
               }
               sendResponse(result);
             }
@@ -272,7 +272,7 @@ browser.runtime.onMessage.addListener(
           .then(
             function(response) {
               if (response.ok) { // 200ish
-                result.byteLength = response.headers.get('Content-Length') || '';
+                result.byteLength = response.headers.get('Content-Length') ?? '';
                 result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
                 result.lastModified = response.headers.get('Last-Modified') || '';
                 return response.blob(); // Promise<Blob>
