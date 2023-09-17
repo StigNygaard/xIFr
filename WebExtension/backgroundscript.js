@@ -310,7 +310,7 @@ browser.runtime.onMessage.addListener(
       if (Object.keys(message.data).length === 0) {
         popupData.infos.push(browser.i18n.getMessage("noEXIFdata"));
       }
-      if (popupData.properties.URL && popupData.properties.URL.startsWith('file:') && context.isFirefox()) {
+      if (popupData.properties.URL?.startsWith('file:') && context.isFirefox()) {
         popupData.warnings.push(browser.i18n.getMessage('displayFileTrouble'));
         // TODO: Er det faktisk muligt at vise lokalt image med URL.createObjectURL(blob) ?
         //  https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Working_with_files#retrieving_stored_images_for_display
@@ -319,7 +319,7 @@ browser.runtime.onMessage.addListener(
       sessionStorage.set("popupData", popupData).then(() => {
         sessionStorage.get()
           .then(({previous, winpop}) => {
-            if (!message.properties.URL.startsWith('file:') && previous?.imgURL && previous.imgURL === message.properties.URL) {
+            if (previous?.imgURL && previous.imgURL === message.properties.URL && !message.properties.URL.startsWith('file:')) {
               context.debug("Previous popup was same - Focus to previous if still open...");
               browser.windows.update(previous.winId, {focused: true})
                 .then(() => {
