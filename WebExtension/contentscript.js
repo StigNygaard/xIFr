@@ -393,7 +393,7 @@
 
     context.debug(' *** fetchMode: ' + imgrequest.fetchMode + ' ***');
 
-    // TODO: If file:, always do frontend fetch !?
+    // TODO: If file: or blob:, always do frontend fetch !?!
     if (imgrequest.fetchMode === 'devFrontendFetch' || imgrequest.fetchMode === 'devAutoFetch' && context.isFirefox()) { // Do frontend fetch...
       if (imgrequest.fetchMode !== 'devAutoFetch') {
         console.warn(`xIFr: Forced FRONTEND fetch (${imgrequest.fetchMode})`);
@@ -439,12 +439,10 @@
   }
 
   function blacklistedImage(src) { // todo: Make blacklist configurable!
-    if (src.startsWith('data:') || src.startsWith('blob:')) {
-      if (src.length < 500 || src.substring(5,11) !== 'image/') {
+    if (src.startsWith('data:') && (src.length < 500 || !src.startsWith('data:image/'))) {
         console.warn('xIFr: Skipping ' + src);
-        // ignore tiny inline data: and blob: images - and those that doesn't have some 'image' mimetype
+      // ignore tiny inline data: images - and those that doesn't have some 'image' mimetype
         return true;
-      }
     } else if (src.startsWith('moz-extension:') || src.startsWith('chrome-extension:')) {
       console.warn('xIFr: Skipping ' + src);
       return true; // Apparently we can detect images inserted by other extensions, but we cannot access them

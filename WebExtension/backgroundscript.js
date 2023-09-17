@@ -310,6 +310,9 @@ browser.runtime.onMessage.addListener(
       if (Object.keys(message.data).length === 0) {
         popupData.infos.push(browser.i18n.getMessage("noEXIFdata"));
       }
+      if (popupData.properties.URL?.startsWith('blob:http')) {
+        popupData.warnings.push(browser.i18n.getMessage('displayBlobTrouble'));
+      }
       if (popupData.properties.URL?.startsWith('file:') && context.isFirefox()) {
         popupData.warnings.push(browser.i18n.getMessage('displayFileTrouble'));
         // TODO: Er det faktisk muligt at vise lokalt image med URL.createObjectURL(blob) ?

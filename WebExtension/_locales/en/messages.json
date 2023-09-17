@@ -517,7 +517,11 @@
   },
 
   "displayFileTrouble": {
-    "message": "Image from your file system probably ain't displayed in this popup, but it might still be possible to get the meta-data."
+    "message": "Image from your file system probably doesn't display in this popup, but any meta-data might still be read and displayed correctly."
+  },
+
+  "displayBlobTrouble": {
+    "message": "Images defined by blob: URLs probably doesn't display in this popup, but any meta-data might still be read and displayed correctly."
   },
 
   "UserComment": {
