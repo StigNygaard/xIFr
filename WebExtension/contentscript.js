@@ -254,7 +254,21 @@
       console.warn("xIFr: Exit loadparseshow. Got nothing to show!");
       return;
     }
-    const propertiesObj = {};
+    const wprop = {
+      scr: { // screen
+        width: window.screen.width,
+        availWidth: window.screen.availWidth,
+        height: window.screen.height,
+        availHeight: window.screen.availHeight
+      },
+      win: { // browser window
+        width: window.outerWidth,
+        height: window.outerHeight,
+        top: window.screenTop,
+        left: window.screenLeft
+      }
+    };
+    const propertiesObj = {wprop: wprop};
     propertiesObj.URL = imgrequest.imageURL;
     propertiesObj.crossOrigin = imgrequest.crossOrigin;
     propertiesObj.referrerPolicy = imgrequest.referrerPolicy;

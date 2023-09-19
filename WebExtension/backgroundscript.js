@@ -106,19 +106,15 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
           files: scripts,
           injectImmediately: true
         });
-        // TODO: Vil browser.windows.getCurrent() virke med MV3 background service worker?
-        //  (https://developer.chrome.com/docs/extensions/migrating/to-service-workers/)
-        //  (But: https://stackoverflow.com/questions/73778202/using-window-globals-in-manifestv3-service-worker-background-script)
-        Promise.all([context.getOptions(), browser.windows.getCurrent(), scriptsInjecting])
+        Promise.all([context.getOptions(), scriptsInjecting])
           .then((values) => {
               context.debug("All scripts started from background is ready...");
               const options = values[0];
-              const winpop = {"winvp": values[1], "popupPos": options.popupPos};
-              if (!values[2].length || !values[2][0].result) {
-                console.error('xIFr: There was an error loading contentscripts: ' + JSON.stringify(values[2]));
+              if (!values[1].length || !values[1][0]) {
+                console.error('xIFr: There was an error loading contentscripts: ' + JSON.stringify(values[1]));
                 // TODO: throw?
               }
-              sessionStorage.set("winpop", winpop)
+              sessionStorage.set("winpop", options.popupPos)
                 .then(
                   () => {
                     browser.tabs.sendMessage(
@@ -157,12 +153,11 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
             file: script
           });
         });
-        Promise.all([context.getOptions(), browser.windows.getCurrent(), ...scriptsInjecting]).then(
+        Promise.all([context.getOptions(), ...scriptsInjecting]).then(
           (values) => {
             context.debug("All scripts started from background is ready...");
             const options = values[0];
-            const winpop = {"winvp": values[1], "popupPos": options.popupPos};
-            sessionStorage.set("winpop", winpop)
+            sessionStorage.set("winpop", options.popupPos)
               .then(
                 () => {
                   browser.tabs.sendMessage(tab.id, {
@@ -364,45 +359,32 @@ browser.runtime.onMessage.addListener(
   }
 );
 
-function createPopup(request, {popupPos, winvp}) { // Called when 'EXIFready'
-  // context.info("window.screen.width: " + window.screen.width + " (" + window.screen.width + ")");
-  // context.info("window.screen.availWidth: " + window.screen.availWidth);
-  // context.info("window.screen.height: " + window.screen.height);
-  // context.info("window.screen.availHeight: " + window.screen.availHeight);
-  // context.info("browser.windows.Window.width: " + winvp.width);
-  // context.info("browser.windows.Window.height: " + winvp.height);
-  // context.info("browser.windows.Window.top: " + winvp.top);
-  // context.info("browser.windows.Window.left: " + winvp.left);
+function createPopup(request, popupPos) { // Called when 'EXIFready'
+  const win = request.properties.wprop.win;
+  const scr = request.properties.wprop.scr;
   let pos = {};
   const width = 650;
   const height = 500;
-  if (!winvp?.width) {
-    console.error('xIFr: Current window (winvp) seems not defined (or available) in backgroundscript');
+  if (!win?.width) {
+    console.error('xIFr: Current browser-window properties not received by backgroundscript');
   }
-  if (!window?.screen?.availWidth) {
-    console.error('xIFr: window.screen seems not defined (or available) in backgroundscript');
+  if (!scr?.availWidth) {
+    console.error('xIFr: window.screen properties not received by backgroundscript');
   }
-  // TODO: Will I be able to get window and screen properties from MV3 background service workers?
-  //  (https://developer.chrome.com/docs/extensions/migrating/to-service-workers/)
-  //  (But: https://stackoverflow.com/questions/73778202/using-window-globals-in-manifestv3-service-worker-background-script)
-  //  https://stackoverflow.com/questions/68194103/error-in-event-handler-referenceerror-window-is-not-defined-chrome-extension-w/68194718#68194718
-  //  ManifestV3 extension uses a service worker so it doesn't have DOM or window.
-  //     Use chrome.windows.getCurrent to get the size/position of the current browser window.    ( So this will apparently still work? )
-  //     Use chrome.system.display.getInfo (since Chrome 94) to get the display's size/metrics.   ( !!! Chrome-only so far? !!! )
   switch (popupPos) {
     case "center":
-      if (window?.screen?.availWidth) {
+      if (scr?.availWidth) {
         pos = {
-          left: Math.floor(window.screen.availWidth / 2) - 325,
-          top: Math.floor(window.screen.availHeight / 2) - 250
+          left: Math.floor(scr.availWidth / 2) - 325,
+          top: Math.floor(scr.availHeight / 2) - 250
         };
       }
       break;
     case "centerBrowser":
-      if (winvp?.width) {
+      if (win?.width) {
         pos = {
-          left: winvp.left + Math.floor(winvp.width / 2) - 325,
-          top: winvp.top + Math.floor(winvp.height / 2) - 250
+          left: win.left + Math.floor(win.width / 2) - 325,
+          top: win.top + Math.floor(win.height / 2) - 250
         };
       }
       break;
@@ -410,46 +392,44 @@ function createPopup(request, {popupPos, winvp}) { // Called when 'EXIFready'
       pos = {left: 10, top: 10};
       break;
     case "topRight":
-      if (winvp?.width) {
-        if (window?.screen?.availWidth) {
-          pos = {left: window.screen.availWidth - 650 - 10, top: 10};
-        }
+      if (scr?.availWidth) {
+        pos = {left: scr.availWidth - 650 - 10, top: 10};
       }
       break;
     case "topLeftBrowser":
-      if (winvp?.width) {
-        pos = {left: winvp.left + 10, top: winvp.top + 10};
+      if (win?.width) {
+        pos = {left: win.left + 10, top: win.top + 10};
       }
       break;
     case "topRightBrowser":
-      if (winvp?.width) {
-        pos = {left: winvp.left + winvp.width - 650 - 10, top: winvp.top + 10};
+      if (win?.width) {
+        pos = {left: win.left + win.width - 650 - 10, top: win.top + 10};
       }
       break;
     case "leftish":
-      if (winvp?.width) {
+      if (win?.width) {
         pos = {
-          left: Math.max(winvp.left - 200, 10),
-          top: Math.max(winvp.top + Math.floor(winvp.height / 2) - 350, 10)
+          left: Math.max(win.left - 200, 10),
+          top: Math.max(win.top + Math.floor(win.height / 2) - 350, 10)
         };
       }
       break;
     case "rightish":
-      if (winvp?.width || window?.screen?.availWidth) {
+      if (win?.width || scr?.availWidth) {
         pos = {
-          left: Math.min(winvp.left + winvp.width - 450, window.screen.availWidth - 650 - 10),
-          top: Math.max(winvp.top + Math.floor(winvp.height / 2) - 350, 10)
+          left: Math.min(win.left + win.width - 450, scr.availWidth - 650 - 10),
+          top: Math.max(win.top + Math.floor(win.height / 2) - 350, 10)
         };
       }
       break;
     case "snapLeft":
-      if (window?.screen?.availWidth) {
-        pos = {left: 0, top: 0, height: window.screen.availHeight};
+      if (scr?.availWidth) {
+        pos = {left: 0, top: 0, height: scr.availHeight};
       }
       break;
     case "snapRight":
-      if (window?.screen?.availWidth) {
-        pos = {left: window.screen.availWidth - width, top: 0, height: window.screen.availHeight};
+      if (scr?.availWidth) {
+        pos = {left: scr.availWidth - width, top: 0, height: scr.availHeight};
       }
       break;
   }
