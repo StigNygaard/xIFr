@@ -127,7 +127,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                         supportsDeepSearch: !!info.targetElementId,  // "deep-search" supported in Firefox 63+
                         goDeepSearch: !!info.targetElementId && !options.devDisableDeepSearch,
                         supportsDeepSearchModifier: !!info.modifiers,
-                        deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
+                        deepSearchBigger: !!info.modifiers?.includes("Shift"),
                         deepSearchBiggerLimit: options.deepSearchBiggerLimit,
                         fetchMode : options.devFetchMode,
                         frameId: info.frameId, // related to globalThis/window/frames ?
@@ -168,7 +168,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                     supportsDeepSearch: !!info.targetElementId,  // "deep-search" supported in Firefox 63+
                     goDeepSearch: !!info.targetElementId && !options.devDisableDeepSearch,
                     supportsDeepSearchModifier: !!info.modifiers,
-                    deepSearchBigger: info.modifiers && info.modifiers.includes("Shift"),
+                    deepSearchBigger: !!info.modifiers?.includes("Shift"),
                     deepSearchBiggerLimit: options.deepSearchBiggerLimit,                    fetchMode : options.devFetchMode,
                     frameId: info.frameId, // related to globalThis/window/frames ?
                     frameUrl: info.frameUrl
