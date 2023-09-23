@@ -133,7 +133,13 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                         frameId: info.frameId, // related to globalThis/window/frames ?
                         frameUrl: info.frameUrl
                       }
-                    );
+                    )
+                    .then ((r) => {
+                      // console.log(`xIFr: ${r}`)
+                    })
+                    .catch((e) => {
+                      console.error('xIFr: Sending parseImage message failed! \n' + e)
+                    });
                   }
                 )
                 .catch((err) => {
@@ -160,18 +166,27 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
             sessionStorage.set("winpop", options.popupPos)
               .then(
                 () => {
-                  browser.tabs.sendMessage(tab.id, {
-                    message: "parseImage",
-                    imageURL: info.srcUrl,
-                    mediaType: info.mediaType,
-                    targetId: info.targetElementId,
-                    supportsDeepSearch: !!info.targetElementId,  // "deep-search" supported in Firefox 63+
-                    goDeepSearch: !!info.targetElementId && !options.devDisableDeepSearch,
-                    supportsDeepSearchModifier: !!info.modifiers,
-                    deepSearchBigger: !!info.modifiers?.includes("Shift"),
-                    deepSearchBiggerLimit: options.deepSearchBiggerLimit,                    fetchMode : options.devFetchMode,
-                    frameId: info.frameId, // related to globalThis/window/frames ?
-                    frameUrl: info.frameUrl
+                  browser.tabs.sendMessage(
+                    tab.id,
+                    {
+                      message: "parseImage",
+                      imageURL: info.srcUrl,
+                      mediaType: info.mediaType,
+                      targetId: info.targetElementId,
+                      supportsDeepSearch: !!info.targetElementId,  // "deep-search" supported in Firefox 63+
+                      goDeepSearch: !!info.targetElementId && !options.devDisableDeepSearch,
+                      supportsDeepSearchModifier: !!info.modifiers,
+                      deepSearchBigger: !!info.modifiers?.includes("Shift"),
+                      deepSearchBiggerLimit: options.deepSearchBiggerLimit,                    fetchMode : options.devFetchMode,
+                      frameId: info.frameId, // related to globalThis/window/frames ?
+                      frameUrl: info.frameUrl
+                    }
+                  )
+                  .then ((r) => {
+                    // console.log(`xIFr: ${r}`)
+                  })
+                  .catch((e) => {
+                    console.error('xIFr: Sending parseImage message failed! \n' + e)
                   });
                 }
               );
@@ -259,7 +274,7 @@ browser.runtime.onMessage.addListener(
             }
           )
           .catch(fetchdata_error);
-        return true;
+        return true; // Tell it to expect a later response (to be sent with sendResponse())
 
       } else if (message.message === "fetchdataBase64") { // Probably a Chromium browser
 
@@ -291,7 +306,7 @@ browser.runtime.onMessage.addListener(
             }
           )
           .catch(fetchdata_error);
-        return true;
+        return true; // Tell it to expect a later response (to be sent with sendResponse())
 
       }
 
@@ -352,7 +367,7 @@ browser.runtime.onMessage.addListener(
             sendResponse(data);
           }
         );
-      return true;
+      return true; // tell it to expect a later response (sent with sendResponse())
 
     }
 

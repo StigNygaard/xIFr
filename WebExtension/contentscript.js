@@ -839,6 +839,7 @@
         console.error('xIFr: No image detected in simple search.');
         }
       }
+      return Promise.resolve(`The contentscript says thanks for the '${request.message}' message! 😊`);
     });
     globalThis.contentListenerAdded = true;
   }

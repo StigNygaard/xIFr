@@ -129,6 +129,7 @@ function populate(response) {
     }
     return {width: w + 'px', height: h + 'px'};
   }
+  // console.log('xIFr: POPUP with \n' + JSON.stringify(response));
   if (response.properties.URL) {
     const image = document.querySelector("#image img");
     if (response.properties.naturalWidth) {
@@ -305,39 +306,6 @@ function populate(response) {
     const link = createRichElement('a', {href: url}, letter);
     return createRichElement('div', {title: title, class: className}, link);
   }
-  function openOptions(event) {
-    if (event) {
-      event.stopPropagation();
-      event.preventDefault();
-    }
-    browser.runtime.openOptionsPage();
-    self.close();
-  }
-  function copyPasteContent() {
-    let s = 'FILE PROPERTIES\n\n';
-    s += document.getElementById('properties').innerText + '\n\n';
-    const rows = document.querySelectorAll('table#data tr');
-    if (rows && rows.length > 0) {
-      document.body.classList.add("copypastemode");
-      s += 'IMAGE META DATA\n\n';
-      rows.forEach((row) => {
-        const tds = row.getElementsByTagName('td');
-        if (tds && tds.length > 1) {
-          s += tds[0].innerText + ': ' + tds[1].innerText + '\n';
-        }
-      });
-      document.body.classList.remove("copypastemode");
-    }
-    return s;
-  }
-  function copyToClipboard(event) {
-    if (event) {
-      event.stopPropagation();
-      event.preventDefault();
-    }
-    // Copy to clipboard
-    navigator.clipboard.writeText(copyPasteContent());
-  }
 
   const orderedKeys = ["Headline", "Caption", "ObjectName", "Date", "Creditline", "Copyright", "UsageTerms", "LicenseURL",
     "Creator", "CreatorAddress", "CreatorCity", "CreatorRegion", "CreatorPostalCode", "CreatorCountry", "CreatorPhoneNumbers", "CreatorEmails", "CreatorURLs",
@@ -386,16 +354,40 @@ function populate(response) {
       self.close();
     }, true)
   });
-  document.getElementById("settings").addEventListener('click', openOptions, true);
-  keyShortcuts.register("o", openOptions);
-  keyShortcuts.register("O", openOptions);
-  if (navigator.clipboard?.writeText) {
-    document.getElementById("cpClipboard").addEventListener('click', copyToClipboard, true);
-    keyShortcuts.register("c", copyToClipboard);
-    keyShortcuts.register("C", copyToClipboard);
-  } else {
-    document.body.classList.add('copyUnsupported'); // Hide copy button
+}
+
+function openOptions(event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
   }
+  browser.runtime.openOptionsPage();
+  self.close();
+}
+function copyPasteContent() {
+  let s = 'FILE PROPERTIES\n\n';
+  s += document.getElementById('properties').innerText + '\n\n';
+  const rows = document.querySelectorAll('table#data tr');
+  if (rows?.length) {
+    document.body.classList.add("copypastemode");
+    s += 'IMAGE META DATA\n\n';
+    rows.forEach((row) => {
+      const tds = row.getElementsByTagName('td');
+      if (tds && tds.length > 1) {
+        s += tds[0].innerText + ': ' + tds[1].innerText + '\n';
+      }
+    });
+    document.body.classList.remove("copypastemode");
+  }
+  return s;
+}
+function copyToClipboard(event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  // Copy to clipboard
+  navigator.clipboard.writeText(copyPasteContent());
 }
 function setup(options) {
   if (context.prefersDark(options["dispMode"])) {
@@ -411,6 +403,16 @@ function setup(options) {
       document.body.classList.add("show" + v);
     }
   });
+  document.getElementById("settings").addEventListener('click', openOptions, true);
+  keyShortcuts.register("o", openOptions);
+  keyShortcuts.register("O", openOptions);
+  if (navigator.clipboard?.writeText) {
+    document.getElementById("cpClipboard").addEventListener('click', copyToClipboard, true);
+    keyShortcuts.register("c", copyToClipboard);
+    keyShortcuts.register("C", copyToClipboard);
+  } else {
+    document.body.classList.add('copyUnsupported'); // Hide copy button
+  }
 }
 function init() {
   context.getOptions().then(setup);
