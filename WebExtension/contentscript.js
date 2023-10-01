@@ -495,6 +495,12 @@
 
   function imageSearch(request, elem) {
     // TODO: Look if elem has a shadowDOM beneath it?
+    //  https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/dom/openOrClosedShadowRoot
+    //  element.openOrClosedShadowRoot - The Element.openOrClosedShadowRoot read-only property represents the shadow root hosted by the element, regardless if its mode is open or closed (WebExtensions only - Firefox only)
+    //  -> Combined: let shadowRoot = chrome.dom?.openOrClosedShadowRoot(element) || element.openOrClosedShadowRoot();
+    //  BUT if just looking for *open* shadowRoots:
+    //  element.shadowRoot
+
     context.debug("imageSearch(): Looking for img elements on/below " + elem.nodeName.toLowerCase());
 
     let candidate;
