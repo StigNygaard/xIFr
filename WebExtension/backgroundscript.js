@@ -95,6 +95,8 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
         "parseJpeg.js",
         "contentscript.js"
       ];
+      // For CSS, see: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/insertCSS
+
       if (browser.scripting?.executeScript) {
         // *** FOR FUTURE USE... - Firefox MV2 or Firefox+Chromium MV3 compatible ***
         // TODO: Working, but requires "scripting" (or "activeTab") added to manifest permissions!
@@ -129,9 +131,11 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                         supportsDeepSearchModifier: !!info.modifiers,
                         deepSearchBigger: !!info.modifiers?.includes("Shift"),
                         deepSearchBiggerLimit: options.deepSearchBiggerLimit,
-                        fetchMode : options.devFetchMode,
-                        frameId: info.frameId, // related to globalThis/window/frames ?
-                        frameUrl: info.frameUrl
+                        fetchMode: options.devFetchMode,
+                        frameId: info.frameId,
+                        frameUrl: info.frameUrl,
+                        tabId: tab.id,
+                        tabUrl: tab.url
                       }
                     )
                     .then ((r) => {
@@ -177,9 +181,12 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                       goDeepSearch: !!info.targetElementId && !options.devDisableDeepSearch,
                       supportsDeepSearchModifier: !!info.modifiers,
                       deepSearchBigger: !!info.modifiers?.includes("Shift"),
-                      deepSearchBiggerLimit: options.deepSearchBiggerLimit,                    fetchMode : options.devFetchMode,
-                      frameId: info.frameId, // related to globalThis/window/frames ?
-                      frameUrl: info.frameUrl
+                      deepSearchBiggerLimit: options.deepSearchBiggerLimit,
+                      fetchMode: options.devFetchMode,
+                      frameId: info.frameId,
+                      frameUrl: info.frameUrl,
+                      tabId: tab.id,
+                      tabUrl: tab.url
                     }
                   )
                   .then ((r) => {

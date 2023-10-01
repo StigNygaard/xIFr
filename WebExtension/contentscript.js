@@ -282,6 +282,10 @@
     if (imgrequest.context) { // ?
       propertiesObj.context = imgrequest.context;
     }
+    if (imgrequest.tabId) {
+      propertiesObj.tabId = imgrequest.tabId;
+    }
+    propertiesObj.tabUrl = imgrequest.tabUrl || window.location?.href;
     const errorsArr = []; // Messages to show as errors
     const warningsArr = []; // Messages to show as warnings
     const infosArr = []; // Messages to show as info
@@ -554,6 +558,8 @@
       image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
       image.deepSearchBigger = request.deepSearchBigger;
       image.fetchMode = request.fetchMode;
+      image.tabId = request.tabId;
+      image.tabUrl = request.tabUrl;
       image.source = candidate.nodeName.toLowerCase() + " element";  // 'img element';
       image.context = request.nodeName + " element"; // (not really anything to de with found image)
 
@@ -699,6 +705,8 @@
           image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
           image.deepSearchBigger = request.deepSearchBigger;
           image.fetchMode = request.fetchMode;
+          image.tabId = request.tabId;
+          image.tabUrl = request.tabUrl;
           image.source = 'extra-search image'; // probably elem.nodeName, but not for sure
           image.context = request.nodeName + " element"; // (not really anything to de with found image)
           image.baseURI = elem.baseURI;
@@ -820,6 +828,8 @@
           image.deepSearchBiggerLimit = request.deepSearchBiggerLimit;
           image.deepSearchBigger = request.deepSearchBigger;
           image.fetchMode = request.fetchMode;
+          image.tabId = request.tabId;
+          image.tabUrl = request.tabUrl;
           image.source = "img element";
           image.context = request.nodeName + " element"; // (not really anything to de with found image)
           const img = Array.from(document.images).find(imgElem => imgElem.currentSrc === request.imageURL);
@@ -844,6 +854,42 @@
         // Normally we should NOT get here...
         console.error('xIFr: No image detected in simple search.');
         }
+      } else if (request.message === "displayInPage") {
+
+        console.log('xIFr: Received message displayInPage with data ' + JSON.stringify(request.data));
+
+        let dialog = document.querySelector('dialog#xIFr');
+        if (dialog) {
+          // remove
+          dialog.close();
+        } else if (document.body && (request.data.URL !== request.data.pageURL)) {
+          // insert
+          dialog = document.createElement('dialog');
+          dialog.setAttribute('id', 'xIFr');
+          dialog.setAttribute('style', 'box-sizing:border-box; max-width:90svw; max-height:90svh; padding:0; margin:auto; border:none; box-shadow: rgba(50, 52, 55, 0.2) 0 6px 18px;overflow:auto;pointer-events:auto;user-select:auto;');
+          let img = document.createElement('img');
+          img.setAttribute('src', request.data.URL);
+          img.setAttribute('style', 'padding:0;margin:0;border:none;max-width:90svw;display:block;aspect-ratio:auto;pointer-events:auto;user-select:auto;');
+          if (request.data.crossOrigin) {
+            img.setAttribute('crossOrigin', request.data.crossOrigin);
+          }
+          dialog.replaceChildren(img);
+          document.body.insertAdjacentElement('afterbegin', dialog);
+          dialog.addEventListener("close", (e) => dialog.remove(), {once: true});
+          // https://stackoverflow.com/questions/21335136/how-to-re-enable-right-click-so-that-i-can-inspect-html-elements-in-chrome
+          function bringBackDefault(event) {
+            event.returnValue = true;
+            event.stopPropagation();
+          }
+          img.addEventListener('contextmenu', bringBackDefault, true);
+          img.addEventListener('dragstart', bringBackDefault, true);
+          img.addEventListener('selectstart', bringBackDefault, true);
+          img.addEventListener('mousedown', bringBackDefault, true);
+          img.addEventListener('mouseup', bringBackDefault, true);
+          dialog.addEventListener("click", () => dialog.close(), {once: true});
+          dialog.showModal();
+        }
+
       }
       return Promise.resolve(`The contentscript says thanks for the '${request.message}' message! 😊`);
     });

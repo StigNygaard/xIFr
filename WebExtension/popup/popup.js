@@ -306,6 +306,27 @@ function populate(response) {
     const link = createRichElement('a', {href: url}, letter);
     return createRichElement('div', {title: title, class: className}, link);
   }
+  function displayInPage(event) {
+    if (document.querySelector('#image img.toggleInPage')) {
+      browser.tabs.sendMessage(
+        response.properties.tabId,
+        {
+          message: 'displayInPage',
+          data: {
+            'URL': response.properties.URL,
+            'pageURL': response.properties.tabUrl,
+            'crossOrigin': response.properties.crossOrigin,
+            'referrerPolicy': response.properties.referrerPolicy
+          }
+        })
+        .then((r) => {
+          // console.log(`xIFr: ${r}`)
+        })
+        .catch((e) => {
+          console.warn('xIFr: Unable to display image "in-page" \n' + e)
+        });
+    }
+  }
 
   const orderedKeys = ["Headline", "Caption", "ObjectName", "Date", "Creditline", "Copyright", "UsageTerms", "LicenseURL",
     "Creator", "CreatorAddress", "CreatorCity", "CreatorRegion", "CreatorPostalCode", "CreatorCountry", "CreatorPhoneNumbers", "CreatorEmails", "CreatorURLs", "DigitalSourceType",
@@ -354,6 +375,11 @@ function populate(response) {
       self.close();
     }, true)
   });
+
+  let img = document.querySelector('#image img');
+  if (img) {
+    img.addEventListener('click', displayInPage, true);
+  }
 }
 
 function openOptions(event) {
@@ -403,6 +429,9 @@ function setup(options) {
       document.body.classList.add("show" + v);
     }
   });
+  if (options['devClickThumbnailBeta']) {
+    document.querySelector('#image img')?.classList.add('toggleInPage');
+  }
   document.getElementById("settings").addEventListener('click', openOptions, true);
   keyShortcuts.register("o", openOptions);
   keyShortcuts.register("O", openOptions);

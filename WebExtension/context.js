@@ -35,6 +35,7 @@ globalThis.context = globalThis.context || (function Context() {
     mlinkFlickr: true,
     mlinkGeoHack: false,
     devDisableDeepSearch: false,
+    devClickThumbnailBeta: false,
     devFetchMode: "devAutoFetch",
     initialOnboard: 0
   };

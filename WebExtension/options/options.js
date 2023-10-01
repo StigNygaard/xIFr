@@ -36,6 +36,7 @@ function saveOptions(e) {
     mlinkFlickr: document.querySelector("form#xIFroptions #mlinkFlickr").checked,
     mlinkGeoHack: document.querySelector("form#xIFroptions #mlinkGeoHack").checked,
     devDisableDeepSearch: document.querySelector("form#xIFroptions #devDisableDeepSearch").checked,
+    devClickThumbnailBeta: document.querySelector("form#xIFroptions #devClickThumbnailBeta").checked,
     devFetchMode: document.forms[0].devFetchMode.value
     //     initialOnboard: 0
   }).then(
