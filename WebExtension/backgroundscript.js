@@ -85,15 +85,15 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       // console.log(' *** info.frameUrl: ' + info.frameUrl + ' *** ');
       // console.log(' *** info.targetElementId: ' + info.targetElementId + ' *** ');
       const scripts = [
-        "lib/mozilla/browser-polyfill.js",
-        "context.js",
-        "stringBundle.js",
-        "fxifUtils.js",
-        "binExif.js",
-        "binIptc.js",
-        "xmp.js",
-        "parseJpeg.js",
-        "contentscript.js"
+        "lib/mozilla/browser-polyfill.js", // Browser polyfill to use "promise based API" in Chromium browsers
+        "context.js", // Some state and options handling, utility functions
+        "stringBundle.js", // Translation handling
+        "fxifUtils.js", // Some utility functions
+        "binExif.js", // Interpreter for binary EXIF data
+        "binIptc.js", // Interpreter for binary IPTC-NAA data
+        "xmp.js", // Interpreter for XML XMP data
+        "parseJpeg.js", // "Master parser" for header-data
+        "contentscript.js" // "Conductor" frontend script (frontend-fetch of image, communication with backend, "deep search" functionality)
       ];
       // For CSS, see: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/insertCSS
 
@@ -156,7 +156,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
           });
       } else {
         // *** DEPRECATED BUT STILL USED SO FAR - Firefox+Chromium MV2 compatible ***
-        // TODO: Replace this with above use of new Scripting API
+        // TODO: Replace this with above use of new Scripting API when moving to MV3
         const scriptsInjecting = scripts.map(script => {
           return browser.tabs.executeScript(null, {
             frameId: info.frameId,
