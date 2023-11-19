@@ -875,7 +875,7 @@
           }
           dialog.replaceChildren(img);
           document.body.insertAdjacentElement('afterbegin', dialog);
-          dialog.addEventListener("close", (e) => dialog.remove(), {once: true});
+          dialog.addEventListener("close", (e) => {dialog.remove();img=null;dialog=null}, {once: true});
           // https://stackoverflow.com/questions/21335136/how-to-re-enable-right-click-so-that-i-can-inspect-html-elements-in-chrome
           function bringBackDefault(event) {
             event.returnValue = true;
@@ -886,7 +886,7 @@
           img.addEventListener('selectstart', bringBackDefault, true);
           img.addEventListener('mousedown', bringBackDefault, true);
           img.addEventListener('mouseup', bringBackDefault, true);
-          dialog.addEventListener("click", () => dialog.close(), {once: true});
+          dialog.addEventListener("click", (ev) => {ev.stopPropagation();ev.preventDefault();dialog.close()}, {once: true});
           dialog.showModal();
         }
 
