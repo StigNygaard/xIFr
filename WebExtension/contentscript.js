@@ -8,6 +8,8 @@
 
 (function() {
 
+  globalThis.browser = globalThis.browser || globalThis.chrome;
+
   const logDSEARCH = false; // Some logging to console to trace Deep Search steps?
 
   // A map to connect non-jpeg background-images and alternative jpeg-versions found in css image-sets:

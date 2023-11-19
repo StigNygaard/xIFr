@@ -1,3 +1,5 @@
+globalThis.browser = globalThis.browser || globalThis.chrome;
+
 function createRichElement(tagName, attributes = {}, ...content) {
   const element = document.createElement(tagName);
   for (const [attr, value] of Object.entries(attributes)) {

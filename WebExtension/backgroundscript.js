@@ -6,12 +6,14 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-// import '/lib/mozilla/browser-polyfill.js';
-// import '/context.js';
+import '/context.js';
+
+globalThis.browser = globalThis.browser || globalThis.chrome;
 
 if (browser.menus?.getTargetElement) { // An easy way to use Firefox extended API while preserving Chrome (and older Firefox) compatibility.
   browser.contextMenus = browser.menus;
 }
+
 context.log(" *** xIFr backgroundscript has (re)started! *** ");
 
 browser.runtime.onInstalled.addListener(
@@ -64,12 +66,12 @@ context.getOptions().then(
   }
 );
 
-// MV2. browserAction.onClicked used with "browser_action":{} in manifest.json...
-// https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserAction/onClicked
-browser.browserAction.onClicked.addListener(() => {
+// action.onClicked used with "action":{} in manifest.json...
+// https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/action/onClicked
+browser.action.onClicked.addListener(() => {
   browser.runtime.openOptionsPage();
 });
-browser.browserAction.setTitle({ title: "Open Options-page" });
+browser.action.setTitle({ title: "Open Options-page" });
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "viewexif") {
@@ -85,7 +87,6 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       // console.log(' *** info.frameUrl: ' + info.frameUrl + ' *** ');
       // console.log(' *** info.targetElementId: ' + info.targetElementId + ' *** ');
       const scripts = [
-        "lib/mozilla/browser-polyfill.js", // Browser polyfill to use "promise based API" in Chromium browsers
         "context.js", // Some state and options handling, utility functions
         "stringBundle.js", // Translation handling
         "fxifUtils.js", // Some utility functions
@@ -455,6 +456,7 @@ function createPopup(request, popupPos) { // Called when 'EXIFready'
       }
       break;
   }
+  // TODO: Use an object spread instead of Object.assign:...
   browser.windows.create(Object.assign(
     {
       url: browser.runtime.getURL("/popup/popup.html"),

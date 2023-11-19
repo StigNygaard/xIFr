@@ -12,6 +12,8 @@
  *  Some utility functions for FxIF/xIFr.
  */
 
+globalThis.browser = globalThis.browser || globalThis.chrome;
+
 function fxifUtilsClass() {
   // let prefInstance = null;
 

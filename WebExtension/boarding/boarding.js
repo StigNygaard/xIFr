@@ -1,3 +1,5 @@
+globalThis.browser = globalThis.browser || globalThis.chrome;
+
 function init() {
 
   const initialOnboard = (new URL(window.location.href)).searchParams.get('initialOnboard');

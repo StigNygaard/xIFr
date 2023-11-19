@@ -1,3 +1,5 @@
+globalThis.browser = globalThis.browser || globalThis.chrome;
+
 function setDisplayMode(dispMode) {
   if (context.prefersDark(dispMode)) {
     document.body.classList.replace("light", "dark"); // If light, then swap with dark

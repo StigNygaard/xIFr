@@ -1,5 +1,7 @@
 globalThis.context = globalThis.context || (function Context() {
 
+  globalThis.browser = globalThis.browser || globalThis.chrome;
+
   // Console:
   const LOG = false; // false
   const INFO = false; // false
