@@ -1,16 +1,9 @@
 # xIFr
 
 xIFr is a Firefox browser extension for viewing EXIF, IPTC and XMP metadata in image files, including a map-view of
-geolocation. It features "deep search" to find the images that normally can't be selected just by rightclicking.
+geolocation. It features "deep search" to target images that normally can't be selected by a simple right-click.
 
 * [Install xIFr from Mozilla Firefox Add-ons](https://addons.mozilla.org/firefox/addon/xifr/?utm_source=github.com)
-
-In principle xIFr is a "cross-browser compatible" webextension. While it currently _ain't_ available via Google Chrome
-or Microsoft Edge Web Stores, it still works with Chromium based browsers if you install [the webextension](https://github.com/StigNygaard/xIFr/releases)
-directly from your local filesystem. There are however differences in functionality supported, and mostly limitations
-when using xIFr in Chromium based browsers. So for now, only "officially" available for Firefox.
-
-To create a browser extension from this repository, simply create a zip-file with content of the _WebExtension_ folder.
 
 ![Screenshot](https://www.rockland.dk/img/xIFr100-1-1400x1050.jpg)
 
@@ -33,7 +26,7 @@ Also, with Deep Search you can avoid overlayered logos and icons. By shift-click
 context-menu, you will force xIFr to look for images larger than a specified size (The size is configurable).
 
 Deep Search is supported in Firefox (63+). You can get a little introduction to xIFr's features, including what
-Deep Search does, at [www.rockland.dk/xIFr/start](https://www.rockland.dk/xIFr/start/).  
+Deep Search does, at [www.rockland.dk/xIFr/start](https://www.rockland.dk/xIFr/start/).
 
 ### Dark Theme support
 
@@ -42,6 +35,16 @@ Deep Search does, at [www.rockland.dk/xIFr/start](https://www.rockland.dk/xIFr/s
 ### A handy Firefox tip!
 Some websites override the browser's default right-click context menu. But often you can just hold down the
 _shift_ key while right-clicking, to get the browser's native context menu back - and thus launch xIFr...
+
+### Creating extension from repository
+
+In principle xIFr is a "cross-browser compatible" webextension. While it currently _ain't_ available via Google Chrome
+or Microsoft Edge Web Stores, it still works with Chromium based browsers if you install
+[the webextension](https://github.com/StigNygaard/xIFr/releases) directly from your local filesystem (Also notice,
+this is still a Manifest v2 type of extension). There are however differences in functionality supported, and mostly
+limitations when using xIFr in Chromium based browsers. So for now, only "officially" available and supported for Firefox.
+
+To create a browser extension from this repository, simply create a zip-file with content of the _WebExtension_ folder.
 
 ### A lot of credit to...
 Vital parts of xIFr, is inherited work by various [people](https://raw.githubusercontent.com/StigNygaard/xIFr/master/WebExtension/AUTHORS)
