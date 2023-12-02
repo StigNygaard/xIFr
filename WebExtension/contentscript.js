@@ -413,8 +413,9 @@
 
     context.debug(' *** fetchMode: ' + imgrequest.fetchMode + ' ***');
 
-    // TODO: If file: or blob:, always do frontend fetch !?!
-    if (imgrequest.fetchMode === 'devFrontendFetch' || imgrequest.fetchMode === 'devAutoFetch' && context.isFirefox()) { // Do frontend fetch...
+    // TODO: Need to solve the (optional?) file-permissions it seems!?!?
+    if ( imgrequest.fetchMode === 'devFrontendFetch' ||
+      imgrequest.fetchMode === 'devAutoFetch' && (propertiesObj.URL.startsWith('blob:') || propertiesObj.URL.startsWith('file:')) ) { // Do frontend fetch...
       if (imgrequest.fetchMode !== 'devAutoFetch') {
         console.warn(`xIFr: Forced FRONTEND fetch (${imgrequest.fetchMode})`);
       }
