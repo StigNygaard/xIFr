@@ -99,8 +99,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       // For CSS, see: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/insertCSS
 
       if (browser.scripting?.executeScript) {
-        // *** FOR FUTURE USE... - Firefox MV2 or Firefox+Chromium MV3 compatible ***
-        // TODO: Working, but requires "scripting" (or "activeTab") added to manifest permissions!
+        // Requires "scripting" (or "activeTab") included in "permission" of the manifest!
         const scriptsInjecting = browser.scripting.executeScript({
           target: {
             tabId: tab.id,
@@ -156,50 +155,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
             console.error(`xIFr: Failed getting data or injecting scripts: ${err}`);
           });
       } else {
-        // *** DEPRECATED BUT STILL USED SO FAR - Firefox+Chromium MV2 compatible ***
-        // TODO: Replace this with above use of new Scripting API when moving to MV3
-        const scriptsInjecting = scripts.map(script => {
-          return browser.tabs.executeScript(null, {
-            frameId: info.frameId,
-            file: script
-          });
-        });
-        Promise.all([context.getOptions(), ...scriptsInjecting]).then(
-          (values) => {
-            context.debug("All scripts started from background is ready...");
-            const options = values[0];
-            sessionStorage.set("winpop", options.popupPos)
-              .then(
-                () => {
-                  browser.tabs.sendMessage(
-                    tab.id,
-                    {
-                      message: "parseImage",
-                      imageURL: info.srcUrl,
-                      mediaType: info.mediaType,
-                      targetId: info.targetElementId,
-                      supportsDeepSearch: !!info.targetElementId,  // "deep-search" supported in Firefox 63+
-                      goDeepSearch: !!info.targetElementId && !options.devDisableDeepSearch,
-                      supportsDeepSearchModifier: !!info.modifiers,
-                      deepSearchBigger: !!info.modifiers?.includes("Shift"),
-                      deepSearchBiggerLimit: options.deepSearchBiggerLimit,
-                      fetchMode: options.devFetchMode,
-                      frameId: info.frameId,
-                      frameUrl: info.frameUrl,
-                      tabId: tab.id,
-                      tabUrl: tab.url
-                    }
-                  )
-                  .then ((r) => {
-                    // console.log(`xIFr: ${r}`)
-                  })
-                  .catch((e) => {
-                    console.error('xIFr: Sending parseImage message failed! \n' + e)
-                  });
-                }
-              );
-          }
-        );
+        console.error(`xIFr: Can't run browser.scripting.executeScript. Missing "scripting" or "activeTab" permission?`);
       }
     }
   }
