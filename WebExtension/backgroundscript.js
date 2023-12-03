@@ -18,44 +18,55 @@ context.log(" *** xIFr backgroundscript has (re)started! *** ");
 
 browser.runtime.onInstalled.addListener(
   function handleInstalled({reason, temporary, previousVersion}) {
+
     context.getOptions().then(
       function (options) {
         createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement);
       });
     switch (reason) {
       case "update": // "upboarding"
-        if (versionnumber.compare(previousVersion, '2.15.0') < 0) { // Only show "upboarding" if previous version LESS than 2.15.0
-          browser.tabs.create({url: "boarding/upboard.html?previousVersion=" + previousVersion});
+        if (versionnumber.compare(previousVersion, '3.0.0') < 0) { // Only show "upboarding" (and clear old "mv2-sessionStorage") if previous version LESS than 3.0.0...
+
+          browser.storage.local.remove("sessionstorage")
+            .then(function () {
+              // console.log("xIFr: Old homemade mv2 sessionStorage was cleared on installation/upgrade!");
+            })
+            .catch((err) => {
+              console.error(`xIFr: Failed clearing old mv2 sessionStorage: ${err}`);
+            })
+            .finally(function() {
+
+              // Show the "upboarding" window:
+              browser.tabs.create({url: "boarding/upboard.html?previousVersion=" + previousVersion});
+
+            });
+
         }
         break;
       case "install": // "onboarding"
         browser.tabs.create({url: "boarding/onboard.html?initialOnboard=1"});
         break;
     }
+
+
+
   }
 );
 
 browser.runtime.onStartup.addListener(() => {
-  sessionStorage.clear() // Clear any old "sessionStorage" when browser starts... (https://bugzilla.mozilla.org/show_bug.cgi?id=1687778)
-    .then (function() {
-      context.getOptions().then(
-        function (options) {
-          createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement); // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
-          if (options?.initialOnboard === '1') {
-            browser.extension.isAllowedIncognitoAccess().then(
-              function (allowsPrivate) {
-                if (allowsPrivate && context.isFirefox()) {
-                  // Re-show onboarding if risk of was force-closed first time (https://bugzilla.mozilla.org/show_bug.cgi?id=1558336)
-                  browser.tabs.create({url: "boarding/onboard.html?initialOnboard=2"}); // show second time
-                } else {
-                  context.setOption('initialOnboard', 3); // second time not needed
-                }
-              }
-            )
-          }
+  context.getOptions().then( function (options) {
+    createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement); // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
+    if (options?.initialOnboard === '1') {
+      browser.extension.isAllowedIncognitoAccess().then( function (allowsPrivate) {
+        if (allowsPrivate && context.isFirefox()) {
+          // Re-show onboarding if risk of was force-closed first time (https://bugzilla.mozilla.org/show_bug.cgi?id=1558336)
+          browser.tabs.create({url: "boarding/onboard.html?initialOnboard=2"}); // show second time
+        } else {
+          context.setOption('initialOnboard', 3); // second time not needed
         }
-      )
-    });
+      });
+    }
+  });
 });
 
 // Attempt to fix missing menu-item right after an installation where support for use in Private mode was enabled.
@@ -116,7 +127,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                 console.error('xIFr: There was an error loading contentscripts: ' + JSON.stringify(values[1]));
                 // TODO: throw?
               }
-              sessionStorage.set("winpop", options.popupPos)
+              browser.storage.session.set({"winpop": options.popupPos})
                 .then(
                   () => {
                     browser.tabs.sendMessage(
@@ -147,7 +158,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                   }
                 )
                 .catch((err) => {
-                  console.error(`xIFr: sessionStorage or sendMessage(parseImage) error: ${err}`);
+                  console.error(`xIFr: storage.session or sendMessage(parseImage) error: ${err}`);
                 });
             }
           )
@@ -293,8 +304,8 @@ browser.runtime.onMessage.addListener(
         //  https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Working_with_files#retrieving_stored_images_for_display
       }
       popupData.data = message.data;
-      sessionStorage.set("popupData", popupData).then(() => {
-        sessionStorage.get()
+      browser.storage.session.set({"popupData": popupData}).then(() => {
+        browser.storage.session.get()
           .then(({previous, winpop}) => {
             if (previous?.imgURL && previous.imgURL === message.properties.URL && !message.properties.URL.startsWith('file:')) {
               context.debug("Previous popup was same - Focus to previous if still open...");
@@ -325,10 +336,10 @@ browser.runtime.onMessage.addListener(
 
     } else if (message.message === "popupReady") { // 2nd msg, populate popup
 
-      sessionStorage.get("popupData")
+      browser.storage.session.get("popupData")
         .then (
           function (data) {
-            sendResponse(data);
+            sendResponse(data.popupData);
           }
         );
       return true; // tell it to expect a later response (sent with sendResponse())
@@ -412,7 +423,7 @@ function createPopup(request, popupPos) { // Called when 'EXIFready'
       }
       break;
   }
-  // TODO: Use an object spread instead of Object.assign:...
+  // TODO: Use an object spread instead of Object.assign!? (also elsewhere?...):...
   browser.windows.create(Object.assign(
     {
       url: browser.runtime.getURL("/popup/popup.html"),
@@ -421,7 +432,7 @@ function createPopup(request, popupPos) { // Called when 'EXIFready'
       height: height
     }, pos))
     .then((popwin) => {
-        sessionStorage.set("previous", {"winId": popwin.id, "imgURL": request.properties.URL});
+      browser.storage.session.set({"previous": {"winId": popwin.id, "imgURL": request.properties.URL}});
       }
     );
 }
@@ -449,45 +460,3 @@ function createMenuItem(useDeepSearch) {
   );
 }
 
-// TODO: Firefox 115+ supports storage.session: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/storage/session
-/* Using a custom-built "sessionStorage" to persist the state when background-script is terminated and restarted, */
-/* because Firefox ain't got its own (yet?): https://bugzilla.mozilla.org/show_bug.cgi?id=1687778.                */
-/* (Build on-top of context.setOptions() and context.getOptions() from context.js...)                             */
-let sessionStorage = (function () {
-  let sessionData; // When background-script is restarted sessionData will be (declared but) of undefined value
-  function clear() {
-    sessionData = {}; // Make sessionData (defined as) empty
-    return context.getOptions().then(
-      function (options) {
-        options.sessionstorage = sessionData;
-        return context.setOptions(options); // Persist the cleared sessionData
-      }
-    );
-  }
-  function set(property, value) {
-    return context.getOptions().then(
-      function (options) {
-        sessionData = options.sessionstorage || {};
-        sessionData[property] = value;
-        options.sessionstorage = sessionData;
-        return context.setOptions(options); // Persist updated sessionData
-      }
-    );
-  }
-  function get(property) {
-    if (sessionData) {
-      return Promise.resolve(property ? sessionData[property] : sessionData); // Get "in memory" sessionData
-    }
-    return context.getOptions().then(
-      function (options) {
-        sessionData = options.sessionstorage || {}; // Update "in memory" sessionData from persisted
-        return property ? sessionData[property] : sessionData; // return sessionData
-      }
-    );
-  }
-  return {
-    clear: clear,
-    set: set,
-    get: get
-  }
-})();
