@@ -71,6 +71,9 @@ globalThis.context = globalThis.context || (function Context() {
   function isFirefox() {
     return !!((typeof browser !== 'undefined') && browser.runtime && browser.runtime.getURL("./").startsWith("moz-extension://"));
   }
+  function firefoxExtId() {
+    return '{5e71bed2-2b15-40b8-a15b-ba89563aaf73}';
+  }
   function isChromium() { // Besides Chrome, this also includes Edge & Opera. And likely most/all other Chromium based browsers too(?)
     return !!((typeof browser !== 'undefined') && browser.runtime && browser.runtime.getURL("./").startsWith("chrome-extension://"));
   }
@@ -90,6 +93,7 @@ globalThis.context = globalThis.context || (function Context() {
     setOption: setOption,
     getOptions: getOptions,
     isFirefox: isFirefox,
+    firefoxExtId : firefoxExtId,
     isChromium: isChromium,
     supportsDeepSearch: supportsDeepSearch,
     prefersDark: prefersDark

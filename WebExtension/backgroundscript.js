@@ -23,10 +23,13 @@ browser.runtime.onInstalled.addListener(
       function (options) {
         createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement);
       });
+    const upboardUrl = new URL(browser.runtime.getURL('boarding/upboard.html'));
+    const onboardUrl = new URL(browser.runtime.getURL('boarding/onboard.html'));
     switch (reason) {
       case "update": // "upboarding"
         if (versionnumber.compare(previousVersion, '3.0.0') < 0) { // Only show "upboarding" (and clear old "mv2-sessionStorage") if previous version LESS than 3.0.0...
-
+          if (temporary) upboardUrl.searchParams.set('temporary', temporary);
+          upboardUrl.searchParams.set('previousVersion', previousVersion);
           browser.storage.local.remove("sessionstorage")
             .then(function () {
               // console.log("xIFr: Old homemade mv2 sessionStorage was cleared on installation/upgrade!");
@@ -35,20 +38,17 @@ browser.runtime.onInstalled.addListener(
               console.error(`xIFr: Failed clearing old mv2 sessionStorage: ${err}`);
             })
             .finally(function() {
-
               // Show the "upboarding" window:
-              browser.tabs.create({url: "boarding/upboard.html?previousVersion=" + previousVersion});
-
+              browser.tabs.create({url: upboardUrl.pathname + upboardUrl.search});
             });
-
         }
         break;
       case "install": // "onboarding"
-        browser.tabs.create({url: "boarding/onboard.html?initialOnboard=1"});
+        if (temporary) onboardUrl.searchParams.set('temporary', temporary);
+        onboardUrl.searchParams.set('initialOnboard', '1');
+        browser.tabs.create({url: onboardUrl.pathname + onboardUrl.search});
         break;
     }
-
-
 
   }
 );

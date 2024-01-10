@@ -38,7 +38,7 @@ img.settings {
   cursor: pointer;
   vertical-align: bottom;
 }
-#introlink {
+.introlink {
   font-style: italic;
   text-align: center;
   margin-bottom: 2em;
