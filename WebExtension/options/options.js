@@ -86,6 +86,9 @@ function initializeOptionsPage() {
   }
   document.querySelectorAll('.aboutlinks a').forEach((elm) => {
     const url = new URL(elm.href);
+    if (context.isFirefox() && (context.firefoxExtId() !== browser.runtime.id) && !browser.runtime.id.endsWith('@temporary-addon')) {
+      url.searchParams.set('extid', browser.runtime.id);
+    }
     url.searchParams.set('version', browser.runtime.getManifest().version);
     elm.href = url.href;
   });

@@ -12,8 +12,11 @@ function init() {
   });
   let vboarding = currentVersion;
   if (previousVersion) vboarding += (',' + previousVersion);
-  document.querySelectorAll('#introlink a').forEach((elm) => {
+  document.querySelectorAll('.introlink a').forEach((elm) => {
     const url = new URL(elm.href);
+    if (context.isFirefox() && (context.firefoxExtId() !== browser.runtime.id) && !browser.runtime.id.endsWith('@temporary-addon')) {
+      url.searchParams.set('extid', browser.runtime.id);
+    }
     url.searchParams.set(elm.dataset.context, vboarding);
     elm.href = url.href;
   });
