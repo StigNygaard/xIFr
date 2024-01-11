@@ -27,7 +27,7 @@ browser.runtime.onInstalled.addListener(
     const onboardUrl = new URL(browser.runtime.getURL('boarding/onboard.html'));
     switch (reason) {
       case "update": // "upboarding"
-        if (versionnumber.compare(previousVersion, '3.0.0') < 0) { // Only show "upboarding" (and clear old "mv2-sessionStorage") if previous version LESS than 3.0.0...
+        if (versionnumber.compare(previousVersion, '2.99.99') < 0) { // Only show "upboarding" (and clear old "mv2-sessionStorage") if previous version LESS than 3.0.0...
           if (temporary) upboardUrl.searchParams.set('temporary', temporary);
           upboardUrl.searchParams.set('previousVersion', previousVersion);
           browser.storage.local.remove("sessionstorage")
