@@ -25,7 +25,8 @@
 
   "browser_specific_settings": {
     "gecko": {
-      "strict_min_version": "121"
+      "strict_min_version": "121",
+      "id": "__MSG_extensionIdentifier__"
     }
   },
   "minimum_chrome_version": "121",

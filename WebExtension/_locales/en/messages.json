@@ -4,6 +4,10 @@
     "description": "Description of the extension."
   },
 
+  "extensionIdentifier": {
+    "message": "{5e71bed2-2b15-40b8-a15b-ba89563aaf73}"
+  },
+
   "contextMenuText": {
     "message": "View E&XIF data"
   },
