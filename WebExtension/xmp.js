@@ -55,7 +55,7 @@ function xmpClass() {
     }
 
     // Creators come in an ordered list. Get them all.
-    val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "creator", "").filter( item => item && item.trim()); // filter skips empty values
+    val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "creator", "").filter( item => item?.trim()); // filter skips empty values
     if (val?.length) {
       dataObj.Creator = val.join("; "); // todo: Make a Set and handle later like Software or Keywords?
       // Might be used by Google Image Search
@@ -106,7 +106,7 @@ function xmpClass() {
       if (urls) dataObj.CreatorURLs = urls;
     }
 
-    val = getXMPOrderedArray(dom, "http://iptc.org/std/Iptc4xmpExt/2008-02-29/", "PersonInImage", "").filter( item => item && item.trim()); // filter skips empty values
+    val = getXMPOrderedArray(dom, "http://iptc.org/std/Iptc4xmpExt/2008-02-29/", "PersonInImage", "").filter( item => item?.trim()); // filter skips empty values
     if (val?.length) {
       dataObj.Depicted = new Set(val);
     }
@@ -216,7 +216,7 @@ function xmpClass() {
       }
     }
 
-    val = getXMPOrderedArray(dom, "http://ns.adobe.com/xap/1.0/mm/", "History", "http://ns.adobe.com/xap/1.0/sType/ResourceEvent#", "softwareAgent").filter( item => item && item.trim()); // filter skips empty values
+    val = getXMPOrderedArray(dom, "http://ns.adobe.com/xap/1.0/mm/", "History", "http://ns.adobe.com/xap/1.0/sType/ResourceEvent#", "softwareAgent").filter( item => item?.trim()); // filter skips empty values
     if (val?.length) {
       if (!dataObj.Software) {
         dataObj.Software = val[val.length - 1]; // [length-1] = Last is the last used ?
@@ -305,7 +305,7 @@ function xmpClass() {
 
 
     // Subjects (keywords) comes in a list/set. Get them all.
-    val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "subject", "").filter( item => item && item.trim()); // filter skips empty values
+    val = getXMPOrderedArray(dom, "http://purl.org/dc/elements/1.1/", "subject", "").filter( item => item?.trim()); // filter skips empty values
     if (val?.length) {
       dataObj.Keywords = new Set(val); // todo: If already set by iptc, make sure we have same or more keywords!
     }
@@ -440,11 +440,11 @@ function xmpClass() {
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/aux/", "IsMergedHDR");
-    if (val && val.match(/^true$/i)) {
+    if (val?.match(/^true$/i)) {
       dataObj.MergedCaptures = "HDR";
     }
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/aux/", "IsMergedPanorama");
-    if (val && val.match(/^true$/i)) {
+    if (val?.match(/^true$/i)) {
       if (dataObj.MergedCaptures) {
         dataObj.MergedCaptures += " + Panorama"
       } else {
@@ -500,7 +500,7 @@ function xmpClass() {
 
       let fu;
       const addfunc = [];
-      if (flashFired && flashFired.match(/^true$/i)) {
+      if (flashFired?.match(/^true$/i)) {
         fu = stringBundle.getString("yes");
 
         if (flashMode == 3) {
@@ -509,7 +509,7 @@ function xmpClass() {
           addfunc.push(stringBundle.getString("enforced"));
         }
 
-        if (redEyeMode && redEyeMode.match(/^true$/i)) {
+        if (redEyeMode?.match(/^true$/i)) {
           addfunc.push(stringBundle.getString("redeye"));
         }
 
@@ -520,7 +520,7 @@ function xmpClass() {
         }
       } else {
         fu = stringBundle.getString("no");
-        if (flashFunction && flashFunction.match(/^true$/i)) {
+        if (flashFunction?.match(/^true$/i)) {
           addfunc.push(stringBundle.getString("noflash"));
         } else if (flashMode == 2) {
           addfunc.push(stringBundle.getString("enforced"));
@@ -593,7 +593,7 @@ function xmpClass() {
     if (val) {
       try {
         val = parseRational(val).toFixed(2);
-        if (val === 0) {
+        if (val == 0) {
           dataObj.ExposureBias = stringBundle.getString("none");
         } else
           // add a + sign before positive values
@@ -779,8 +779,8 @@ function xmpClass() {
       }
     }
 
-    val = getXMPOrderedArray(dom, "http://ns.adobe.com/exif/1.0/", "ISOSpeedRatings").filter( item => item && item.trim()); // filter skips empty values
-    if (val && val.length) {
+    val = getXMPOrderedArray(dom, "http://ns.adobe.com/exif/1.0/", "ISOSpeedRatings").filter( item => item?.trim()); // filter skips empty values
+    if (val?.length) {
       dataObj.ISOequivalent = val.join(", ");
     }
 
@@ -1080,8 +1080,8 @@ function xmpClass() {
       return el[0].firstChild.nodeValue;
     }
     const list = dom.getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "Description");
-    for (let i = 0; i < list.length; i++) {
-      const attr = list[i].getAttributeNS(ns, property);
+    for (const element of list) {
+      const attr = element.getAttributeNS(ns, property);
       if (attr) {
         return attr;
       }
@@ -1099,10 +1099,10 @@ function xmpClass() {
     // only be one)
     for (let i = 0; i < propertyList.length && !val; i++) {
       const entriesList = propertyList[0].getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "li");
-      for (let j = 0; j < entriesList.length; j++) {
+      for (const element of entriesList) {
         // found a non empty entry with fitting language
-        if (entriesList[j].hasChildNodes() && langTest.test(entriesList[j].getAttribute("xml:lang"))) {
-          val = entriesList[j].firstChild.nodeValue;
+        if (element.hasChildNodes() && langTest.test(element.getAttribute("xml:lang"))) {
+          val = element.firstChild.nodeValue;
           break;
         }
       }
@@ -1110,11 +1110,11 @@ function xmpClass() {
     // our language wasn't found or its entry was empty
     for (let i = 0; i < propertyList.length && !val; i++) {
       const entriesList = propertyList[0].getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "li");
-      for (let j = 0; j < entriesList.length; j++) {
+      for (const element of entriesList) {
         // found a non empty entry with fitting language
-        if (entriesList[j].hasChildNodes() &&
-          entriesList[j].getAttribute("xml:lang") === "x-default") {
-          val = entriesList[j].firstChild.nodeValue;
+        if (element.hasChildNodes() &&
+          element.getAttribute("xml:lang") === "x-default") {
+          val = element.firstChild.nodeValue;
           break;
         }
       }
@@ -1149,21 +1149,21 @@ function xmpClass() {
     let el = dom.getElementsByTagNameNS(ns, property);
     if (el.length) {
       const list = el[0].getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "li");
-      for (let i = 0; i < list.length; i++) {
-        if (list[i].hasChildNodes()) {
+      for (const element of list) {
+        if (element.hasChildNodes()) {
           let li;
-          const tmp = list[i].getElementsByTagNameNS(attrNS, attrName);
+          const tmp = element.getElementsByTagNameNS(attrNS, attrName);
           if (tmp.length && tmp[0].hasChildNodes()) {
             li = tmp[0].firstChild;
           } else {
-            li = list[i].firstChild;
+            li = element.firstChild;
           }
           if (li.nodeType === Node.TEXT_NODE) {
             valarray.push(li.nodeValue);
           }
         } else {
           // supposedly one element with values as properties
-          const test = list[i].getAttributeNS(attrNS, attrName);
+          const test = element.getAttributeNS(attrNS, attrName);
           if (test) {
             valarray.push(test);
           }
