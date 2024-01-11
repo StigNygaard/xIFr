@@ -25,12 +25,12 @@
 
   "browser_specific_settings": {
     "gecko": {
-      "strict_min_version": "115"
+      "strict_min_version": "115.0"
     }
   },
-  "minimum_chrome_version": "109",
-  "minimum_opera_version": "95",
-  "minimum_edge_version": "109",
+  "minimum_chrome_version": "109.0",
+  "minimum_opera_version": "95.0",
+  "minimum_edge_version": "109.0",
 
   "permissions": [
     "<all_urls>",
