@@ -45,11 +45,12 @@ img.settings {
 }
 .circlebadge {
   display: inline-block;
-  height: calc(1lh - 2px);
   border-radius: 50%;
   margin: 0;
   padding: 0;
   vertical-align: middle;
+  height: 1.1em; /* handle firefox versions < 120 which doesn't support lh unit */
+  height: calc(1lh - 2px);
 }
 table {
   border: none;
