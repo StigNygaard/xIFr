@@ -1,6 +1,6 @@
 globalThis.context = globalThis.context || (function Context() {
 
-  globalThis.browser = globalThis.browser || globalThis.chrome;
+  globalThis.browser ??= chrome;
 
   // Console:
   const LOG = false; // false
@@ -63,19 +63,19 @@ globalThis.context = globalThis.context || (function Context() {
 
   // Misc:
   function supportsDeepSearch() {
-    return !!(typeof browser !== 'undefined' && browser.menus?.getTargetElement); // Well, might not be enough. But for the time being this check should tell. In practice Firefox 63+ supports, Chrome does not...
+    return !!(typeof browser !== 'undefined' && browser?.menus?.getTargetElement); // Well, might not be enough. But for the time being this check should tell. In practice Firefox 63+ supports, Chrome does not...
   }
   function prefersDark(dispMode) {
-    return dispMode === "darkMode" || (window?.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    return dispMode === "darkMode" || window?.matchMedia('(prefers-color-scheme: dark)')?.matches;
   }
   function isFirefox() {
-    return !!((typeof browser !== 'undefined') && browser.runtime && browser.runtime.getURL("./").startsWith("moz-extension://"));
+    return !!((typeof browser !== 'undefined') && browser?.runtime?.getURL("./")?.startsWith("moz-extension://"));
   }
   function firefoxExtId() {
     return '{5e71bed2-2b15-40b8-a15b-ba89563aaf73}';
   }
   function isChromium() { // Besides Chrome, this also includes Edge & Opera. And likely most/all other Chromium based browsers too(?)
-    return !!((typeof browser !== 'undefined') && browser.runtime && browser.runtime.getURL("./").startsWith("chrome-extension://"));
+    return !!((typeof browser !== 'undefined') && browser?.runtime?.getURL("./")?.startsWith("chrome-extension://"));
   }
 
   // API:

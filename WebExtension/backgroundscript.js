@@ -6,9 +6,9 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-import '/context.js';
+import './context.js';
 
-globalThis.browser = globalThis.browser || globalThis.chrome;
+globalThis.browser ??= chrome;
 
 if (browser.menus?.getTargetElement) { // An easy way to use Firefox extended API while preserving Chrome (and older Firefox) compatibility.
   browser.contextMenus = browser.menus;
@@ -172,14 +172,18 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
+/**
+ * @param blob
+ * @returns {Promise<string>}
+ */
 function convertBlobToBase64(blob) {
   return new Promise(resolve => {
     const reader = new FileReader();
-    reader.readAsDataURL(blob);
     reader.onloadend = () => {
       const base64data = reader.result;
       resolve(base64data);
     };
+    reader.readAsDataURL(blob);
   });
 }
 
@@ -222,7 +226,7 @@ browser.runtime.onMessage.addListener(
           .then(
             function(response) {
               if (response.ok) { // 200ish
-                result.byteLength = response.headers.get('Content-Length') ?? '';
+                result.byteLength = response.headers.get('Content-Length') || '';
                 result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
                 result.lastModified = response.headers.get('Last-Modified') || '';
                 return response.arrayBuffer(); // Promise<ArrayBuffer>
@@ -239,7 +243,7 @@ browser.runtime.onMessage.addListener(
                 context.info("headers.byteLength: " + result.byteLength);
                 context.info("arraybuffer.byteLength: " + arrayBuffer.byteLength);
                 result.byteArray = new Uint8Array(arrayBuffer);
-                result.byteLength = arrayBuffer.byteLength ?? result.byteLength; // TODO: I guess these ain't both header values...
+                result.byteLength = arrayBuffer.byteLength || result.byteLength;
               }
               sendResponse(result);
             }
@@ -253,7 +257,7 @@ browser.runtime.onMessage.addListener(
           .then(
             function(response) {
               if (response.ok) { // 200ish
-                result.byteLength = response.headers.get('Content-Length') ?? '';
+                result.byteLength = response.headers.get('Content-Length') || '';
                 result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
                 result.lastModified = response.headers.get('Last-Modified') || '';
                 return response.blob(); // Promise<Blob>
@@ -265,10 +269,14 @@ browser.runtime.onMessage.addListener(
           )
           .then(convertBlobToBase64)
           .then(
+            /**
+             * @param base64 {string} data-url
+             */
             function(base64) {
               if (base64) {
                 context.debug("Looking at the fetch response (base64)...");
                 context.info("headers.byteLength: " + result.byteLength);
+                result.byteLength = result.byteLength || Math.round(base64.length / 1.36667); // Approximation
                 result.base64 = base64;
               } else {
                 console.error('xIFr: base64 data missing');

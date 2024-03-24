@@ -1,4 +1,4 @@
-globalThis.browser = globalThis.browser || globalThis.chrome;
+globalThis.browser ??= chrome;
 
 function createRichElement(tagName, attributes = {}, ...content) {
   const element = document.createElement(tagName);
@@ -46,7 +46,7 @@ function linkifyWithNodeAppendables(str, anchorattributes, emailanchorattributes
       return [str];
     } else {
       const webattrib = anchorattributes || {};
-      const durl = a[0].replace(/[:\.]+$/u, "");  // remove trailing dots and colons
+      const durl = a[0].replace(/[:.]+$/u, "");  // remove trailing dots and colons
       webattrib.href = durl.search(/^https?:\/\//u) === -1 ? "http://" + durl : durl;
       const begin = str.substring(0, str.indexOf(durl));
       const end = str.substring(begin.length + durl.length);
@@ -153,10 +153,11 @@ function populate(response) {
         document.getElementById("dimensions").textContent = response.properties.naturalWidth + "x" + response.properties.naturalHeight + " pixels";
       }
     });
-    image.src = response.properties.URL;
     if (response.properties.crossOrigin) {
       image.crossOrigin = response.properties.crossOrigin;
     }
+    image.src = response.properties.URL;
+
 
     function linkProperties(imageUrl) {
       const linkElem = createRichElement("a", {href: imageUrl});  // TODO: Can we use URL object here instead?
@@ -275,7 +276,7 @@ function populate(response) {
         row.title = "Click for decimal latitude and longitude values";
         row.addEventListener("click", gpsRowClick, {capture: true, once: true});
         row.classList.add('clickable', 'notice');
-      } else if (key_v === "Software" && response.data['AdditionalSoftware'] && response.data['AdditionalSoftware'].value && response.data['AdditionalSoftware'].value.length) {
+      } else if (key_v === "Software" && response.data['AdditionalSoftware']?.value?.length) {
         value.insertAdjacentElement("afterbegin", createRichElement('span', {class: 'software expandable'}, ...listArrayWithNodeAppendables(response.data['AdditionalSoftware'].value)));
         row.title = "Click for additional software used";
         row.addEventListener("click", softwareRowClick, {capture: true, once: true});
@@ -369,7 +370,7 @@ function populate(response) {
       event.stopPropagation();
       event.preventDefault();
       try {
-      window.open(event.target.href, '_blank', 'noopener,noreferrer');
+        window.open(event.currentTarget.href, '_blank', 'noopener,noreferrer');
       } catch (e) {
         console.error(e);
         return;

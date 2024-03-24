@@ -5,7 +5,7 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-globalThis.browser = globalThis.browser || globalThis.chrome;
+globalThis.browser ??= chrome;
 
 globalThis.stringBundle = globalThis.stringBundle || {
   getString(string) {

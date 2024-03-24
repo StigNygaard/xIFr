@@ -12,7 +12,7 @@
  *  Some utility functions for FxIF/xIFr.
  */
 
-globalThis.browser = globalThis.browser || globalThis.chrome;
+globalThis.browser ??= chrome;
 
 function fxifUtilsClass() {
   // let prefInstance = null;

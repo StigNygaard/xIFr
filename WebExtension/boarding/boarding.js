@@ -1,4 +1,4 @@
-globalThis.browser = globalThis.browser || globalThis.chrome;
+globalThis.browser ??= chrome;
 
 function init() {
 

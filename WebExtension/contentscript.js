@@ -8,7 +8,7 @@
 
 (function() {
 
-  globalThis.browser = globalThis.browser || globalThis.chrome;
+  globalThis.browser ??= chrome;
 
   const logDSEARCH = false; // Some logging to console to trace Deep Search steps?
 
@@ -196,10 +196,6 @@
   function fetchImage(url, fetchOptions = {}) {
     let result = {};
     const fetchTimeout = 8000; // 8 seconds
-    if (!fetchOptions.headers) {
-      // https://developer.mozilla.org/en-US/docs/Web/API/Request/headers
-      fetchOptions.headers = new Headers({'Accept': 'image/*'});
-    } // or use Headers.append() !?
     if (AbortSignal?.timeout) {
       fetchOptions.signal = AbortSignal.timeout(fetchTimeout);
     }
@@ -209,7 +205,7 @@
           if (!response.ok) { // 200ish
             throw Error("(" + response.status + ") " + response.statusText);
           }
-          result.byteLength = response.headers.get('Content-Length') ?? '';
+          result.byteLength = response.headers.get('Content-Length') || '';
           result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
           result.lastModified = response.headers.get('Last-Modified') || '';
 
@@ -224,7 +220,7 @@
             context.info("arraybuffer.byteLength: " + arrayBuffer.byteLength);
             result.byteArray = new Uint8Array(arrayBuffer);
 
-            result.byteLength = arrayBuffer.byteLength ?? result.byteLength; // TODO: I guess these ain't both header values?
+            result.byteLength = arrayBuffer.byteLength || result.byteLength;
 
           }
           return result;
@@ -292,28 +288,8 @@
     const warningsArr = []; // Messages to show as warnings
     const infosArr = []; // Messages to show as info
 
-    // https://javascript.info/fetch
-    // https://javascript.info/fetch-api
-    // https://javascript.info/fetch-crossorigin
-    // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts // In Firefox, make sure you are using absolute URLs !!!
-
-    // Issues with cross-domain in Chrome: https://www.chromium.org/Home/chromium-security/extension-content-script-fetches
-    // https://www.gmass.co/blog/send-cookie-cross-origin-xmlhttprequest-chrome-extension/ ,
-    // https://blog.danawoodman.com/articles/send-session-cookies-using-a-chrome-extension ?
-    // Access to fetch at 'https://cdn.fstoppers.com/styles/medium/s3/photos/286085/03/13/5398dd4c9fe90a471be6a9099d71eceb.jpg' from origin 'https://fstoppers.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
-    // Future Firefox?: https://bugzilla.mozilla.org/show_bug.cgi?id=1578405 (Deprecate Cross-Origin requests from content scripts ahead of Manifest v3)
-    // Chrome Manifest V2-V3 timeline: https://www.bleepingcomputer.com/news/google/google-manifest-v2-chrome-extensions-to-stop-working-in-2023/
-    // https://developers.google.com/web/updates/2020/07/referrer-policy-new-chrome-default
-    // https://web.dev/referrer-best-practices/
-    // Facebook img referrerPolicy = origin-when-cross-origin
-    // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img
-    // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement
-    // A discussion if moving to backend: https://stackoverflow.com/questions/8593896/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
-
-    // TODO CORS preflighted requests ?! https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests
-
     if (imgrequest.jpegURL) {
-      infosArr.push('Image shown on webpage is in ' + imgrequest.imageType.replace('image/', '') + ' format. Found alternative (assumed similar) ' + (imgrequest.proxyType ? imgrequest.proxyType.replace('image/', '') : '') + ' image to look for meta-data in...');
+      infosArr.push('Image shown on webpage is in ' + imgrequest.imageType.replace('image/', '') + ' format. An alternative image was detected (assumed similar) to look for meta-data in...' + (imgrequest.proxyType ? imgrequest.proxyType.replace('image/', '') : ''));
       propertiesObj.pageShownURL = imgrequest.imageURL;
       propertiesObj.pageShownType = imgrequest.imageType;
       propertiesObj.URL = imgrequest.jpegURL;
