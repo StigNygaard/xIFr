@@ -115,6 +115,30 @@ let keyShortcuts = (function KeyShortcuts() {
   // API:
   return {register};
 })();
+
+/**
+ * Return detected photo-id for a photo embedded from (hosted at) Flickr.
+ * Returns undefined if not embedded from Flickr or photo-id is not detected.
+ * @param {string} imageUrl
+ * @returns {string | undefined}
+ */
+function flickrEmbeddedId(imageUrl) {
+  return (/^https?:\/\/(?:farm|live)\d*\.static\.?flickr\.com\/\d+\/(?<imageId>\d+)_[0-9a-f]{4,}(?:_[a-z0-9]{1,3})?\.[a-z]{3,4}(?:$|\?|#|\/)/iu).exec(imageUrl)?.groups.imageId;
+  // https://www.flickr.com/services/api/misc.urls.html
+}
+
+/**
+ * Return detected (possible) photo-id for a filename that LOOKS LIKE it could be a photo that origins from Flickr.
+ * Otherwise return undefined.
+ * @param {string} imageUrl
+ * @returns {string | undefined}
+ */
+function flickrOriginId(imageUrl) {
+  imageUrl = new URL(imageUrl);
+  let path = imageUrl.pathname;
+  return (/\/(?<imageId>\d+)_[0-9a-f]{4,}_[a-z0-9]{1,3}\.[a-z]{3,4}(?:$|\?|#|\/)/iu).exec(path)?.groups.imageId;
+}
+
 function populate(response) {
   keyShortcuts.register("Escape", function closePopup(){self.close()});
   function thumbsize(fullwidth, fullheight) {
@@ -131,7 +155,7 @@ function populate(response) {
   }
   // console.log('xIFr: POPUP with \n' + JSON.stringify(response));
   if (response.properties.URL) {
-    const image = document.querySelector("#image img");
+    const image = document.querySelector("#thumbnail");
     if (response.properties.naturalWidth) {
       const ts = thumbsize(response.properties.naturalWidth, response.properties.naturalHeight);
       image.style.width = ts.width;
@@ -202,6 +226,18 @@ function populate(response) {
     }
     if (typeof response.properties.naturalWidth === 'number') {
       document.getElementById("dimensions").textContent = response.properties.naturalWidth + "x" + response.properties.naturalHeight + " pixels";
+    }
+    const badge = document.querySelector('#image a');
+    let flickrId = flickrEmbeddedId(image.src);
+    if (flickrId && badge) {
+      badge.href = `https://flickr.com/photo.gne?id=${flickrId}`;
+    } else if (badge?.firstChild) {
+      flickrId = flickrOriginId(image.src);
+      if (flickrId) {
+        badge.href = `https://flickr.com/photo.gne?id=${flickrId}`;
+        badge.firstElementChild.title = 'Filename hints it might originate from Flickr. Click to look for photopage...';
+        badge.firstElementChild.classList.add('gray');
+      }
     }
   }
   function addMessages(list, icon, alt) {
@@ -377,7 +413,7 @@ function populate(response) {
     }, true)
   });
 
-  let img = document.querySelector('#image img');
+  let img = document.querySelector('#image #thumbnail');
   if (img) {
     img.addEventListener('click', displayInPage, true);
   }
@@ -431,7 +467,7 @@ function setup(options) {
     }
   });
   if (options['devClickThumbnailBeta']) {
-    document.querySelector('#image img')?.classList.add('toggleInPage');
+    document.querySelector('#image #thumbnail')?.classList.add('toggleInPage');
   }
   document.getElementById("settings").addEventListener('click', openOptions, true);
   keyShortcuts.register("o", openOptions);
