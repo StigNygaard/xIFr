@@ -109,6 +109,7 @@ body.mapmode img#cpClipboard, body.copyUnsupported img#cpClipboard {
   padding: 0;
 }
 #image, #properties {
+  position: relative;
   margin: 0 0 1ch 0;
   overflow: hidden;
 }
@@ -124,7 +125,7 @@ body.mapmode img#cpClipboard, body.copyUnsupported img#cpClipboard {
   float: left;
   margin-right: 1rem;
 }
-#image > img {
+#image #thumbnail {
   width: auto;
   height: auto;
   max-width: 200px;
@@ -134,6 +135,21 @@ body.mapmode img#cpClipboard, body.copyUnsupported img#cpClipboard {
   padding: 0;
   display: block;
   background-image: url("../icons/background.png");
+}
+#image #flickrlogo {
+  display: none;
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  width: 25px;
+  border-radius: 50%;
+  border: 1px solid #000;
+}
+#image a[href^="https://"] #flickrlogo {
+  display: block;
+}
+#image #flickrlogo.gray {
+  filter: grayscale(100%);
 }
 #messages {
   margin: 1ch 0;
