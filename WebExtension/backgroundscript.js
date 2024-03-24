@@ -24,7 +24,7 @@ browser.runtime.onInstalled.addListener(
     const onboardUrl = new URL(browser.runtime.getURL('boarding/onboard.html'));
     switch (reason) {
       case "update": // "upboarding"
-        if (versionnumber.compare(previousVersion, '2.15.0') < 0) { // Only show "upboarding" if previous version LESS than 2.15.0
+        if (versionnumber.compare(previousVersion, '2.20.0') < 0) { // Only show "upboarding" if previous version LESS than 2.20.0
           if (temporary) upboardUrl.searchParams.set('temporary', temporary);
           upboardUrl.searchParams.set('previousVersion', previousVersion);
           browser.tabs.create({url: upboardUrl.pathname + upboardUrl.search});
