@@ -10,7 +10,10 @@ function init() {
     elm.textContent = currentVersion;
   });
   document.querySelectorAll('.settings').forEach((elm) => {
-    elm.addEventListener('click', () => browser.runtime.openOptionsPage())
+    elm.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      browser.runtime.openOptionsPage();
+    })
   });
   let vboarding = currentVersion;
   if (previousVersion) vboarding += (',' + previousVersion);
