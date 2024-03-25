@@ -6,9 +6,6 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-// import '/lib/mozilla/browser-polyfill.js';
-// import '/context.js';
-
 if (browser.menus?.getTargetElement) { // An easy way to use Firefox extended API while preserving Chrome (and older Firefox) compatibility.
   browser.contextMenus = browser.menus;
 }
