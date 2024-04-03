@@ -389,9 +389,11 @@
 
     context.debug(' *** fetchMode: ' + imgrequest.fetchMode + ' ***');
 
+    const pageHostname = (new URL(imgrequest.baseURI))?.hostname; // TODO ideally check against window.location instead of Node.baseURI ?!?
+    const imgHostname = (new URL(imgrequest.imageURL))?.hostname;
     // TODO: Need to solve the (optional?) file-permissions it seems!?!?
     if ( imgrequest.fetchMode === 'devFrontendFetch' ||
-      imgrequest.fetchMode === 'devAutoFetch' && (propertiesObj.URL.startsWith('blob:') || propertiesObj.URL.startsWith('file:')) ) { // Do frontend fetch...
+      imgrequest.fetchMode === 'devAutoFetch' && ((pageHostname === imgHostname) || propertiesObj.URL.startsWith('data:') || propertiesObj.URL.startsWith('blob:') || propertiesObj.URL.startsWith('file:')) ) { // Do frontend fetch...
       if (imgrequest.fetchMode !== 'devAutoFetch') {
         console.warn(`xIFr: Forced FRONTEND fetch (${imgrequest.fetchMode})`);
       }
@@ -545,7 +547,7 @@
       image.srcset = candidate.srcset;
       image.crossOrigin = candidate.crossOrigin;
       image.referrerPolicy = candidate.referrerPolicy; // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement
-      image.baseURI = candidate.baseURI;
+      image.baseURI = candidate.baseURI; // base URL of the document containing the node (might be set by <base>)
       image.x = candidate.x;
       image.y = candidate.y;
 
