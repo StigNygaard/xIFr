@@ -389,11 +389,10 @@
 
     context.debug(' *** fetchMode: ' + imgrequest.fetchMode + ' ***');
 
-    const pageHostname = (new URL(imgrequest.baseURI))?.hostname; // TODO ideally check against window.location instead of Node.baseURI ?!?
-    const imgHostname = (new URL(imgrequest.imageURL))?.hostname;
-    // TODO: Need to solve the (optional?) file-permissions it seems!?!?
+    const pageOrigin = (new URL(window.location))?.origin;
+    const imgOrigin = (new URL(propertiesObj.URL))?.origin;
     if ( imgrequest.fetchMode === 'devFrontendFetch' ||
-      imgrequest.fetchMode === 'devAutoFetch' && ((pageHostname === imgHostname) || propertiesObj.URL.startsWith('data:') || propertiesObj.URL.startsWith('blob:') || propertiesObj.URL.startsWith('file:')) ) { // Do frontend fetch...
+      imgrequest.fetchMode === 'devAutoFetch' && ((pageOrigin === imgOrigin) || imgOrigin.startsWith('data:') || imgOrigin.startsWith('blob:') || imgOrigin.startsWith('file:')) ) { // Do frontend fetch...
       if (imgrequest.fetchMode !== 'devAutoFetch') {
         console.warn(`xIFr: Forced FRONTEND fetch (${imgrequest.fetchMode})`);
       }
