@@ -76,6 +76,17 @@ function updateAllowsPrivate(allows) { // Allowed to run in private/incognito-mo
 }
 
 function initializeOptionsPage() {
+
+  // Host permissions...
+  renderPermissions();
+  const bt = document.querySelector('#hostPermissionsSettings button');
+  if (bt) {
+    bt.addEventListener('click', requestHostPermissions);
+  }
+  browser.permissions.onAdded.addListener(renderPermissions);
+  browser.permissions.onRemoved.addListener(renderPermissions);
+
+  // Layout/content...
   document.querySelector('div#xIFroptionspage #verstr').textContent = browser.runtime.getManifest().version;
   if (context.isFirefox()) {
     document.body.classList.add("isFirefox");
@@ -98,4 +109,35 @@ function initializeOptionsPage() {
   browser.extension.isAllowedIncognitoAccess().then(updateAllowsPrivate)
 }
 
+function requestHostPermissions(ev) {
+  ev.preventDefault();
+  const permissions = {
+    origins: ["<all_urls>"]
+  };
+  browser.permissions.request(permissions);
+}
+
+async function renderPermissions() {
+  const origins = "<all_urls>";
+  const currentPermissions = await browser.permissions.getAll();
+  const hasOrigins = currentPermissions.origins?.includes(origins);
+  // console.log('JSON permissions: ' + JSON.stringify(currentPermissions));
+  // console.log('Has required origins: ' + hasOrigins);
+  const bt = document?.querySelector('#hostPermissionsSettings button');
+  const hostSettings = document?.getElementById("hostPermissionsSettings");
+  if (hostSettings && bt) {
+    if (hasOrigins) {
+      hostSettings.className = 'fullHostPermissions';
+      bt.disabled = true;
+    } else if (currentPermissions.origins?.length) {
+      hostSettings.className = 'restrictedHostPermissions';
+      bt.disabled = false;
+    } else {
+      hostSettings.className = 'missingHostPermissions';
+      bt.disabled = false;
+    }
+  }
+}
+
 window.addEventListener("DOMContentLoaded", initializeOptionsPage);
+

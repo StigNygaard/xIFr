@@ -79,6 +79,20 @@ body {
 .notFirefox .hideInFirefox {
   display: revert;
 }
+#hostPermissionsSettings.fullHostPermissions .fullHostPermissions,
+#hostPermissionsSettings.restrictedHostPermissions .restrictedHostPermissions,
+#hostPermissionsSettings.missingHostPermissions .missingHostPermissions {
+  display: revert;
+}
+#hostPermissionsSettings.fullHostPermissions .restrictedHostPermissions,
+#hostPermissionsSettings.fullHostPermissions .missingHostPermissions,
+#hostPermissionsSettings.fullHostPermissions .notFullHostPermissions,
+#hostPermissionsSettings.restrictedHostPermissions .fullHostPermissions,
+#hostPermissionsSettings.restrictedHostPermissions .missingHostPermissions,
+#hostPermissionsSettings.missingHostPermissions .fullHostPermissions,
+#hostPermissionsSettings.missingHostPermissions .restrictedHostPermissions {
+  display: none;
+}
 #deepSearchSettings, #developerSettings {
   display: none;
 }

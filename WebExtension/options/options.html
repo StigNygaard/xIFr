@@ -11,6 +11,24 @@
   <img src="../icons/xIFr-256.png" id="logo" alt="xIFr" />
   <p class="tagline smaller aboutlinks"><a href="https://www.rockland.dk/xIFr/" title="About, credits, feedback,...">About xIFr</a> - <a href="https://www.rockland.dk/xIFr/start/" title="A quick introduction to xIFr - including Deep Search">Getting started with xIFr</a></p>
   <form id="xIFroptions">
+    <fieldset id="hostPermissionsSettings" class="fullHostPermissions">
+      <legend>&nbsp;Host permissions&nbsp;</legend>
+      <p>
+        <span class="fullHostPermissions">✅ xIFr has the host-permissions required for full functionality.</span>
+        <span class="restrictedHostPermissions">ℹ️ Host-permissions has been restricted by user. Restricted functionality.</span>
+        <span class="missingHostPermissions">❌ No host-permissions has been granted. xIFr needs access to data from websites to work.</span>
+      </p>
+      <p>
+        <button>Request access to data on all websites</button>
+      </p>
+      <p>
+        Host permissions to websites are required to read data from images - and for the "Deep Search" functionality looking for more images than default found by right-click operations.
+        If wanted, granted permissions can be revoked or restricted <span class="notFullHostPermissions">afterward</span> in browser's extension management pages.
+      </p>
+      <p>
+        xIFr only looks at data needed for the described functionality of the extension. Also see the <a href="https://addons.mozilla.org/firefox/addon/xifr/privacy/">Privacy Policy</a>.
+      </p>
+    </fieldset>
     <fieldset>
       <legend>&nbsp;Display mode&nbsp;</legend>
       <p>
@@ -234,6 +252,6 @@
 
 </div>
 <script src="../context.js"></script>
-<script src="options.js"></script>
+<script src="options.js" type="module"></script>
 </body>
 </html>
