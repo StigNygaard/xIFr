@@ -1,7 +1,7 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "xIFr",
-  "version": "2.22.0",
+  "version": "3.0.0",
   "default_locale": "en",
 
   "description": "__MSG_extensionDescription__",
@@ -19,31 +19,37 @@
     "512": "icons/xIFr-512.png"
   },
 
-  "browser_action" : {
+  "action" : {
 
   },
 
   "browser_specific_settings": {
     "gecko": {
-      "strict_min_version": "115.0",
+      "strict_min_version": "127.0",
       "id": "{5e71bed2-2b15-40b8-a15b-ba89563aaf73}"
     }
   },
-  "minimum_chrome_version": "109.0",
-  "minimum_opera_version": "95.0",
-  "minimum_edge_version": "109.0",
+  "minimum_chrome_version": "121.0",
+  "minimum_opera_version": "107.0",
+  "minimum_edge_version": "121.0",
 
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "permissions": [
-    "<all_urls>",
+    "scripting",
     "contextMenus",
     "menus",
     "storage"
   ],
-  "content_security_policy": "script-src 'self'; object-src 'none'",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'"
+  },
 
   "background": {
-    "scripts": ["lib/mozilla/browser-polyfill.js", "context.js", "backgroundscript.js"],
-    "persistent": false
+    "scripts": ["backgroundscript.js"],
+    "service_worker": "backgroundscript.js",
+    "type": "module"
   },
 
   "options_ui": {

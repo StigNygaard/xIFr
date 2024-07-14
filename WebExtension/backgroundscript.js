@@ -6,9 +6,14 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
+import './context.js';
+
+globalThis.browser ??= chrome;
+
 if (browser.menus?.getTargetElement) { // An easy way to use Firefox extended API while preserving Chrome (and older Firefox) compatibility.
   browser.contextMenus = browser.menus;
 }
+
 context.log(" *** xIFr backgroundscript has (re)started! *** ");
 
 browser.runtime.onInstalled.addListener(
@@ -21,14 +26,28 @@ browser.runtime.onInstalled.addListener(
     const onboardUrl = new URL(browser.runtime.getURL('boarding/onboard.html'));
     switch (reason) {
       case "update": // "upboarding"
-        if (versionnumber.compare(previousVersion, '2.20.0') < 0) { // Only show "upboarding" if previous version LESS than 2.20.0
-          if (temporary) upboardUrl.searchParams.set('temporary', temporary);
+        if (versionnumber.compare(previousVersion, '3.0.0') < 0) { // Only show "upboarding" (and clear old "mv2-sessionStorage") if previous version LESS than 3.0.0...
+          if (temporary) {
+            upboardUrl.searchParams.set('temporary', temporary);
+          }
           upboardUrl.searchParams.set('previousVersion', previousVersion);
-          browser.tabs.create({url: upboardUrl.pathname + upboardUrl.search});
+          browser.storage.local.remove("sessionstorage")
+            .then(function () {
+              console.log("xIFr: Old homemade mv2 sessionStorage was cleared on installation/upgrade!");
+            })
+            .catch((err) => {
+              console.error(`xIFr: Failed clearing old mv2 sessionStorage: ${err}`);
+            })
+            .finally(function () {
+              // Show the "upboarding" window:
+              browser.tabs.create({url: upboardUrl.pathname + upboardUrl.search});
+            });
         }
         break;
       case "install": // "onboarding"
-        if (temporary) onboardUrl.searchParams.set('temporary', temporary);
+        if (temporary) {
+          onboardUrl.searchParams.set('temporary', temporary);
+        }
         onboardUrl.searchParams.set('initialOnboard', '1');
         browser.tabs.create({url: onboardUrl.pathname + onboardUrl.search});
         break;
@@ -37,26 +56,20 @@ browser.runtime.onInstalled.addListener(
 );
 
 browser.runtime.onStartup.addListener(() => {
-  sessionStorage.clear() // Clear any old "sessionStorage" when browser starts... (https://bugzilla.mozilla.org/show_bug.cgi?id=1687778)
-    .then (function() {
-      context.getOptions().then(
-        function (options) {
-          createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement); // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
-          if (options?.initialOnboard === '1') {
-            browser.extension.isAllowedIncognitoAccess().then(
-              function (allowsPrivate) {
-                if (allowsPrivate && context.isFirefox()) {
-                  // Re-show onboarding if risk of was force-closed first time (https://bugzilla.mozilla.org/show_bug.cgi?id=1558336)
-                  browser.tabs.create({url: "boarding/onboard.html?initialOnboard=2"}); // show second time
-                } else {
-                  context.setOption('initialOnboard', 3); // second time not needed
-                }
-              }
-            )
-          }
+  context.getOptions().then(function (options) {
+    // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
+    createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement);
+    if (options?.initialOnboard === '1') {
+      browser.extension.isAllowedIncognitoAccess().then(function (allowsPrivate) {
+        if (allowsPrivate && context.isFirefox()) {
+          // Re-show onboarding if risk of was force-closed first time (https://bugzilla.mozilla.org/show_bug.cgi?id=1558336)
+          browser.tabs.create({url: "boarding/onboard.html?initialOnboard=2"}); // show second time
+        } else {
+          context.setOption('initialOnboard', 3); // second time not needed
         }
-      )
-    });
+      });
+    }
+  });
 });
 
 // Attempt to fix missing menu-item right after an installation where support for use in Private mode was enabled.
@@ -67,12 +80,12 @@ context.getOptions().then(
   }
 );
 
-// MV2. browserAction.onClicked used with "browser_action":{} in manifest.json...
-// https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserAction/onClicked
-browser.browserAction.onClicked.addListener(() => {
+// action.onClicked used with "action":{} in manifest.json...
+// https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/action/onClicked
+browser.action.onClicked.addListener(() => {
   browser.runtime.openOptionsPage();
 });
-browser.browserAction.setTitle({ title: "Open Options-page" });
+browser.action.setTitle({ title: "Open Options-page" });
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "viewexif") {
@@ -88,7 +101,6 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       // console.log(' *** info.frameUrl: ' + info.frameUrl + ' *** ');
       // console.log(' *** info.targetElementId: ' + info.targetElementId + ' *** ');
       const scripts = [
-        "lib/mozilla/browser-polyfill.js", // Browser polyfill to use "promise based API" in Chromium browsers
         "context.js", // Some state and options handling, utility functions
         "stringBundle.js", // Translation handling
         "fxifUtils.js", // Some utility functions
@@ -101,8 +113,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       // For CSS, see: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/insertCSS
 
       if (browser.scripting?.executeScript) {
-        // *** FOR FUTURE USE... - Firefox MV2 or Firefox+Chromium MV3 compatible ***
-        // TODO: Working, but requires "scripting" (or "activeTab") added to manifest permissions!
+        // Requires "scripting" (or "activeTab") included in "permission" of the manifest!
         const scriptsInjecting = browser.scripting.executeScript({
           target: {
             tabId: tab.id,
@@ -119,7 +130,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                 console.error('xIFr: There was an error loading contentscripts: ' + JSON.stringify(values[1]));
                 // TODO: throw?
               }
-              sessionStorage.set("winpop", options.popupPos)
+              browser.storage.session.set({"winpop": options.popupPos})
                 .then(
                   () => {
                     browser.tabs.sendMessage(
@@ -150,7 +161,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
                   }
                 )
                 .catch((err) => {
-                  console.error(`xIFr: sessionStorage or sendMessage(parseImage) error: ${err}`);
+                  console.error(`xIFr: storage.session or sendMessage(parseImage) error: ${err}`);
                 });
             }
           )
@@ -158,50 +169,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
             console.error(`xIFr: Failed getting data or injecting scripts: ${err}`);
           });
       } else {
-        // *** DEPRECATED BUT STILL USED SO FAR - Firefox+Chromium MV2 compatible ***
-        // TODO: Replace this with above use of new Scripting API when moving to MV3
-        const scriptsInjecting = scripts.map(script => {
-          return browser.tabs.executeScript(null, {
-            frameId: info.frameId,
-            file: script
-          });
-        });
-        Promise.all([context.getOptions(), ...scriptsInjecting]).then(
-          (values) => {
-            context.debug("All scripts started from background is ready...");
-            const options = values[0];
-            sessionStorage.set("winpop", options.popupPos)
-              .then(
-                () => {
-                  browser.tabs.sendMessage(
-                    tab.id,
-                    {
-                      message: "parseImage",
-                      imageURL: info.srcUrl,
-                      mediaType: info.mediaType,
-                      targetId: info.targetElementId,
-                      supportsDeepSearch: !!info.targetElementId,  // "deep-search" supported in Firefox 63+
-                      goDeepSearch: !!info.targetElementId && !options.devDisableDeepSearch,
-                      supportsDeepSearchModifier: !!info.modifiers,
-                      deepSearchBigger: !!info.modifiers?.includes("Shift"),
-                      deepSearchBiggerLimit: options.deepSearchBiggerLimit,
-                      fetchMode: options.devFetchMode,
-                      frameId: info.frameId,
-                      frameUrl: info.frameUrl,
-                      tabId: tab.id,
-                      tabUrl: tab.url
-                    }
-                  )
-                  .then ((r) => {
-                    // console.log(`xIFr: ${r}`)
-                  })
-                  .catch((e) => {
-                    console.error('xIFr: Sending parseImage message failed! \n' + e)
-                  });
-                }
-              );
-          }
-        );
+        console.error(`xIFr: Can't run browser.scripting.executeScript. Missing "scripting" or "activeTab" permission?`);
       }
     }
   }
@@ -343,8 +311,8 @@ browser.runtime.onMessage.addListener(
         //  https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Working_with_files#retrieving_stored_images_for_display
       }
       popupData.data = message.data;
-      sessionStorage.set("popupData", popupData).then(() => {
-        sessionStorage.get()
+      browser.storage.session.set({"popupData": popupData}).then(() => {
+        browser.storage.session.get()
           .then(({previous, winpop}) => {
             if (previous?.imgURL && previous.imgURL === message.properties.URL && !message.properties.URL.startsWith('file:')) {
               context.debug("Previous popup was same - Focus to previous if still open...");
@@ -375,10 +343,10 @@ browser.runtime.onMessage.addListener(
 
     } else if (message.message === "popupReady") { // 2nd msg, populate popup
 
-      sessionStorage.get("popupData")
+      browser.storage.session.get("popupData")
         .then (
           function (data) {
-            sendResponse(data);
+            sendResponse(data.popupData);
           }
         );
       return true; // tell it to expect a later response (sent with sendResponse())
@@ -462,6 +430,7 @@ function createPopup(request, popupPos) { // Called when 'EXIFready'
       }
       break;
   }
+  // TODO: Use an object spread instead of Object.assign!? (also elsewhere?...):...
   browser.windows.create(Object.assign(
     {
       url: browser.runtime.getURL("/popup/popup.html"),
@@ -470,7 +439,7 @@ function createPopup(request, popupPos) { // Called when 'EXIFready'
       height: height
     }, pos))
     .then((popwin) => {
-        sessionStorage.set("previous", {"winId": popwin.id, "imgURL": request.properties.URL});
+        browser.storage.session.set({"previous": {"winId": popwin.id, "imgURL": request.properties.URL}});
       }
     );
 }
@@ -497,46 +466,3 @@ function createMenuItem(useDeepSearch) {
     }
   );
 }
-
-// TODO: Firefox 115+ supports storage.session: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/storage/session
-/* Using a custom-built "sessionStorage" to persist the state when background-script is terminated and restarted, */
-/* because Firefox ain't got its own (yet?): https://bugzilla.mozilla.org/show_bug.cgi?id=1687778.                */
-/* (Build on-top of context.setOptions() and context.getOptions() from context.js...)                             */
-let sessionStorage = (function () {
-  let sessionData; // When background-script is restarted sessionData will be (declared but) of undefined value
-  function clear() {
-    sessionData = {}; // Make sessionData (defined as) empty
-    return context.getOptions().then(
-      function (options) {
-        options.sessionstorage = sessionData;
-        return context.setOptions(options); // Persist the cleared sessionData
-      }
-    );
-  }
-  function set(property, value) {
-    return context.getOptions().then(
-      function (options) {
-        sessionData = options.sessionstorage || {};
-        sessionData[property] = value;
-        options.sessionstorage = sessionData;
-        return context.setOptions(options); // Persist updated sessionData
-      }
-    );
-  }
-  function get(property) {
-    if (sessionData) {
-      return Promise.resolve(property ? sessionData[property] : sessionData); // Get "in memory" sessionData
-    }
-    return context.getOptions().then(
-      function (options) {
-        sessionData = options.sessionstorage || {}; // Update "in memory" sessionData from persisted
-        return property ? sessionData[property] : sessionData; // return sessionData
-      }
-    );
-  }
-  return {
-    clear: clear,
-    set: set,
-    get: get
-  }
-})();

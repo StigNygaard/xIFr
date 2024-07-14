@@ -8,6 +8,8 @@
 
 (function() {
 
+  globalThis.browser ??= chrome;
+
   const logDSEARCH = false; // Some logging to console to trace Deep Search steps?
 
   // A map to connect non-jpeg background-images and alternative jpeg-versions found in css image-sets:
@@ -206,7 +208,7 @@
       .then(
         function (response) {
           if (!response.ok) { // !200ish
-            console.error("(" + response.status + ") " + response.statusText);
+            console.error(`Error fetching ${url} :\n ${response.status} - ${response.statusText}`);
           }
           result.byteLength = response.headers.get('Content-Length') || '';
           result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
@@ -221,7 +223,7 @@
             context.debug("Looking at the fetch response (arrayBuffer)...");
             context.info("headers.byteLength: " + result.byteLength);
             context.info("arraybuffer.byteLength: " + arrayBuffer.byteLength);
-            result.byteArray = new Uint8Array(arrayBuffer);
+            result.byteArray = new window.Uint8Array(arrayBuffer);
 
             result.byteLength = arrayBuffer.byteLength || result.byteLength;
 
@@ -309,7 +311,7 @@
         const response = await fetch(result.base64);
         const blob = await response.blob();
         const arrayBuffer = await blob.arrayBuffer();
-        result.byteArray = new Uint8Array(arrayBuffer);
+        result.byteArray = new window.Uint8Array(arrayBuffer); // with or without "window." ?
         delete result.base64;
       } else {
         result.error = browser.i18n.getMessage('fetchImageError');
@@ -418,7 +420,7 @@
           .catch(
             (error) => console.error('xIFr: fetchdata backend fetch - There has been a problem with your fetch operation: ', error.message, error)
           );
-      } else { // Slower JSON serialization algorithm. Supported by both Firefox and Chromium...
+      } else { // Slower JSON serialization algorithm. Supported by Chromium browsers (Also used to work with Firefox, but not anymore with MV3)
         context.debug('fetchdataBase64: Receiving from backend as base64 by the JSON serialization algorithm (The widely supported way, and supported by both Chromium and Firefox)');
         browser.runtime.sendMessage(
           {
@@ -840,9 +842,7 @@
         console.error('xIFr: No image detected in simple search.');
         }
       } else if (request.message === "displayInPage") {
-
-        console.log('xIFr: Received message displayInPage with data ' + JSON.stringify(request.data));
-
+        // console.log('xIFr: Received message displayInPage with data ' + JSON.stringify(request.data));
         let dialog = document.querySelector('dialog#xIFr');
         if (dialog) {
           // remove
