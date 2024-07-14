@@ -125,7 +125,7 @@ let keyShortcuts = (function KeyShortcuts() {
  * @returns {string | undefined}
  */
 function flickrEmbeddedId(imageUrl) {
-  return (/^https?:\/\/(?:farm|live)\d*\.static\.?flickr\.com\/\d+\/(?<imageId>\d+)_[0-9a-f]{4,}(?:_[a-z0-9]{1,3})?\.[a-z]{3,4}(?:$|\?|#|\/)/iu).exec(imageUrl)?.groups.imageId;
+  return (/^https?:\/\/(?:farm|live|c)\d*\.static\.?flickr\.com\/(\d\/)?\d+\/(?<imageId>\d+)_[0-9a-f]{4,}(?:_[a-z0-9]{1,3})?\.[a-z]{3,4}(?:$|\?|#|\/)/iu).exec(imageUrl)?.groups.imageId;
   // https://www.flickr.com/services/api/misc.urls.html
 }
 
