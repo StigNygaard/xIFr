@@ -79,6 +79,12 @@ body {
 .notFirefox .hideInFirefox {
   display: revert;
 }
+#hostPermissionsSettings img.status {
+  display: block;
+  float: right;
+  width: 64px;
+  margin: 0 1rem;
+}
 #hostPermissionsSettings.fullHostPermissions .fullHostPermissions,
 #hostPermissionsSettings.restrictedHostPermissions .restrictedHostPermissions,
 #hostPermissionsSettings.missingHostPermissions .missingHostPermissions {

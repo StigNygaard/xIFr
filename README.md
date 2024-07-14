@@ -25,7 +25,7 @@ img element or not. This is in my opinion the most important feature distinguish
 Also, with Deep Search you can avoid overlayered logos and icons. By shift-clicking when selecting xIFr in browser's
 context-menu, you will force xIFr to look for images larger than a specified size (The size is configurable).
 
-Deep Search is supported in Firefox (63+). You can get a little introduction to xIFr's features, including what
+You can get a little introduction to xIFr's features, including what
 Deep Search does, at [www.rockland.dk/xIFr/start](https://www.rockland.dk/xIFr/start/).
 
 ### Dark Theme support

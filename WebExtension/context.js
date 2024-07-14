@@ -3,9 +3,9 @@ globalThis.context = globalThis.context || (function Context() {
   globalThis.browser ??= chrome;
 
   // Console:
-  const LOG = false; // false
-  const INFO = false; // false
-  const DEBUG = false; // false
+  const LOG = true; // false
+  const INFO = true; // false
+  const DEBUG = true; // false
   const WARN = true;
   const ERROR = true;
   function log(...arg) {

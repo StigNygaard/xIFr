@@ -55,7 +55,8 @@ browser.runtime.onInstalled.addListener(
 
 browser.runtime.onStartup.addListener(() => {
   context.getOptions().then( function (options) {
-    createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement); // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
+    // Try re-define menuitem because of Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=1817287
+    createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement);
     if (options?.initialOnboard === '1') {
       browser.extension.isAllowedIncognitoAccess().then( function (allowsPrivate) {
         if (allowsPrivate && context.isFirefox()) {
@@ -70,7 +71,7 @@ browser.runtime.onStartup.addListener(() => {
 });
 
 // Attempt to fix missing menu-item right after an installation where support for use in Private mode was enabled.
-// Probably https://bugzilla.mozilla.org/show_bug.cgi?id=1771328
+// Probably https://bugzilla.mozilla.org/show_bug.cgi?id=1771328 // TODO: Fixed in 128?
 context.getOptions().then(
   function (options) {
     createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement);
@@ -242,6 +243,7 @@ browser.runtime.onMessage.addListener(
                 context.debug("Looking at the fetch response (arrayBuffer)...");
                 context.info("headers.byteLength: " + result.byteLength);
                 context.info("arraybuffer.byteLength: " + arrayBuffer.byteLength);
+                context.info(" *** Now doing a 'new Uint8Array(arrayBuffer)' in backend! ***")
                 result.byteArray = new Uint8Array(arrayBuffer);
                 result.byteLength = arrayBuffer.byteLength || result.byteLength;
               }
@@ -456,6 +458,7 @@ function createMenuItem(useDeepSearch) {
     },
     () => {
       if (browser.runtime.lastError) {
+        // TODO: Remove this log-line?
         context.log('Menu-item probably already created: ' + browser.runtime.lastError.message);
       } else {
         context.log('Menu-item created.');

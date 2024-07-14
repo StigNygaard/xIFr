@@ -419,7 +419,7 @@ function exifClass() {
    */
   function readCanonExifDir(dataObj, data, dirStart, makerNotesLen) {
     // Canon EXIF tags
-    const TAG_CAMERA_INFO        = 0x000d;
+    const TAG_CAMERA_INFO        = 0x000d;  // https://exiftool.org/TagNames/Canon.html (https://www.dpreview.com/forums/post/67763729)
     const TAG_LENS_MODEL         = 0x0095;
     const TAG_CANON_MODEL_ID     = 0x0010;
 

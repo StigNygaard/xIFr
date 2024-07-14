@@ -12,21 +12,26 @@
   <p class="tagline smaller aboutlinks"><a href="https://www.rockland.dk/xIFr/" title="About, credits, feedback,...">About xIFr</a> - <a href="https://www.rockland.dk/xIFr/start/" title="A quick introduction to xIFr - including Deep Search">Getting started with xIFr</a></p>
   <form id="xIFroptions">
     <fieldset id="hostPermissionsSettings" class="fullHostPermissions">
-      <legend>&nbsp;Host permissions&nbsp;</legend>
+      <legend>&nbsp;'Host permissions' check&nbsp;</legend>
       <p>
-        <span class="fullHostPermissions">✅ xIFr has the host-permissions required for full functionality.</span>
-        <span class="restrictedHostPermissions">ℹ️ Host-permissions has been restricted by user. Restricted functionality.</span>
-        <span class="missingHostPermissions">❌ No host-permissions has been granted. xIFr needs access to data from websites to work.</span>
+        <img src="../icons/check-64.png" alt="[OK]" class="status fullHostPermissions" />
+        <img src="../icons/warn-64.png" alt="[!]" class="status restrictedHostPermissions" />
+        <img src="../icons/error-64.png" alt="[!!]" class="status missingHostPermissions" />
+        <span class="fullHostPermissions">It looks like xIFr has the host-permissions required for full functionality.</span>
+        <span class="restrictedHostPermissions">Host-permissions are restricted by user. Restricted functionality.</span>
+        <span class="missingHostPermissions">No host-permissions has been granted. xIFr needs access to data from
+          websites to fully work (Though, it might still work on <em>some</em> sites and images).</span>
       </p>
       <p>
         <button>Request access to data on all websites</button>
       </p>
       <p>
-        Host permissions to websites are required to read data from images - and for the "Deep Search" functionality looking for more images than default found by right-click operations.
-        If wanted, granted permissions can be revoked or restricted <span class="notFullHostPermissions">afterward</span> in browser's extension management pages.
+        <span class="notFullHostPermissions">If wanted, granted permissions can always be revoked or restricted
+        in browser's extension management pages.</span>
       </p>
       <p>
-        xIFr only looks at data needed for the described functionality of the extension. Also see the <a href="https://addons.mozilla.org/firefox/addon/xifr/privacy/">Privacy Policy</a>.
+        xIFr only processes data needed for the described functionality of the extension.
+        See the <a href="https://addons.mozilla.org/firefox/addon/xifr/privacy/">Privacy Policy</a>.
       </p>
     </fieldset>
     <fieldset>
@@ -127,7 +132,8 @@
           <label for="snapRight">Snap right<b class="ffo up">*</b></label>
         </p>
       </div>
-      <p class="ffo"><b class="up">*</b>In a multi-display setup, these options might not work as intended on all the connected displays.</p>
+      <p class="ffo"><b class="up">*</b>In a multi-display setup, these options might not work as intended on all
+        the connected displays.</p>
     </fieldset>
     <fieldset id="deepSearchSettings">
       <legend>&nbsp;Deep Search&nbsp;</legend>
@@ -139,9 +145,9 @@
         <input type="text" id="deepSearchBiggerLimit" required="required" minlength="2" maxlength="6" size="8" pattern="[1-9]\d+" inputmode="numeric" />
         "squarepixels" big (Equivalent to f.ex: <span id="deepSearchBiggerLimitEx"></span>px).
       </p>
-      <p class="note"><b class="up">*</b>You initiate the "force big" image search by using shift-click to select xIFr in browser's
-        context menu.<span class="hideInFirefox"> NOTE! Sorry, your currently used browser might <u>not</u> support initiating
-        "force big" using shift-click.</span></p>
+      <p class="note"><b class="up">*</b>You initiate the "force big" image search by using shift-click to select xIFr
+        in browser's context menu.<span class="hideInFirefox"> NOTE! Sorry, your currently used browser might <u>not</u>
+        support initiating "force big" using shift-click.</span></p>
     </fieldset>
     <fieldset id="noDeepSearchSettings">
       <legend>&nbsp;Deep Search&nbsp;</legend>
@@ -152,7 +158,8 @@
     </fieldset>
     <fieldset>
       <legend>&nbsp;Map links&nbsp;</legend>
-      <p>Besides the integrated Map tab available for geotagged photos, xIFr can offer links to see position using various map providers.</p>
+      <p>Besides the integrated Map tab available for geotagged photos, xIFr can offer links to see position using
+        various map providers.</p>
       <div class="threeColumns">
         <p>
           <input type="checkbox"
@@ -218,7 +225,7 @@
           <input type="checkbox"
                  id="devClickThumbnailBeta"
                  value="devClickThumbnailBeta"/>
-          <label for="devClickThumbnailBeta">Click thumbnail in popup to toggle prominent display of image "in-page" (beta/preview-feature)</label>
+          <label for="devClickThumbnailBeta">Click thumbnail in popup to toggle prominent display of image "in-page" (experimental feature)</label>
         </p>
       </div>
       <div class="threeColumns">

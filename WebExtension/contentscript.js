@@ -40,7 +40,12 @@
       return retval;
     };
     arr.readByteArray = len => {
-      let retval = arr.subarray(arr.bisOffset, arr.bisOffset + len);
+      let retval;
+      try {
+        retval = arr.subarray(arr.bisOffset, arr.bisOffset + len);
+      } catch (e) {
+        console.error(e);  // Error seen: Permission denied to access property "constructor"!
+      }
       arr.bisOffset += len;
       return retval;
     }
@@ -202,9 +207,10 @@
     return fetch(url, fetchOptions)
       .then(
         function (response) {
-          if (!response.ok) { // 200ish
-            throw Error("(" + response.status + ") " + response.statusText);
+          if (!response.ok) { // !200ish
+            console.error("(" + response.status + ") " + response.statusText);
           }
+          // console.log(`Success fetching ${url} ... `);
           result.byteLength = response.headers.get('Content-Length') || '';
           result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
           result.lastModified = response.headers.get('Last-Modified') || '';
@@ -218,7 +224,7 @@
             context.debug("Looking at the fetch response (arrayBuffer)...");
             context.info("headers.byteLength: " + result.byteLength);
             context.info("arraybuffer.byteLength: " + arrayBuffer.byteLength);
-            result.byteArray = new Uint8Array(arrayBuffer);
+            result.byteArray = new window.Uint8Array(arrayBuffer);
 
             result.byteLength = arrayBuffer.byteLength || result.byteLength;
 
@@ -306,7 +312,7 @@
         const response = await fetch(result.base64);
         const blob = await response.blob();
         const arrayBuffer = await blob.arrayBuffer();
-        result.byteArray = new Uint8Array(arrayBuffer);
+        result.byteArray = new window.Uint8Array(arrayBuffer); // TODO Does this work in Firefox with MV2 ?
         delete result.base64;
       } else {
         result.error = browser.i18n.getMessage('fetchImageError');
@@ -337,7 +343,6 @@
         });
       }
       if (result.byteArray) {
-        // const uint8array = Uint8Array(result.byteArray) //  new Uint8Array(arrayBuffer)
         propertiesObj.byteLength = result.byteLength;
         propertiesObj.contentType = result.contentType;
         propertiesObj.lastModified = result.lastModified;
@@ -416,7 +421,7 @@
           .catch(
             (error) => console.error('xIFr: fetchdata backend fetch - There has been a problem with your fetch operation: ', error.message, error)
           );
-      } else { // Slower JSON serialization algorithm. Supported by both Firefox and Chromium...
+      } else { // Slower JSON serialization algorithm. Supported by Chromium browsers (Also used to work with Firefox, but not anymore with MV3)
         context.debug('fetchdataBase64: Receiving from backend as base64 by the JSON serialization algorithm (The widely supported way, and supported by both Chromium and Firefox)');
         browser.runtime.sendMessage(
           {
