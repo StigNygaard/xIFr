@@ -38,7 +38,12 @@
       return retval;
     };
     arr.readByteArray = len => {
-      let retval = arr.subarray(arr.bisOffset, arr.bisOffset + len);
+      let retval;
+      try {
+        retval = arr.subarray(arr.bisOffset, arr.bisOffset + len);
+      } catch (e) {
+        console.error(e);
+      }
       arr.bisOffset += len;
       return retval;
     }
@@ -200,8 +205,8 @@
     return fetch(url, fetchOptions)
       .then(
         function (response) {
-          if (!response.ok) { // 200ish
-            throw Error("(" + response.status + ") " + response.statusText);
+          if (!response.ok) { // !200ish
+            console.error("(" + response.status + ") " + response.statusText);
           }
           result.byteLength = response.headers.get('Content-Length') || '';
           result.contentType = response.headers.get('Content-Type') || ''; // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
@@ -335,7 +340,6 @@
         });
       }
       if (result.byteArray) {
-        // const uint8array = Uint8Array(result.byteArray) //  new Uint8Array(arrayBuffer)
         propertiesObj.byteLength = result.byteLength;
         propertiesObj.contentType = result.contentType;
         propertiesObj.lastModified = result.lastModified;

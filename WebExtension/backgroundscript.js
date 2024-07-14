@@ -60,7 +60,7 @@ browser.runtime.onStartup.addListener(() => {
 });
 
 // Attempt to fix missing menu-item right after an installation where support for use in Private mode was enabled.
-// Probably https://bugzilla.mozilla.org/show_bug.cgi?id=1771328
+// Probably https://bugzilla.mozilla.org/show_bug.cgi?id=1771328 // TODO: Fixed in 128?
 context.getOptions().then(
   function (options) {
     createMenuItem(!options.devDisableDeepSearch && browser.contextMenus.getTargetElement);
