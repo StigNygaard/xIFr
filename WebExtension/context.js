@@ -3,11 +3,11 @@ globalThis.context = globalThis.context || (function Context() {
   globalThis.browser ??= chrome;
 
   // Console:
-  const LOG = false; // false
-  const INFO = false; // false
-  const DEBUG = false; // false
-  const WARN = true;
   const ERROR = true;
+  const WARN = true;
+  const DEBUG = false; // false
+  const INFO = false; // false
+  const LOG = false; // false
   function log(...arg) {
     if (console && LOG) console.log(...arg);
   }
