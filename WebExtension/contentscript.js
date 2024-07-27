@@ -123,10 +123,9 @@
     extras.concat(Array.from(elem.querySelectorAll('*')))
         .reduce((collection, node) => {
           const cstyle = window.getComputedStyle(node, null);
-          const display = cstyle.getPropertyValue('display');
-          const visibility = cstyle.getPropertyValue('visibility');
           const appleHack = location.hostname.endsWith('.apple.com');
-          if (display !== 'none' && visibility !== 'hidden') {
+          // https://developer.mozilla.org/docs/Web/API/Element/checkVisibility
+          if (node.checkVisibility({contentVisibilityAuto: true, opacityProperty: true, visibilityProperty: true})) {
             let bgimage = cstyle.getPropertyValue('background-image');
             if (bgimage === 'none' && appleHack) {
               // An experimental/temporary(?) site-specific hack for apple.music.com...
@@ -152,10 +151,7 @@
     return Array.from(
       (['image', 'feimage'].includes(elem.nodeName.toLowerCase()) ? [elem] : []).concat(Array.from(elem.querySelectorAll('svg image, svg feImage')))
         .reduce((collection, node) => {
-          const cstyle = window.getComputedStyle(node, null);
-          const display = cstyle.getPropertyValue('display');
-          const visibility = cstyle.getPropertyValue('visibility');
-          if (display !== 'none' && visibility !== 'hidden') {
+          if (node.checkVisibility({contentVisibilityAuto: true, opacityProperty: true, visibilityProperty: true})) {
             if (node.href?.baseVal) {
               collection.add(new URL(node.href.baseVal, node.baseURI).href);
             }
@@ -530,11 +526,8 @@
         context.debug("Found image within target element! img.src=" + img.src + " and naturalWidth=" + img.naturalWidth + ", naturalHeight=" + img.naturalHeight);
         // We could look for best match, or just continue with the first we find?
         context.debug("Candidate!?");
-        const propDisplay = window.getComputedStyle(img, null).getPropertyValue('display'); // none?
-        const propVisibility = window.getComputedStyle(img, null).getPropertyValue('visibility'); // hidden?
-        // TODO: Maybe also look at computed opacity ??!
-        context.debug("PROPs! display=" + propDisplay + ", visibility=" + propVisibility);
-        if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && propDisplay !== 'none' && propVisibility !== 'hidden') {
+        const visible = img.checkVisibility({contentVisibilityAuto: true, opacityProperty: true, visibilityProperty: true});
+        if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && visible) {
           if (!blacklistedImage(img.currentSrc) && ((request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > deepSearchGenericLimit))) {
             if (typeof candidate !== "undefined") {
               context.debug("Compare img with candidate: " + img.naturalWidth * img.naturalHeight + " > " + candidate.naturalWidth * candidate.naturalHeight + "? -  document.images.length = " + document.images.length);
