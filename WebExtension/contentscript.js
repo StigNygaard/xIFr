@@ -440,6 +440,25 @@
 
   }
 
+  function getSelector(elm) // TODO for debugging (and domUtils!?)
+  {
+    if (elm.tagName === "BODY") return "body";
+    const names = [];
+    while (elm.parentElement && elm.tagName !== "BODY") {
+      const elmId = elm.getAttribute("id");
+      if (elmId) {
+        names.unshift(`#${elmId}`);
+        break; // Because ID should be unique, no more is needed.
+      } else {
+        let c = 1, e = elm;
+        for (; e.previousElementSibling; e = e.previousElementSibling, c++);
+        names.unshift(elm.tagName.toLowerCase() + ":nth-child(" + c + ")");
+      }
+      elm = elm.parentElement;
+    }
+    return names.join(">");
+  }
+
   function blacklistedImage(src) { // todo: Make blacklist configurable!
     if (src.startsWith('data:') && (src.length < 500 || !src.startsWith('data:image/'))) {
         console.warn('xIFr: Skipping ' + src);
@@ -450,34 +469,34 @@
       return true; // Apparently we can detect images inserted by other extensions, but we cannot access them
     }
     return [{
-      url: "https://combo.staticflickr.com/ap/build/images/sprites/icons-cc4be245.png",
+      url: "https://combo.staticflickr.com/ap/build/images/sprites/icons-cc4be245", // .png
       regexp: false
     }, {
-      url: "https://combo.staticflickr.com/ap/build/images/fave-test/white@1x.png",
+      url: "https://combo.staticflickr.com/ap/build/images/fave-test/white@1x", // .png
       regexp: false
     }, {
-      url: "https://combo.staticflickr.com/ap/build/images/sprites/icons-87310c47.png",
+      url: "https://combo.staticflickr.com/ap/build/images/sprites/icons-87310c47", // .png
       regexp: false
     }, {
-      url: "https://static.kuula.io/prod/assets/sprites-main.png",
+      url: "https://static.kuula.io/prod/assets/sprites-main", // .png
       regexp: false
     }, {
-      url: "https://m.media-amazon.com/images/G/01/digital/music/player/web/EQ_accent.gif",
+      url: "https://m.media-amazon.com/images/G/01/digital/music/player/web/EQ_accent", // .gif, .webp
       regexp: false
     }, {
-      url: "https://m.media-amazon.com/images/G/01/digital/music/player/web/EQ_accent.webp",
+      url: "https://www.instagram.com/static/bundles/es6/sprite_core_32f0a4f27407.png/32f0a4f27407", // .png
       regexp: false
     }, {
-      url: "https://www.instagram.com/static/bundles/es6/sprite_core_32f0a4f27407.png/32f0a4f27407.png",
+      url: "https://static.xx.fbcdn.net/rsrc.php/v3/yt/r/pQ6WpMqXLJA", // .png
       regexp: false
     }, {
-      url: "https://static.xx.fbcdn.net/rsrc.php/v3/yt/r/pQ6WpMqXLJA.png",
+      url: "https://static.cdninstagram.com/images/instagram/xig_legacy_spritesheets/sprite_core", // .png
       regexp: false
     }, {
-      url: "https://static.cdninstagram.com/images/instagram/xig_legacy_spritesheets/sprite_core.png",
+      url: "https://static.cdninstagram.com/rsrc.php/v3/y5/r/TJztmXpWTmS", // .png
       regexp: false
     }, {
-      url: "https://static.cdninstagram.com/rsrc.php/v3/y5/r/TJztmXpWTmS.png",
+      url: "https://ssl.gstatic.com/gb/images/v1_ff29c1d8", // .png
       regexp: false
     }].some(function (item) {
       return src.startsWith(item.url);
@@ -533,6 +552,7 @@
     }
     if (typeof candidate !== "undefined") {
       context.debug("Found! Let's use best candidate: " + candidate.src);
+      context.debug("- was found at: " + getSelector(candidate));
       const image = {}; // result
       image.imageURL = candidate.currentSrc || candidate.src;
       image.imageType = ''; // so far unknown mimetype
