@@ -63,6 +63,7 @@ browser.runtime.onStartup.addListener(() => {
       browser.extension.isAllowedIncognitoAccess().then(function (allowsPrivate) {
         if (allowsPrivate && context.isFirefox()) {
           // Re-show onboarding if risk of was force-closed first time (https://bugzilla.mozilla.org/show_bug.cgi?id=1558336)
+          // TODO: 1558336 should be fixed in Firefox 129 !
           browser.tabs.create({url: "boarding/onboard.html?initialOnboard=2"}); // show second time
         } else {
           context.setOption('initialOnboard', 3); // second time not needed
