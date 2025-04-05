@@ -26,22 +26,22 @@ browser.runtime.onInstalled.addListener(
     const onboardUrl = new URL(browser.runtime.getURL('boarding/onboard.html'));
     switch (reason) {
       case "update": // "upboarding"
-        if (versionnumber.compare(previousVersion, '3.0.0') < 0) { // Only show "upboarding" (and clear old "mv2-sessionStorage") if previous version LESS than 3.0.0...
-          if (temporary) {
-            upboardUrl.searchParams.set('temporary', temporary);
-          }
-          upboardUrl.searchParams.set('previousVersion', previousVersion);
+        if (versionnumber.compare(previousVersion, '3.0.0') < 0) { // clear old "mv2-sessionStorage" if previous version LESS than 3.0.0...
           browser.storage.local.remove("sessionstorage")
             .then(function () {
               console.log("xIFr: Old homemade mv2 sessionStorage was cleared on installation/upgrade!");
             })
             .catch((err) => {
               console.warn(`xIFr: Failed clearing old mv2 sessionStorage: ${err}`);
-            })
-            .finally(function () {
-              // Show the "upboarding" window:
-              browser.tabs.create({url: upboardUrl.pathname + upboardUrl.search});
             });
+        }
+        if (versionnumber.compare(previousVersion, '3.1.1') < 0) { // Show "upboarding" if previous version LESS than 3.1.1...
+          if (temporary) {
+            upboardUrl.searchParams.set('temporary', temporary);
+          }
+          upboardUrl.searchParams.set('previousVersion', previousVersion);
+          // Show the "upboarding" window:
+          browser.tabs.create({url: upboardUrl.pathname + upboardUrl.search});
         }
         break;
       case "install": // "onboarding"
