@@ -455,7 +455,7 @@
     return names.join(">");
   }
 
-  function blacklistedImage(src) { // todo: Make blacklist configurable!
+  function ignoreImage(src) { // todo: Make ignore-list configurable!
     if (src.startsWith('data:') && (src.length < 500 || !src.startsWith('data:image/'))) {
         console.warn('xIFr: Skipping ' + src);
       // ignore tiny inline data: images - and those that doesn't have some 'image' mimetype
@@ -490,6 +490,9 @@
       regexp: false
     }, {
       url: "https://static.cdninstagram.com/rsrc.php/v3/y5/r/TJztmXpWTmS", // .png
+      regexp: false
+    }, {
+      url: "https://i.ytimg.com/an/dl9r_fgnhNU/video_watermark", // .jpg?v=6706c370
       regexp: false
     }, {
       url: "https://ssl.gstatic.com/gb/images/v1_ff29c1d8", // .png
@@ -528,7 +531,7 @@
         context.debug("Candidate!?");
         const visible = img.checkVisibility({contentVisibilityAuto: true, opacityProperty: true, visibilityProperty: true});
         if (img.naturalWidth && img.nodeName.toUpperCase() === 'IMG' && visible) {
-          if (!blacklistedImage(img.currentSrc) && ((request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > deepSearchGenericLimit))) {
+          if (!ignoreImage(img.currentSrc) && ((request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > request.deepSearchBiggerLimit) || (!request.deepSearchBigger && (img.naturalWidth * img.naturalHeight) > deepSearchGenericLimit))) {
             if (typeof candidate !== "undefined") {
               context.debug("Compare img with candidate: " + img.naturalWidth * img.naturalHeight + " > " + candidate.naturalWidth * candidate.naturalHeight + "? -  document.images.length = " + document.images.length);
               if ((img.naturalWidth * img.naturalHeight) > (candidate.naturalWidth * candidate.naturalHeight)) {
@@ -693,7 +696,7 @@
       context.debug("First extra background (or in SVG) image to check in SORTED list: " + xtrImgURLs[0]);
       for (const xSrc of xtrImgURLs) {
         const imgData = xtrSizes.find(xs => xs.src === xSrc);
-        if (imgData?.width && !blacklistedImage(imgData.src) && ((request.deepSearchBigger && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearchBigger && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
+        if (imgData?.width && !ignoreImage(imgData.src) && ((request.deepSearchBigger && ((imgData.width * imgData.height) > request.deepSearchBiggerLimit)) || (!request.deepSearchBigger && ((imgData.width * imgData.height) > deepSearchGenericLimit)))) {
           const image = {};
           image.imageURL = xSrc;
           image.mediaType = 'image';
