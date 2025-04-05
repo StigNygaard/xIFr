@@ -505,7 +505,7 @@
   },
 
   "fetchImageAbortError": {
-    "message": "Abort - likely timeout - when load image-file for parsing."
+    "message": "Aborted - likely timeout - when load image-file for parsing."
   },
 
   "fetchImageError": {

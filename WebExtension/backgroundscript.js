@@ -36,7 +36,7 @@ browser.runtime.onInstalled.addListener(
               console.log("xIFr: Old homemade mv2 sessionStorage was cleared on installation/upgrade!");
             })
             .catch((err) => {
-              console.error(`xIFr: Failed clearing old mv2 sessionStorage: ${err}`);
+              console.warn(`xIFr: Failed clearing old mv2 sessionStorage: ${err}`);
             })
             .finally(function () {
               // Show the "upboarding" window:
@@ -203,10 +203,10 @@ browser.runtime.onMessage.addListener(
       function fetchdata_error(error) {
         console.error('xIFr: Background ' + message.message + ' error!', error);
         if (error.name === 'TimeoutError' || error.name === 'AbortError') {
-          console.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
+          console.error("xIFr: Aborted - likely timeout - when reading image-data from " + url);
           result.error = browser.i18n.getMessage('fetchImageAbortError');
         } else {
-          console.error("xIFr: fetch-ERROR trying to read image-data from " + url + " : " + error);
+          console.error(`xIFr: fetch-ERROR trying to read image-data from ${url} :\n`, error);
           result.error = browser.i18n.getMessage('fetchImageError');
           result.info = browser.i18n.getMessage('fetchFileWorkAroundInfo');
         }

@@ -163,8 +163,9 @@ function populate(response) {
       image.style.width = ts.width;
       image.style.height = ts.height;
     }
-    image.addEventListener("error", function() {
-      console.error("xIFr: Load image error for " + response.properties.URL)
+    image.addEventListener("error", (ev) => {
+      // TODO if this happens, I should show an error message in popup saying "try to open image via link"...
+      console.error(`xIFr: Load image error for ${response.properties.URL} `, ev);
     });
     image.addEventListener("load", function() {
       response.properties.naturalWidth = image.naturalWidth;

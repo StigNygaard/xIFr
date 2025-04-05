@@ -229,12 +229,12 @@
       )
       .catch(
         function (error) {
-          console.error('xIFr: Error from frontend fetch', error.message, error)
+          console.error('xIFr: Error from frontend fetch', error);
           if (error.name === 'TimeoutError' || error.name === 'AbortError') {
-            console.error("xIFr: Abort - likely timeout - when reading image-data from " + url);
+            console.error(`xIFr: Aborted - likely timeout - when reading image-data from ${url}`);
             result.error = browser.i18n.getMessage('fetchImageAbortError');
           } else {
-            console.error("xIFr: fetch-ERROR trying to read image-data from " + url + " : " + error);
+            console.error(`xIFr: fetch-ERROR trying to read image-data from ${url} :\n`, error);
             result.error = browser.i18n.getMessage('fetchImageError');
             result.info = browser.i18n.getMessage('fetchFileWorkAroundInfo');
           }
@@ -414,7 +414,7 @@
         )
           .then(handleResult)
           .catch(
-            (error) => console.error('xIFr: fetchdata backend fetch - There has been a problem with your fetch operation: ', error.message, error)
+            (error) => console.error('xIFr: fetchdata backend fetch - There has been a problem with your fetch operation: ', error)
           );
       } else { // Slower JSON serialization algorithm. Supported by Chromium browsers (Also used to work with Firefox, but not anymore with MV3)
         context.debug('fetchdataBase64: Receiving from backend as base64 by the JSON serialization algorithm (The widely supported way, and supported by both Chromium and Firefox)');
@@ -428,7 +428,7 @@
           .then(handleBase64Result)
           .then(handleResult)
           .catch(
-            (error) => console.error('xIFr: fetchdataBase64 backend fetch - There has been a problem with your fetch operation: ', error.message, error)
+            (error) => console.error('xIFr: fetchdataBase64 backend fetch - There has been a problem with your fetch operation: ', error)
           );
       }
 
