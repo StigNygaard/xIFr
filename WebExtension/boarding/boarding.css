@@ -19,7 +19,7 @@ img#logo {
 }
 .secondOnboard {
   display: none;
-  background-color: rgb(255, 240, 110);
+  background-color: rgb(255 240 110);
   padding: .1em 1em;
   margin: .5em 0;
   border-radius: 1em;
@@ -61,23 +61,23 @@ table td, table th {
 .new::before {content: url(../icons/new27x14.png);margin:0 6px 0 2px;vertical-align:bottom}
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: rgb(43, 43, 43);
-    color: rgb(220, 220, 220);
-    scrollbar-color: rgb(43, 43, 43) black;
+    background-color: rgb(43 43 43);
+    color: rgb(220 220 220);
+    scrollbar-color: rgb(43 43 43) black;
   }
   .secondOnboard {
-    background-color: rgb(210, 110, 30);
+    background-color: rgb(210 110 30);
   }
   .secondOnboard a, .secondOnboard a:visited {
-    color: rgb(249, 249, 249);
+    color: rgb(249 249 249);
   }
   a, a:hover, a:active, a:visited {
-    color: rgb(69, 161, 255);
+    color: rgb(69 161 255);
   }
   img.settings {
     filter: invert(100%);
   }
   h1, h2, h3, strong {
-    color:  rgb(255, 255, 255);
+    color:  rgb(255 255 255);
   }
 }

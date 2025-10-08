@@ -6,25 +6,25 @@ function init() {
   const currentVersion = versionnumber.validOr(versionnumber.current(), '');
   const previousVersion = versionnumber.validOr((new URL(window.location.href)).searchParams.get('previousVersion'), '');
 
-  document.querySelectorAll('.verstr').forEach((elm) => {
+  for (const elm of document.querySelectorAll('.verstr')) {
     elm.textContent = currentVersion;
-  });
-  document.querySelectorAll('.settings').forEach((elm) => {
+  }
+  for (const elm of document.querySelectorAll('.settings')) {
     elm.addEventListener('click', (ev) => {
       ev.preventDefault();
       browser.runtime.openOptionsPage();
     })
-  });
+  }
   let vboarding = currentVersion;
   if (previousVersion) vboarding += (',' + previousVersion);
-  document.querySelectorAll('.introlink a').forEach((elm) => {
+  for (const elm of document.querySelectorAll('.introlink a')) {
     const url = new URL(elm.href);
     if (context.isFirefox() && (context.firefoxExtId() !== browser.runtime.id) && !browser.runtime.id.endsWith('@temporary-addon')) {
       url.searchParams.set('extid', browser.runtime.id);
     }
     url.searchParams.set(elm.dataset.context, vboarding);
     elm.href = url.href;
-  });
+  }
 
   if (document.querySelector('body.onboard')) {
     // onboarding only...

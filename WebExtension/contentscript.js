@@ -53,7 +53,7 @@
 
   function translateFields(data) {
     const newdata = {};
-    Object.keys(data).forEach(key_v => {
+    for (const key_v of Object.keys(data)) {
       let key = key_v;
       let label = key;
       let val = data[key_v];
@@ -64,7 +64,7 @@
         val = stringBundle.getString(val);
       }
       newdata[key] = {label: label, value: val};
-    });
+    }
     return newdata;
   }
 
@@ -867,7 +867,7 @@
           // insert
           dialog = document.createElement('dialog');
           dialog.setAttribute('id', 'xIFr');
-          dialog.setAttribute('style', 'box-sizing:border-box; max-width:90svw; max-height:90svh; padding:0; margin:auto; border:none; box-shadow: rgba(50, 52, 55, 0.2) 0 6px 18px;overflow:auto;pointer-events:auto;user-select:auto;');
+          dialog.setAttribute('style', 'box-sizing:border-box; max-width:90svw; max-height:90svh; padding:0; margin:auto; border:none; box-shadow: rgb(50 52 55 / 0.2) 0 6px 18px;overflow:auto;pointer-events:auto;user-select:auto;');
           let img = document.createElement('img');
           img.setAttribute('src', request.data.URL);
           img.setAttribute('style', 'padding:0;margin:0;border:none;max-width:90svw;display:block;aspect-ratio:auto;pointer-events:auto;user-select:auto;');

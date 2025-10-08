@@ -23,8 +23,8 @@ function supportsRegexLookAheadLookBehind() {
   try {
     return (
       "hibyehihi"
-        .replace(/(?<=hi)hi/gu, "hello")
-        .replace(/hi(?!bye)/gu, "hey") === "hibyeheyhello"
+        .replaceAll(/(?<=hi)hi/gu, "hello")
+        .replaceAll(/hi(?!bye)/gu, "hey") === "hibyeheyhello"
     );
   } catch (error) {
     return false;
@@ -88,8 +88,8 @@ function formatWithNodeAppendables(s, linesplitter, anchorattributes, emailancho
 // Return "linebreaked and linkified content" as list of DOMStrings and Nodes, to (spread and) insert with ParentNode.append(), ParentNode.replaceChildren() and ChildNode.replaceWith()
 // (Will convert both "symbolic" and real linefeeds to actual <br /> DOM elements)
 function cleanAndFormatWithNodeAppendables(s) { // Needs a better name? :-)
-  s = s.replace(/\x00/gu, ""); // Remove confusing nulls
-  if (s.indexOf("\\r") > -1) {
+  s = s.replaceAll(/\x00/gu, ""); // Remove confusing nulls
+  if (s.includes("\\r")) {
     s = s.split("\\n").join("");
   } else {
     s = s.split("\\n").join("\\r");
@@ -244,11 +244,11 @@ function populate(response) {
     }
   }
   function addMessages(list, icon, alt) {
-    list.forEach(function (item) {
+    for (const item of list) {
       const msg = createRichElement('i', {}, item);
       const sign = createRichElement('img', {src: icon, alt: alt});
       document.getElementById('messages').appendChild(createRichElement('div', {}, sign, ' ', msg));
-    });
+    }
   }
   if (response.errors.length > 0 || response.warnings.length > 0 || response.infos.length > 0) {
     addMessages(response.errors, '/icons/error-7-32w.png', '!');
@@ -260,13 +260,12 @@ function populate(response) {
   function gpsRowClick(event) {
     event.preventDefault();
     document.body.classList.add('expandGps');
-    document.querySelectorAll('.gps.expandable').forEach(
-      function(elm) {
-        const row = elm.parentNode.parentNode;
-        row.removeAttribute('title');
-        row.classList.remove('clickable', 'notice');
-        row.removeEventListener("click", gpsRowClick, {capture: true, once: true});
-      });
+    for (const elm of document.querySelectorAll('.gps.expandable')) {
+      const row = elm.parentNode.parentNode;
+      row.removeAttribute('title');
+      row.classList.remove('clickable', 'notice');
+      row.removeEventListener("click", gpsRowClick, {capture: true, once: true});
+    }
   }
   function softwareRowClick(event) {
     event.preventDefault();
@@ -280,7 +279,9 @@ function populate(response) {
   }
   function listArrayWithNodeAppendables(arr) { // Inserting linebreaks to get one item pr. line
     const ret = [];
-    arr.forEach(function(item) {ret.push(item); ret.push(document.createElement('br'))});
+    for (const item of arr) {
+      ret.push(item, document.createElement('br'))
+    }
     return ret;
   }
   const table = document.getElementById("data");
@@ -389,7 +390,7 @@ function populate(response) {
       const lat = response.data.GPSPureDdLat.value;
       const lon = response.data.GPSPureDdLon.value;
       const lang = browser.i18n.getUILanguage();
-      const titleString = encodeURIComponent('Photo location').replace(/_/gu, ' '); // Used by Bing. Could potentially be filename or title, but underscores means trouble :-/ ...
+      const titleString = encodeURIComponent('Photo location').replaceAll('_', ' '); // Used by Bing. Could potentially be filename or title, but underscores means trouble :-/ ...
       maplinks.appendChild(maplink('Locate on OpenStreetMap', 'OSM', `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}&layers=M`, 'O'));
       maplinks.appendChild(maplink('Locate on Google Maps', 'Google', `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`, 'G'));
       maplinks.appendChild(maplink('Locate on Bing Maps', 'Bing', `https://www.bing.com/maps/?cp=%lat%~%lon%&lvl=16&sp=point.${lat}_${lon}_${titleString}`, 'B'));
@@ -402,7 +403,7 @@ function populate(response) {
     // Disable map-tab
     document.getElementById('maptab').classList.add('disabled');
   }
-  document.querySelectorAll('a').forEach((elem) => {
+  for (const elem of document.querySelectorAll('a')) {
     elem.addEventListener('click', (event) => {
       event.stopPropagation();
       event.preventDefault();
@@ -414,7 +415,7 @@ function populate(response) {
       }
       self.close();
     }, true)
-  });
+  }
 
   let img = document.querySelector('#image #thumbnail');
   if (img) {
@@ -437,12 +438,12 @@ function copyPasteContent() {
   if (rows?.length) {
     document.body.classList.add("copypastemode");
     s += 'IMAGE META DATA\n\n';
-    rows.forEach((row) => {
+    for (const row of rows) {
       const tds = row.getElementsByTagName('td');
       if (tds && tds.length > 1) {
         s += tds[0].innerText + ': ' + tds[1].innerText + '\n';
       }
-    });
+    }
     document.body.classList.remove("copypastemode");
   }
   return s;
@@ -464,11 +465,11 @@ function setup(options) {
     document.body.classList.add("light"); // But also set light if dark wasn't set
   }
   // Enable selected maplinks...
-  ["OSM", "Google", "Bing", "MapQuest", "Here", "Flickr", "GeoHack"].forEach((v) => {
+  for (const v of ["OSM", "Google", "Bing", "MapQuest", "Here", "Flickr", "GeoHack"]) {
     if (options["mlink" + v]) {
       document.body.classList.add("show" + v);
     }
-  });
+  }
   if (options['devClickThumbnailBeta']) {
     document.querySelector('#image #thumbnail')?.classList.add('toggleInPage');
   }

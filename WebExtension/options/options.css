@@ -2,25 +2,25 @@
 /* Dark or Light mode: */
 body.dark {
   background-color: #151515;
-  color: rgb(220, 220, 220);
+  color: rgb(220 220 220);
 }
 body.light {
-  background-color: rgb(248, 248, 248);
-  color: rgb(32, 32, 32);
+  background-color: rgb(248 248 248);
+  color: rgb(32 32 32);
 }
 body.dark form {
-  background-color: rgb(43, 43, 43);
-  color: rgb(220, 220, 220);
+  background-color: rgb(43 43 43);
+  color: rgb(220 220 220);
 }
 body.light form {
-  background-color: rgb(255, 255, 255);
-  color: rgb(32, 32, 32);
+  background-color: rgb(255 255 255);
+  color: rgb(32 32 32);
 }
 body.dark a, body.dark a:hover, body.dark a:active, body.dark a:visited {
-  color: rgb(69, 161, 255);
+  color: rgb(69 161 255);
 }
 body.dark input {
-  background-color: rgb(43, 43, 43);
+  background-color: rgb(43 43 43);
   color: white;
   border: 1px solid white;
 }
@@ -114,7 +114,7 @@ body {
 #xIFroptions {
   padding: .4em;
   border-radius: .4em;
-  box-shadow: rgba(12, 12, 13, 0.1) 0 1px 4px 0;
+  box-shadow: rgb(12 12 13 / 0.1) 0 1px 4px 0;
 }
 #xIFroptions fieldset {
   position: relative;

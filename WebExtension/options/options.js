@@ -14,7 +14,7 @@ function updateDeepSearchSize() {
   const inp = document.getElementById("deepSearchBiggerLimit");
   const out = document.getElementById("deepSearchBiggerLimitEx");
   out.textContent = "";
-  let d = parseInt(inp.value, 10);
+  let d = Number.parseInt(inp.value, 10);
   if (!Number.isNaN(d)) {
     d = Math.sqrt(d);
     if (!Number.isNaN(d)) {
@@ -53,7 +53,7 @@ function saveOptions(e) {
 
 function handlerInitOptionsForm(options) {
   setDisplayMode(options["dispMode"]);
-  [...document.forms[0].elements].forEach((input) => {
+  for (const input of document.forms[0].elements) {
     if (input.type === "radio" && options[input.name] === input.value) {
       input.checked = true;
     } else if (input.type === "checkbox" && options[input.value] !== undefined) {
@@ -61,7 +61,7 @@ function handlerInitOptionsForm(options) {
     } else if (input.type === "text" && options[input.id] !== undefined) {
       input.value = options[input.id];
     }
-  });
+  }
   updateDeepSearchSize();
   document.getElementById("initialOnboard").textContent = options["initialOnboard"];
   document.getElementById("logo").addEventListener("dblclick", function () {
@@ -97,14 +97,14 @@ function initializeOptionsPage() {
   if (context.supportsDeepSearch()) {
     document.body.classList.add("supportsDeepSearch");
   }
-  document.querySelectorAll('.aboutlinks a').forEach((elm) => {
+  for (const elm of document.querySelectorAll('.aboutlinks a')) {
     const url = new URL(elm.href);
     if (context.isFirefox() && (context.firefoxExtId() !== browser.runtime.id) && !browser.runtime.id.endsWith('@temporary-addon')) {
       url.searchParams.set('extid', browser.runtime.id);
     }
     url.searchParams.set('version', browser.runtime.getManifest().version);
     elm.href = url.href;
-  });
+  }
   context.getOptions().then(handlerInitOptionsForm);
   browser.extension.isAllowedIncognitoAccess().then(updateAllowsPrivate)
 }
