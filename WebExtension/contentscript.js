@@ -271,6 +271,9 @@
     propertiesObj.URL = imgrequest.imageURL;
     propertiesObj.crossOrigin = imgrequest.crossOrigin;
     propertiesObj.referrerPolicy = imgrequest.referrerPolicy;
+    if (imgrequest.alt) {
+      propertiesObj.alt = imgrequest.alt;
+    }
     if (imgrequest.naturalWidth) {
       propertiesObj.naturalWidth = imgrequest.naturalWidth;
       propertiesObj.naturalHeight = imgrequest.naturalHeight;
@@ -572,6 +575,7 @@
       image.baseURI = candidate.baseURI; // base URL of the document containing the node (might be set by <base>)
       image.x = candidate.x;
       image.y = candidate.y;
+      image.alt = candidate.alt;
 
       // srcset attribute holds various sizes/resolutions
       // source tag can define alternative formats (but might also hold sizes)
@@ -846,6 +850,7 @@
             image.baseURI = img.baseURI;
             image.x = img.x;
             image.y = img.y;
+            image.alt = img.alt;
           } else {
             // Is it possible to arrive here? I'm not sure, but maybe if right-clicked image is in a shadowDOM?...
             // TODO: If so, maybe: New Image(request.imageURL); load promise -> dimensions ... ???

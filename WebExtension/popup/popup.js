@@ -208,7 +208,7 @@ function populate(response) {
     document.getElementById("filename").textContent = linkProps.name;
     document.getElementById("filename").title = linkProps.title;
     document.getElementById("filename").href = linkProps.url;
-    if (response.properties.pageShownURL) {
+    if (response.properties.pageShownURL) { // if different url for shown image...
       const origLinkProps = linkProperties(response.properties.pageShownURL);
       document.getElementById("orig_filename").textContent = origLinkProps.name;
       document.getElementById("orig_filename").title = origLinkProps.title;
@@ -229,6 +229,11 @@ function populate(response) {
     }
     if (typeof response.properties.naturalWidth === 'number') {
       document.getElementById("dimensions").textContent = response.properties.naturalWidth + "x" + response.properties.naturalHeight + " pixels";
+    }
+    if (response.properties.alt) {
+      document.getElementById("alt_text").textContent = response.properties.alt;
+      document.getElementById("alt_text").title = response.properties.alt;
+      document.getElementById("alt_shown").style.display = 'inline';
     }
     const badge = document.querySelector('#image a');
     let flickrId = flickrEmbeddedId(image.src);

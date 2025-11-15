@@ -121,6 +121,10 @@ body.mapmode img#cpClipboard, body.copyUnsupported img#cpClipboard {
   font-style: italic;
   white-space: nowrap;
 }
+#alt_shown {
+  display: none;
+  white-space: nowrap;
+}
 #image /* , #properties */ {
   float: left;
   margin-right: 1rem;
