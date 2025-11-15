@@ -1,6 +1,7 @@
 globalThis.browser ??= chrome;
 
-function createRichElement(tagName, attributes = {}, ...content) {
+// "createRichElement" - a helper function to create a DOM element with attributes and content.
+function cr(tagName, attributes = {}, ...content) {
   const element = document.createElement(tagName);
   for (const [attr, value] of Object.entries(attributes)) {
     if (value === false) {
@@ -17,8 +18,7 @@ function createRichElement(tagName, attributes = {}, ...content) {
   return element;
 }
 
-// Safari 16.3 doesn't support regexp-lookbehind: https://caniuse.com/js-regexp-lookbehind
-// (But support are on the way in Safari too: https://github.com/WebKit/WebKit/pull/7109)
+// Check if regexp-lookbehind is supported
 function supportsRegexLookAheadLookBehind() {
   try {
     return (
@@ -50,7 +50,7 @@ function linkifyWithNodeAppendables(str, anchorattributes, emailanchorattributes
       webattrib.href = durl.search(/^https?:\/\//u) === -1 ? "http://" + durl : durl;
       const begin = str.substring(0, str.indexOf(durl));
       const end = str.substring(begin.length + durl.length);
-      return [begin, createRichElement('a', webattrib, durl), ...httpLinks(end)]; // (recursive)
+      return [begin, cr('a', webattrib, durl), ...httpLinks(end)]; // (recursive)
     }
   }
   function mailtoAndHttpLinks(str) {
@@ -63,7 +63,7 @@ function linkifyWithNodeAppendables(str, anchorattributes, emailanchorattributes
       emailattrib.href = demail.search(/^mailto:/u) === -1 ? "mailto:" + demail : demail;
       const begin = str.substring(0,str.indexOf(demail));
       const end = str.substring(begin.length + demail.length);
-      return [...httpLinks(begin), createRichElement('a', emailattrib, demail), ...mailtoAndHttpLinks(end)]; // (recursive)
+      return [...httpLinks(begin), cr('a', emailattrib, demail), ...mailtoAndHttpLinks(end)]; // (recursive)
     }
   }
   return mailtoAndHttpLinks(str);
@@ -185,7 +185,7 @@ function populate(response) {
 
 
     function linkProperties(imageUrl) {
-      const linkElem = createRichElement("a", {href: imageUrl});  // TODO: Can we use URL object here instead?
+      const linkElem = cr("a", {href: imageUrl});  // TODO: Can we use URL object here instead?
       let textContent;
       let title = "";
       if (imageUrl.startsWith("data:")) {
@@ -245,9 +245,9 @@ function populate(response) {
   }
   function addMessages(list, icon, alt) {
     for (const item of list) {
-      const msg = createRichElement('i', {}, item);
-      const sign = createRichElement('img', {src: icon, alt: alt});
-      document.getElementById('messages').appendChild(createRichElement('div', {}, sign, ' ', msg));
+      const msg = cr('i', {}, item);
+      const sign = cr('img', {src: icon, alt: alt});
+      document.getElementById('messages').appendChild(cr('div', {}, sign, ' ', msg));
     }
   }
   if (response.errors.length > 0 || response.warnings.length > 0 || response.infos.length > 0) {
@@ -304,18 +304,18 @@ function populate(response) {
       } else if (key_v === "Keywords") {
         row.classList.add('scsv');
       } else if (key_v === 'GPSLat') {
-        value.insertBefore(createRichElement('div', {id: 'maplinks'}), value.firstChild);
-        value.insertAdjacentElement("beforeend", createRichElement('span', {class: 'gps expandable'}, document.createElement('br'), response.data['GPSPureDdLat'].value + " (decimal)"));
+        value.insertBefore(cr('div', {id: 'maplinks'}), value.firstChild);
+        value.appendChild(cr('span', {class: 'gps expandable'}, document.createElement('br'), response.data['GPSPureDdLat'].value + " (decimal)"));
         row.title = "Click for decimal latitude and longitude values";
         row.classList.add('clickable', 'notice');
         row.addEventListener("click", gpsRowClick, {capture: true, once: true});
       } else if (key_v === 'GPSLon') {
-        value.insertAdjacentElement("beforeend", createRichElement('span', {class: 'gps expandable'}, document.createElement('br'), response.data['GPSPureDdLon'].value + " (decimal)"));
+        value.appendChild(cr('span', {class: 'gps expandable'}, document.createElement('br'), response.data['GPSPureDdLon'].value + " (decimal)"));
         row.title = "Click for decimal latitude and longitude values";
         row.addEventListener("click", gpsRowClick, {capture: true, once: true});
         row.classList.add('clickable', 'notice');
       } else if (key_v === "Software" && response.data['AdditionalSoftware']?.value?.length) {
-        value.insertAdjacentElement("afterbegin", createRichElement('span', {class: 'software expandable'}, ...listArrayWithNodeAppendables(response.data['AdditionalSoftware'].value)));
+        value.prepend(cr('span', {class: 'software expandable'}, ...listArrayWithNodeAppendables(response.data['AdditionalSoftware'].value)));
         row.title = "Click for additional software used";
         row.addEventListener("click", softwareRowClick, {capture: true, once: true});
         row.classList.add('clickable', 'notice');
@@ -344,8 +344,8 @@ function populate(response) {
     }
   }
   function maplink(title, className, url, letter) {
-    const link = createRichElement('a', {href: url}, letter);
-    return createRichElement('div', {title: title, class: className}, link);
+    const link = cr('a', {href: url}, letter);
+    return cr('div', {title: title, class: className}, link);
   }
   function displayInPage(event) {
     if (document.querySelector('#image img.toggleInPage')) {

@@ -379,9 +379,8 @@ function xmpClass() {
     }
 
     val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "FocalLengthIn35mmFilm");
-    if (!val)
+    if (!val) {
       // this name is no official one, but written by some applications
-    {
       val = getXMPValue(dom, "http://ns.adobe.com/exif/1.0/", "FocalLengthIn35mmFormat");
     }
     if (val) {

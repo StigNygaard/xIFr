@@ -875,7 +875,7 @@
             img.setAttribute('crossOrigin', request.data.crossOrigin);
           }
           dialog.replaceChildren(img);
-          document.body.insertAdjacentElement('afterbegin', dialog);
+          document.body.prepend(dialog);
           dialog.addEventListener("close", (e) => {dialog.remove();img=null;dialog=null}, {once: true});
           // https://stackoverflow.com/questions/21335136/how-to-re-enable-right-click-so-that-i-can-inspect-html-elements-in-chrome
           function bringBackDefault(event) {
