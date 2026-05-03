@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>xIFr - Image meta data</title>
   <link rel="stylesheet" href="popup.css">
 </head>
@@ -28,7 +29,8 @@
     <div id="messages"></div>
     <table id="data"><colgroup><col class="labels" /><col /></colgroup></table>
   </div>
-  <div id="map"><iframe sandbox="allow-scripts allow-popups" id="osmap" src=""></iframe><br/>&nbsp;<small><a href="#" id="largermap">View Larger Map</a></small></div>
+  <!-- 'allow-same-origin' needed because https://wiki.openstreetmap.org/wiki/Blocked_tiles#Referer_is_required -->
+  <div id="map"><iframe sandbox="allow-scripts allow-popups allow-same-origin" id="osmap" src="" referrerpolicy="strict-origin-when-cross-origin"></iframe><br/>&nbsp;<small><a href="#" id="largermap">View Larger Map</a></small></div>
   <script src="../context.js"></script>
   <script src="popup.js"></script>
 </body>
